@@ -5,16 +5,18 @@ An Assetto Corsa app to view real time tyre and suspension telemetry
 
 The app show on screen real time telemetry of each tyre and suspension individualy. The goal with this app is not to replace the Assetto Corsa built-in apps with theese informations, but to help developing better setups more efficiently.
 
+![Screenshot](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/screenshot.png)
+
 ### Telemetry Info
 
-   - Brake temperature (ºC): don't know, but it's not updating in my game yet.
-   - Suspension height (mm).
-   - Suspension travel (%): gets warning yellow above 80% and danger red above 90% of the maximum and minimum values.
-   - Tyre pressure (psi).
-   - Tyre inner, middle and outter temperatures (ºC).
-   - Tyre load (N).
-   - Tyre wear: bar gets warning yellow below 98% and danger red belo 96%.
-   - Wheel camber (rad).
+   - Brake temperature (ºC): don't know, but it's not updating in my game yet
+   - Suspension height (mm)
+   - Suspension travel (%): gets warning yellow above 80% and danger red above 90% of the maximum and minimum values
+   - Tyre pressure (psi)
+   - Tyre inner, middle and outter temperatures (ºC)
+   - Tyre load (N)
+   - Tyre wear: bar gets warning yellow below 98% and danger red belo 96%
+   - Wheel camber (rad)
 
 ### Resolutions
 
@@ -29,8 +31,16 @@ Each component have a button designed to scale all the components to best fit ea
 ### App Install
 
 First unzip the release content direct on your assetto corsa main folder (C:/Program Files (x86)/steam/steamapps/common/assettocorsa) and load the game.
+
+![Game Menu](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/game-menu.png)
+
 Select the option menu and the general sub menu. In the UI Module section will be listed this app to be checked.
+
+![Session Menu](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/session-menu.png)
+
 Last step is to enter a session and select it on the right app bar to see it on screen.
+
+![App Window](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/app.png)
 
 ## Changelog
 1.0.1
@@ -40,5 +50,9 @@ Last step is to enter a session and select it on the right app bar to see it on 
    - Tyre inner, middle, outer temperatures
    - Fix camber asfalt angle
 
-1.0.0
-   - Everything!
+## Noted Bugs
+
+   - Brake temperatures are not updated
+   - Tyre temperatures are not aligned
+   - Tyre temperatures and pressure have no color
+   - Suspension height weird position
