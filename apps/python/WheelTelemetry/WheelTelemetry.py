@@ -1,3 +1,8 @@
+"""
+Wheel Telemetry App for Assetto Corsa
+v 1.0.1
+https://github.com/albertowd/WheelTelemetry
+"""
 import os
 import platform
 import sys
@@ -43,6 +48,8 @@ def acMain(ac_version):
     ac.addRenderCallback(WHEEL_INFOS["RL"].get_window_id(), on_render_rl)
     ac.addRenderCallback(WHEEL_INFOS["RR"].get_window_id(), on_render_rr)
 
+    log("Success")
+
     return "Wheel Telemetry"
 
 
@@ -60,6 +67,8 @@ def acShutdown():
         pos_x, pos_y = info.get_position()
         configs.set_position(wheel_id, pos_x, pos_y)
     configs.save_config()
+
+    log("Success")
 
 
 def acUpdate(delta_t):
