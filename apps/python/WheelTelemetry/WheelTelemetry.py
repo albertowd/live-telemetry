@@ -9,9 +9,9 @@ os.environ["PATH"] = os.environ["PATH"] + ";."
 
 import ac
 from wcomponents import BoxComponent
-from wlog import log
 from winfo import Info
 from wconfig import Config
+from wutil import log
 
 # Each wheel window
 WHEEL_INFOS = {}

@@ -2,13 +2,49 @@
 """
 Module to update one wheel infos from car and draw on screen.
 """
-import math
 from wconfig import Config
-from wcomponents import BoxComponent, Camber, Dirt, Height, Load, PressureAndTemps, Suspension, Tyre, Wear
+from wcomponents import BoxComponent, Brake, Camber, Dirt, Height, Load, Temps, Suspension, TyreAndPsi, Wear
+from wsim_info import info
+from wutil import log
 import ac
 import acsys
 
-from sim_info import info
+
+class Data(object):
+    def __init__(self):
+        self.brake_t = 0.0
+        self.camber = 0.0
+        self.height = 0.0
+        self.susp_t = 0.0
+        self.tyre_d = 0.0
+        self.tyre_l = 0.0
+        self.tyre_p = 0.0
+        self.tyre_t_i = 0.0
+        self.tyre_t_m = 0.0
+        self.tyre_t_o = 0.0
+        self.tyre_w = 0.0
+
+    def update(self, index, info):
+        self.brake_t = info.physics.brakeTemp[index]
+        self.camber = info.physics.camberRAD[index]
+
+        # um to mm
+        self.height = info.physics.rideHeight[int(index / 2)] * 1000.0
+
+        max_travel = info.static.suspensionMaxTravel[index]
+        max_travel = max_travel if max_travel > 0.0 else 1.0
+        self.susp_t = info.physics.suspensionTravel[index] / max_travel
+        self.tyre_d = info.physics.tyreDirtyLevel[index] * 4.0
+
+        # N to (5*kgf)
+        self.tyre_l = info.physics.wheelLoad[index] / (5.0 * 9.80665)
+        self.tyre_p = info.physics.wheelsPressure[index]
+        self.tyre_t_i = info.physics.tyreTempI[index]
+        self.tyre_t_m = info.physics.tyreTempM[index]
+        self.tyre_t_o = info.physics.tyreTempO[index]
+
+        # Normal to percent
+        self.tyre_w = info.physics.tyreWear[index] / 100.0
 
 
 class Info(object):
@@ -22,14 +58,14 @@ class Info(object):
         configs = Config()
 
         self.__id = Info.indexes[wheel_index]
-        self.__active = configs.is_active(self.__id)
+        self.__active = False
+        self.__data = Data()
         self.__index = wheel_index
+        self.__info = info
         self.__is_left = wheel_index is 0 or wheel_index is 2
-        self.__info = {"camber": 0.0, "dirt": 0.0, "height": 0.0,
-                       "load": 0.0, "pressure": 0.0, "suspension": 0.0, "wear": 0.0}
         self.__window_id = ac.newApp("Wheel Telemetry {}".format(self.__id))
         ac.drawBorder(self.__window_id, 0)
-        ac.setBackgroundOpacity(self.__window_id, 0)
+        ac.drawBackground(self.__window_id, 0)
         ac.setIconPosition(self.__window_id, 0, -10000)
         ac.setTitle(self.__window_id, "")
 
@@ -47,16 +83,20 @@ class Info(object):
 
         self.__components = []
         self.__components.append(
-            PressureAndTemps(resolution, self.__window_id))
+            Temps(resolution, self.__id, self.__window_id))
         self.__components.append(Dirt(resolution))
-        self.__components.append(Tyre(resolution))
+        self.__components.append(TyreAndPsi(resolution, self.__window_id))
 
+        self.__components.append(
+            Brake(resolution, self.__id, self.__window_id))
         self.__components.append(Camber(resolution, self.__id))
         self.__components.append(Suspension(resolution, self.__id))
         self.__components.append(
             Height(resolution, self.__id, self.__window_id))
         self.__components.append(Wear(resolution, self.__id))
         self.__components.append(Load(resolution))
+
+        self.set_active(configs.is_active(self.__id))
 
     def get_id(self):
         """ Returns the whhel id. """
@@ -82,7 +122,9 @@ class Info(object):
         """ Draws all info on screen. """
         ac.setBackgroundOpacity(self.__window_id, 0)
         for component in self.__components:
-            component.draw(self.__info)
+            #log("drawing {}".format(component.__class__.__name__))
+            component.draw(self.__data)
+            # log("drawed")
 
     def resize(self, resolution):
         """ Resizes the window. """
@@ -95,17 +137,5 @@ class Info(object):
         self.__active = active
 
     def update(self):
-        """ Updates the wheel info. """
-        self.__info["camber"] = info.physics.camberRAD[self.__index]
-        self.__info["dirt"] = info.physics.tyreDirtyLevel[self.__index] * 4.0
-        # um to mm
-        self.__info["height"] = info.physics.rideHeight[0 if self.__index <
-                                                        2 else 1] * 1000.0
-        # N to (2*kgf)
-        self.__info["load"] = info.physics.wheelLoad[self.__index] / \
-            (2.0 * 9.80665)
-        self.__info["pressure"] = info.physics.wheelsPressure[self.__index]
-        max_travel = info.static.suspensionMaxTravel[self.__index]
-        max_travel = max_travel if max_travel > 0.0 else 1.0
-        self.__info["suspension"] = info.physics.suspensionTravel[self.__index] / max_travel
-        self.__info["wear"] = info.physics.tyreWear[self.__index]
+        """ Updates the wheel infos. """
+        self.__data.update(self.__index, self.__info)

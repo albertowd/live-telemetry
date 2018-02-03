@@ -6,7 +6,7 @@ import math
 import ac
 import acsys
 from wcolors import Colors
-from wlog import log
+from wutil import log, psi_color, temp_color
 
 
 class Background(object):
@@ -84,6 +84,10 @@ class BoxComponent(object):
         """ Draws the component on the screen. """
         self._back.draw(self._box.rect, texture_id)
 
+    def draw(self, data):
+        """ Draw the component contents after the base. """
+        pass
+
     def resize(self, resolution="HD"):
         """ Resizes the component. """
         mult = BoxComponent.resolution_map[resolution]
@@ -100,6 +104,39 @@ class BoxComponent(object):
         pass
 
 
+class Brake(BoxComponent):
+    """ Class to handle brake draw. """
+
+    texture_id = 0
+
+    def __init__(self, resolution, wheel_id, window_id):
+        is_left = wheel_id[1] == 'L'
+
+        # Initial size is 96x96
+        super(Brake, self).__init__(
+            46.0 if is_left else 370.0, 0.0, 96.0, 96.0)
+        self._back.background = Colors.white
+
+        if Brake.texture_id == 0:
+            Brake.texture_id = ac.newTexture(
+                "apps/python/WheelTelemetry/img/brake.png")
+
+        self.__lb = ac.addLabel(window_id, "- ºC")
+        ac.setFontAlignment(self.__lb, "center")
+
+        self.resize(resolution)
+
+    def draw(self, data):
+        self._draw(Brake.texture_id)
+        ac.setText(self.__lb, "{:3.0f} ºC".format(data.brake_t))
+
+    def resize_fonts(self, resolution):
+        ac.setFontSize(self.__lb, self._font)
+        rect = self._box.rect
+        ac.setPosition(
+            self.__lb, self._box.center[0], rect[1] + rect[3])
+
+
 class Camber(BoxComponent):
     """ Class to handle tyre camber draw. """
 
@@ -112,18 +149,19 @@ class Camber(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, info):
-        """ Draws the camber below the trye. """
+    def draw(self, data):
         rect = self._box.rect
-        camber = info["camber"]
+        camber = data.camber
         tan = math.tan(camber) * rect[2]
+        tan_left = - (tan if camber < 0.0 else 0.0)
+        tan_right = tan if camber > 0.0 else 0.0
 
         ac.glBegin(acsys.GL.Quads)
         ac.glColor4f(*Colors.white)
-        ac.glVertex2f(rect[0], rect[1] - (tan if camber < 0.0 else 0.0))
+        ac.glVertex2f(rect[0], rect[1] + tan_left)
         ac.glVertex2f(rect[0], rect[1] + rect[3])
         ac.glVertex2f(rect[0] + rect[2], rect[1] + rect[3])
-        ac.glVertex2f(rect[0] + rect[2], rect[1] + (tan if camber > 0.0 else 0.0))
+        ac.glVertex2f(rect[0] + rect[2], rect[1] + tan_right)
         ac.glEnd()
 
     def resize_fonts(self, resolution):
@@ -140,9 +178,8 @@ class Dirt(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, info):
-        """ Draws the dirt on the tyre. """
-        dirt = info["dirt"] * self.__mult
+    def draw(self, data):
+        dirt = data.tyre_d * self.__mult
 
         rect = copy.copy(self._box.rect)
         rect[1] += (rect[3] - dirt)
@@ -165,27 +202,26 @@ class Height(BoxComponent):
 
         # Initial size is 64x48
         super(Height, self).__init__(
-            428.0 if is_left else 20.0, 208.0, 64.0, 48.0)
+            20.0 if is_left else 428.0, 208.0, 64.0, 48.0)
         self._back.background = Colors.white
 
         if Height.texture_id == 0:
             Height.texture_id = ac.newTexture(
                 "apps/python/WheelTelemetry/img/height.png")
 
-        self.__lb_height = ac.addLabel(window_id, "- mm")
-        ac.setFontAlignment(self.__lb_height, "center")
+        self.__lb = ac.addLabel(window_id, "- mm")
+        ac.setFontAlignment(self.__lb, "center")
 
         self.resize(resolution)
 
-    def draw(self, info):
-        """ Draws the height. """
+    def draw(self, data):
         self._draw(Height.texture_id)
-        ac.setText(self.__lb_height, "{:03.1f} mm".format(info["height"]))
+        ac.setText(self.__lb, "{:03.1f} mm".format(data.height))
 
     def resize_fonts(self, resolution):
-        ac.setFontSize(self.__lb_height, self._font)
-        ac.setPosition(self.__lb_height,
-                       self._box.center[0], self._box.center[1] - (self._font / 1.25))
+        ac.setFontSize(self.__lb, self._font)
+        ac.setPosition(
+            self.__lb, self._box.center[0], self._box.center[1] - (self._font / 1.25))
 
 
 class Load(BoxComponent):
@@ -204,9 +240,8 @@ class Load(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, info):
-        """ Draws the tyre. """
-        load = info["load"] * self.__mult
+    def draw(self, data):
+        load = data.tyre_l * self.__mult
         load_2 = load / 2.0
         self._box.set_position(
             self._box.center[0] - load_2, self._box.center[1] - load_2)
@@ -215,39 +250,6 @@ class Load(BoxComponent):
 
     def resize_fonts(self, resolution):
         self.__mult = BoxComponent.resolution_map[resolution]
-
-
-class PressureAndTemps(BoxComponent):
-    """ Class to handle tyre pressure and temps draw. """
-
-    def __init__(self, resolution, window_id):
-        # Initial size is 160x256
-        super(PressureAndTemps, self).__init__(176.0, 0.0, 160.0, 256.0)
-
-        self.__lb_pressure_bg = ac.addLabel(window_id, "")
-        ac.setBackgroundColor(self.__lb_pressure_bg, 0, 0, 0)
-        ac.setBackgroundOpacity(self.__lb_pressure_bg, 1)
-
-        self.__lb_pressure = ac.addLabel(window_id, "- psi")
-        ac.setFontAlignment(self.__lb_pressure, "center")
-
-        self.resize(resolution)
-
-    def draw(self, info):
-        """ Draws the pressure and temps. """
-        ac.setText(self.__lb_pressure, "{:03.1f} psi".format(info["pressure"]))
-
-    def resize_fonts(self, resolution):
-        # Initial padding is 12x12
-        pad = 12 * BoxComponent.resolution_map[resolution]
-        ac.setPosition(self.__lb_pressure_bg,
-                       self._box.rect[0] + pad, self._box.rect[1] + pad)
-        ac.setSize(self.__lb_pressure_bg,
-                   self._box.rect[2] - (1.0 * pad), self._box.rect[3] - (2.0 * pad))
-
-        ac.setFontSize(self.__lb_pressure, self._font)
-        ac.setPosition(self.__lb_pressure,
-                       self._box.center[0], self._box.center[1] - (self._font / 2.0))
 
 
 class Suspension(BoxComponent):
@@ -270,9 +272,8 @@ class Suspension(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, info):
-        """ Draws the suspension. """
-        travel = info["suspension"]
+    def draw(self, data):
+        travel = data.susp_t
         if travel > 0.9 or travel < 0.1:
             self._back.background = Colors.red
         if travel > 0.8 or travel < 0.2:
@@ -298,25 +299,108 @@ class Suspension(BoxComponent):
         self.__mult = BoxComponent.resolution_map[resolution]
 
 
-class Tyre(BoxComponent):
-    """ Class to handle tyre draw. """
+class Temps(BoxComponent):
+    """ Class to handle tyre temperatures draw. """
 
-    texture_id = 0
+    def __init__(self, resolution, wheel_id, window_id):
+        self.__is_left = wheel_id[1] == 'L'
 
-    def __init__(self, resolution):
         # Initial size is 160x256
-        super(Tyre, self).__init__(176.0, 0.0, 160.0, 256.0)
-        self._back.background = Colors.white
+        super(Temps, self).__init__(176.0, 0.0, 160.0, 256.0, 16)
 
-        if Tyre.texture_id == 0:
-            Tyre.texture_id = ac.newTexture(
-                "apps/python/WheelTelemetry/img/tyre.png")
+        self.__lb_bg_i = ac.addLabel(window_id, "-\nºC")
+        ac.setBackgroundColor(self.__lb_bg_i, 0.0, 0.0, 0.0)
+        ac.setBackgroundOpacity(self.__lb_bg_i, 1.0)
+
+        self.__lb_bg_m = ac.addLabel(window_id, "-\nºC")
+        ac.setBackgroundColor(self.__lb_bg_m, 0.0, 0.0, 0.0)
+        ac.setBackgroundOpacity(self.__lb_bg_m, 1.0)
+
+        self.__lb_bg_o = ac.addLabel(window_id, "-\nºC")
+        ac.setBackgroundColor(self.__lb_bg_o, 0.0, 0.0, 0.0)
+        ac.setBackgroundOpacity(self.__lb_bg_o, 1.0)
 
         self.resize(resolution)
 
-    def draw(self, info):
+    def draw(self, data):
+        temp = data.tyre_t_i
+        #color = temp_color("Street", temp)
+        # log(color)
+        # ac.glColor4f(*Colors.white)
+        #ac.setBackgroundOpacity(self.__lb_bg_i, color[3])
+        #ac.setBackgroundColor(self.__lb_bg_i, color[0], color[1], color[2])
+        ac.setText(self.__lb_bg_i, "{:3.0f}\nºC".format(temp))
+
+        temp = data.tyre_t_m
+        #color = temp_color("Street", temp)
+        # ac.glColor4f(*Colors.white)
+        #ac.setBackgroundOpacity(self.__lb_bg_m, color[3])
+        #ac.setBackgroundColor(self.__lb_bg_m, color[0], color[1], color[2])
+        ac.setText(self.__lb_bg_m, "{:3.0f}\nºC".format(temp))
+
+        temp = data.tyre_t_o
+        #color = temp_color("Street", temp)
+        # ac.glColor4f(*Colors.white)
+        #ac.setBackgroundOpacity(self.__lb_bg_o, color[3])
+        #ac.setBackgroundColor(self.__lb_bg_o, color[0], color[1], color[2])
+        ac.setText(self.__lb_bg_o, "{:3.0f}\nºC".format(temp))
+
+    def resize_fonts(self, resolution):
+        # Initial padding is 12x12
+        pad = 12 * BoxComponent.resolution_map[resolution]
+        height = self._box.rect[3] - (2.0 * pad)
+        part = (self._box.rect[2] - (2.0 * pad)) / 3.0
+
+        inner = part * (2.0 if self.__is_left else 0.0)
+        outer = part * (0.0 if self.__is_left else 2.0)
+
+        ac.setFontSize(self.__lb_bg_i, self._font)
+        ac.setPosition(
+            self.__lb_bg_i, self._box.rect[0] + pad + inner, self._box.rect[1] + pad)
+        ac.setSize(self.__lb_bg_i, part, height)
+
+        ac.setFontSize(self.__lb_bg_m, self._font)
+        ac.setPosition(
+            self.__lb_bg_m, self._box.rect[0] + pad + part, self._box.rect[1] + pad)
+        ac.setSize(self.__lb_bg_m, part, height)
+
+        ac.setFontSize(self.__lb_bg_o, self._font)
+        ac.setPosition(
+            self.__lb_bg_o, self._box.rect[0] + pad + outer, self._box.rect[1] + pad)
+        ac.setSize(self.__lb_bg_o, part, height)
+
+
+class TyreAndPsi(BoxComponent):
+    """ Class to handle tyre and pressure draw. """
+
+    texture_id = 0
+
+    def __init__(self, resolution, window_id):
+        # Initial size is 160x256
+        super(TyreAndPsi, self).__init__(176.0, 0.0, 160.0, 256.0)
+        self._back.background = Colors.white
+
+        if TyreAndPsi.texture_id == 0:
+            TyreAndPsi.texture_id = ac.newTexture(
+                "apps/python/WheelTelemetry/img/tyre.png")
+
+        self.__lb = ac.addLabel(window_id, "- psi")
+        ac.setFontAlignment(self.__lb, "center")
+
+        self.resize(resolution)
+
+    def draw(self, data):
         """ Draws the tyre. """
-        self._draw(Tyre.texture_id)
+        #log("psi {}".format(data.tyre_p))
+        #color = psi_color("Street", data.tyre_p)
+        #self._back.background = color
+        self._draw(TyreAndPsi.texture_id)
+        ac.setText(self.__lb, "{:03.1f} psi".format(data.tyre_p))
+
+    def resize_fonts(self, resolution):
+        ac.setFontSize(self.__lb, self._font)
+        ac.setPosition(
+            self.__lb, self._box.center[0], self._box.center[1] - (self._font / 2.0))
 
 
 class Wear(BoxComponent):
@@ -335,10 +419,10 @@ class Wear(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, info):
+    def draw(self, data):
         """ Draws the wear. """
         self._draw()
-        wear = info["wear"] / 100.0
+        wear = data.tyre_w
         if wear > 0.98:
             ac.glColor4f(*Colors.green)
         elif wear > 0.96:
