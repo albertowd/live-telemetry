@@ -1,34 +1,7 @@
-"""
-Assetto Corsa shared memory for Python applications
-
-_ctypes.pyd must be somewhere in sys.path, because AC doesn't include all Python binaries.
-
-Usage. Let's say you have following folder structure::
-
-    some_app
-        DLLs
-            _ctypes.pyd
-        some_app.py
-
-some_app.py::
-
-    import os
-    import sys
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'DLLs'))
-
-    from sim_info import info
-
-    print(info.graphics.tyreCompound, info.physics.rpms, info.static.playerNick)
-
-
-Do whatever you want with this code!
-WBR, Rombik :)
-"""
 import mmap
 import functools
 import ctypes
 from ctypes import c_int32, c_float, c_wchar
-
 
 AC_STATUS = c_int32
 AC_OFF = 0
@@ -44,8 +17,6 @@ AC_HOTLAP = 3
 AC_TIME_ATTACK = 4
 AC_DRIFT = 5
 AC_DRAG = 6
-
-# Added on Oct 26, 2015
 AC_FLAG_TYPE = c_int32
 AC_NO_FLAG = 0
 AC_BLUE_FLAG = 1
@@ -54,7 +25,6 @@ AC_BLACK_FLAG = 3
 AC_WHITE_FLAG = 4
 AC_CHECKERED_FLAG = 5
 AC_PENALTY_FLAG = 6
-
 
 class SPageFilePhysics(ctypes.Structure):
     _pack_ = 4
@@ -88,14 +58,39 @@ class SPageFilePhysics(ctypes.Structure):
         ('numberOfTyresOut', c_int32),
         ('pitLimiterOn', c_int32),
         ('abs', c_float),
-
-        # Added on Oct 26, 2015
         ('kersCharge', c_float),
         ('kersInput', c_float),
         ('autoShifterOn', c_int32),
         ('rideHeight', c_float * 2),
+		('turboBoost', c_float),
+		('ballast', c_float),
+		('airDensity', c_float),
+		('airTemp', c_float),
+		('roadTemp', c_float),
+		('localAngularVel', c_float * 3),
+        ('finalFF', c_float),
+		('performanceMeter', c_float),
+		('engineBrake', c_int32),
+		('ersRecoveryLevel', c_int32),
+		('ersPowerLevel', c_int32),
+		('ersHeatCharging', c_int32),
+		('ersIsCharging', c_int32),
+		('kersCurrentKJ', c_float),
+		('drsAvailable', c_int32),
+		('drsEnabled', c_int32),
+		('brakeTemp', c_float * 4),
+		('clutch', c_float),
+		('tyreTempI', c_float * 4),
+        ('tyreTempM', c_float * 4),
+        ('tyreTempO', c_float * 4),
+		('isAIControlled', c_int32),
+		('tyreContactPoint', c_float * 4 * 3),
+		('tyreContactNormal', c_float * 4 * 3),
+		('tyreContactHeading', c_float * 4 * 3),
+		('brakeBias', c_float),
+		('localVelocity', c_float * 3),
+		
     ]
-
 
 class SPageFileGraphic(ctypes.Structure):
     _pack_ = 4
@@ -119,24 +114,25 @@ class SPageFileGraphic(ctypes.Structure):
         ('lastSectorTime', c_int32),
         ('numberOfLaps', c_int32),
         ('tyreCompound', c_wchar * 33),
-
         ('replayTimeMultiplier', c_float),
         ('normalizedCarPosition', c_float),
         ('carCoordinates', c_float * 3),
-
-        # Added on Oct 26, 2015
         ('penaltyTime', c_float),
         ('flag', AC_FLAG_TYPE),
         ('idealLineOn', c_int32),
+		('isInPitLine', c_int32),
+		('surfaceGrip', c_float),
+		('mandatoryPitDone', c_int32),
+		('windSpeed', c_float),
+		('windDirection', c_float),
+		
     ]
-
 
 class SPageFileStatic(ctypes.Structure):
     _pack_ = 4
     _fields_ = [
         ('_smVersion', c_wchar * 15),
         ('_acVersion', c_wchar * 15),
-        # session static info
         ('numberOfSessions', c_int32),
         ('numCars', c_int32),
         ('carModel', c_wchar * 33),
@@ -145,16 +141,40 @@ class SPageFileStatic(ctypes.Structure):
         ('playerSurname', c_wchar * 33),
         ('playerNick', c_wchar * 33),
         ('sectorCount', c_int32),
-
-        # car static info
         ('maxTorque', c_float),
         ('maxPower', c_float),
         ('maxRpm', c_int32),
         ('maxFuel', c_float),
         ('suspensionMaxTravel', c_float * 4),
         ('tyreRadius', c_float * 4),
+		('maxTurboBoost', c_float),
+		('airTemp', c_float),
+		('roadTemp', c_float),
+		('penaltiesEnabled', c_int32),
+		('aidFuelRate', c_float),
+		('aidTireRate', c_float),
+		('aidMechanicalDamage', c_float),
+		('aidAllowTyreBlankets', c_int32),
+		('aidStability', c_float),
+		('aidAutoClutch', c_int32),
+		('aidAutoBlip', c_int32),
+		('hasDRS', c_int32),
+		('hasERS', c_int32),
+		('hasKERS', c_int32),
+		('kersMaxJ', c_float),
+		('engineBrakeSettingsCount', c_int32),
+		('ersPowerControllerCount', c_int32),
+		('trackSPlineLength', c_float),
+		('trackConfiguration', c_wchar * 33),
+		('ersMaxJ', c_float),
+		('isTimedRace', c_int32),
+		('hasExtraLap', c_int32),
+		('carSkin', c_wchar * 33),
+		('reversedGridPositions', c_int32),
+		('pitWindowStart', c_int32),
+		('pitWindowEnd', c_int32),
+		
     ]
-
 
 class SimInfo:
     def __init__(self):
@@ -175,7 +195,6 @@ class SimInfo:
 
 info = SimInfo()
 
-
 def demo():
     import time
 
@@ -183,7 +202,6 @@ def demo():
         print(info.static.track, info.graphics.tyreCompound, info.graphics.currentTime,
               info.physics.rpms, info.graphics.currentTime, info.static.maxRpm, list(info.physics.tyreWear))
         time.sleep(0.1)
-
 
 def do_test():
     for struct in info.static, info.graphics, info.physics:
@@ -193,7 +211,6 @@ def do_test():
             if not isinstance(value, (str, float, int)):
                 value = list(value)
             print(" {} -> {} {}".format(field, type(value), value))
-
 
 if __name__ == '__main__':
     do_test()
