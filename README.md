@@ -39,5 +39,6 @@ Last step is to enter a session and select it on the right app bar to see it on 
    - Brake temperatures (not working in AC yet)
    - Tyre inner, middle, outer temperatures
    - Fix camber asfalt angle
+
 1.0.0
-Everything!
+   - Everything!

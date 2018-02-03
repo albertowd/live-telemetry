@@ -1,3 +1,8 @@
+"""
+Wheel Telemetry App for Assetto Corsa
+v 1.0.1
+https://github.com/albertowd/WheelTelemetry
+"""
 import os
 import platform
 import sys
