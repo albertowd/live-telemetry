@@ -11,7 +11,7 @@ import ac
 from wcomponents import BoxComponent
 from wlog import log
 from winfo import Info
-import wconfig
+from wconfig import Config
 
 # Each wheel window
 WHEEL_INFOS = {}
@@ -20,7 +20,6 @@ WHEEL_INFOS = {}
 def acMain(ac_version):
     """ Setups the app. """
     log("Starting Wheel Telemetry on AC Python API version {}...".format(ac_version))
-    wconfig.load_config()
 
     global WHEEL_INFOS
     for index in range(4):
@@ -51,14 +50,16 @@ def acShutdown():
     """ Called when the session ends (or restarts). """
     log("Shuting down Wheel Telemetry...")
 
+    configs = Config()
     global WHEEL_INFOS
+
     for wheel_id in WHEEL_INFOS:
         info = WHEEL_INFOS[wheel_id]
-        wconfig.set_active(wheel_id, info.is_active())
+        configs.set_active(wheel_id, info.is_active())
         info.set_active(False)
         pos_x, pos_y = info.get_position()
-        wconfig.set_position(wheel_id, pos_x, pos_y)
-    wconfig.save_config()
+        configs.set_position(wheel_id, pos_x, pos_y)
+    configs.save_config()
 
 
 def acUpdate(delta_t):
