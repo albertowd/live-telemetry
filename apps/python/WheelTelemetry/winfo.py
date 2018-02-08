@@ -5,12 +5,12 @@ Module to update one wheel infos from car and draw on screen.
 from wconfig import Config
 from wcomponents import BoxComponent, Brake, Camber, Dirt, Height, Load, Temps, Suspension, TyreAndPsi, Wear
 from wsim_info import info
-from wutil import log
 import ac
 import acsys
 
 
 class Data(object):
+
     def __init__(self):
         self.brake_t = 0.0
         self.camber = 0.0
@@ -122,9 +122,7 @@ class Info(object):
         """ Draws all info on screen. """
         ac.setBackgroundOpacity(self.__window_id, 0)
         for component in self.__components:
-            #log("drawing {}".format(component.__class__.__name__))
             component.draw(self.__data)
-            # log("drawed")
 
     def resize(self, resolution):
         """ Resizes the window. """

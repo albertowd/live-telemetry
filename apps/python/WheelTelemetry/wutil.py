@@ -10,12 +10,6 @@ def color_interpolate(c_1, c_2, perc):
     c_g = c_1[1] + (c_2[1] - c_1[1]) * perc
     c_b = c_1[2] + (c_2[2] - c_1[2]) * perc
     c_a = c_1[3] + (c_2[3] - c_1[3]) * perc
-    #if log:
-    #    log("interpol")
-    #    log(c_1)
-    #    log(c_2)
-    #    log(perc)
-    #    log([c_r, c_g, c_b, c_a])
     return [c_r, c_g, c_b, c_a]
 
 def psi_color(compound, psi):

@@ -1,5 +1,4 @@
 import mmap
-import functools
 import ctypes
 from ctypes import c_int32, c_float, c_wchar
 
@@ -25,6 +24,7 @@ AC_BLACK_FLAG = 3
 AC_WHITE_FLAG = 4
 AC_CHECKERED_FLAG = 5
 AC_PENALTY_FLAG = 6
+
 
 class SPageFilePhysics(ctypes.Structure):
     _pack_ = 4
@@ -92,6 +92,7 @@ class SPageFilePhysics(ctypes.Structure):
 		
     ]
 
+
 class SPageFileGraphic(ctypes.Structure):
     _pack_ = 4
     _fields_ = [
@@ -127,6 +128,7 @@ class SPageFileGraphic(ctypes.Structure):
 		('windDirection', c_float),
 		
     ]
+
 
 class SPageFileStatic(ctypes.Structure):
     _pack_ = 4
@@ -176,7 +178,9 @@ class SPageFileStatic(ctypes.Structure):
 		
     ]
 
+
 class SimInfo:
+
     def __init__(self):
         self._acpmf_physics = mmap.mmap(0, ctypes.sizeof(SPageFilePhysics), "acpmf_physics")
         self._acpmf_graphics = mmap.mmap(0, ctypes.sizeof(SPageFileGraphic), "acpmf_graphics")
@@ -193,7 +197,9 @@ class SimInfo:
     def __del__(self):
         self.close()
 
+
 info = SimInfo()
+
 
 def demo():
     import time
@@ -203,6 +209,7 @@ def demo():
               info.physics.rpms, info.graphics.currentTime, info.static.maxRpm, list(info.physics.tyreWear))
         time.sleep(0.1)
 
+
 def do_test():
     for struct in info.static, info.graphics, info.physics:
         print(struct.__class__.__name__)
@@ -211,6 +218,7 @@ def do_test():
             if not isinstance(value, (str, float, int)):
                 value = list(value)
             print(" {} -> {} {}".format(field, type(value), value))
+
 
 if __name__ == '__main__':
     do_test()
