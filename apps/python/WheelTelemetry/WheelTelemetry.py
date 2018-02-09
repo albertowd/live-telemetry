@@ -1,6 +1,6 @@
 """
 Wheel Telemetry App for Assetto Corsa
-v 1.0.1
+v 1.1
 https://github.com/albertowd/WheelTelemetry
 """
 import os
@@ -26,27 +26,26 @@ def acMain(ac_version):
     """ Setups the app. """
     log("Starting Wheel Telemetry on AC Python API version {}...".format(ac_version))
 
-    global WHEEL_INFOS
-    for index in range(4):
-        info = Info(index)
-        window_id = info.get_window_id()
-        ac.addOnAppActivatedListener(window_id, on_activation)
-        ac.addOnAppDismissedListener(window_id, on_dismiss)
-        WHEEL_INFOS[info.get_id()] = info
+    try:
+        global WHEEL_INFOS
+        for index in range(4):
+            info = Info(index)
+            window_id = info.get_window_id()
+            ac.addOnAppActivatedListener(window_id, on_activation)
+            ac.addOnAppDismissedListener(window_id, on_dismiss)
+            WHEEL_INFOS[info.get_id()] = info
 
-    ac.addOnClickedListener(
-        WHEEL_INFOS["FL"].get_button_id(), on_click_resolution)
-    ac.addOnClickedListener(
-        WHEEL_INFOS["FR"].get_button_id(), on_click_resolution)
-    ac.addOnClickedListener(
-        WHEEL_INFOS["RL"].get_button_id(), on_click_resolution)
-    ac.addOnClickedListener(
-        WHEEL_INFOS["RR"].get_button_id(), on_click_resolution)
-
-    ac.addRenderCallback(WHEEL_INFOS["FL"].get_window_id(), on_render_fl)
-    ac.addRenderCallback(WHEEL_INFOS["FR"].get_window_id(), on_render_fr)
-    ac.addRenderCallback(WHEEL_INFOS["RL"].get_window_id(), on_render_rl)
-    ac.addRenderCallback(WHEEL_INFOS["RR"].get_window_id(), on_render_rr)
+        ac.addOnClickedListener(WHEEL_INFOS["FL"].get_button_id(), on_click_resolution)
+        ac.addOnClickedListener(WHEEL_INFOS["FR"].get_button_id(), on_click_resolution)
+        ac.addOnClickedListener(WHEEL_INFOS["RL"].get_button_id(), on_click_resolution)
+        ac.addOnClickedListener(WHEEL_INFOS["RR"].get_button_id(), on_click_resolution)
+    
+        ac.addRenderCallback(WHEEL_INFOS["FL"].get_window_id(), on_render_fl)
+        ac.addRenderCallback(WHEEL_INFOS["FR"].get_window_id(), on_render_fr)
+        ac.addRenderCallback(WHEEL_INFOS["RL"].get_window_id(), on_render_rl)
+        ac.addRenderCallback(WHEEL_INFOS["RR"].get_window_id(), on_render_rr)
+    except:
+            log(sys.exc_info()[0])
 
     log("Success")
 

@@ -4,6 +4,7 @@ Module to keep some util functions.
 import ac
 from wcolors import Colors
 
+
 def color_interpolate(c_1, c_2, perc):
     """ Interpolate between two colors. """
     c_r = c_1[0] + (c_2[0] - c_1[0]) * perc
@@ -12,42 +13,39 @@ def color_interpolate(c_1, c_2, perc):
     c_a = c_1[3] + (c_2[3] - c_1[3]) * perc
     return [c_r, c_g, c_b, c_a]
 
-def psi_color(compound, psi):
+
+def psi_color(compound, is_front, psi):
     """ Calc pressure color. """
     color = Colors.red
+    ref = 29.0
+    perc = psi / ref
     if compound is "Street":
-        if psi < 21.0:
+        if perc < 0.85:
             color = Colors.blue
-        elif psi < 23.0:
-            color = color_interpolate(Colors.blue, Colors.green, (psi - 21.0) / 2.0)
-        elif psi < 25.0:
+        elif perc < 0.95:
+            color = color_interpolate(Colors.blue, Colors.green, (perc - 0.85) / 0.1)
+        elif perc < 1.05:
             color = Colors.green
-        elif psi < 27.0:
-            color = color_interpolate(Colors.green, Colors.red, (psi - 25.0) / 2.0)
+        elif perc < 1.15:
+            color = color_interpolate(Colors.green, Colors.red, (perc - 1.05) / 0.1)
     return color
 
-def temp_color(compound, temp):
+
+def temp_color(compound, is_front, temp):
     """ Calc tyre temperature color. """
     color = Colors.red
     if compound is "Street":
-        if temp < 65.0:
+        if temp < 40.0:
             color = Colors.blue
         elif temp < 75.0:
-            color = color_interpolate(Colors.blue, Colors.green, (temp - 65.0) / 10.0)
-        elif temp < 85.0:
+            color = color_interpolate(Colors.blue, Colors.green, (temp - 40.0) / 35.0)
+        elif temp < 110.0:
             color = Colors.green
-        elif temp < 95.0:
-            color = color_interpolate(Colors.green, Colors.red, (temp - 85.0) / 10.0)
-    elif compound is "Semi Slick":
-        pass
-    elif compound is "Slick Soft":
-        pass
-    elif compound is "Slick Medium":
-        pass
-    elif compound is "Slick Hard":
-        pass
+        elif temp < 140.0:
+            color = color_interpolate(Colors.green, Colors.red, (temp - 110.0) / 30.0)
 
     return color
+
 
 def log(message, console=True, app_log=True):
     """ Logs a message on the log and console. """

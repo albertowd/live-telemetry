@@ -18,11 +18,8 @@ class Config(object):
         if os.path.isfile("apps/python/WheelTelemetry/cfg.ini"):
             Config.__configs.read("apps/python/WheelTelemetry/cfg.ini")
         else:
-            Config.__configs["Windows"] = {
-                "FL": "False", "FR": "False", "RL": "False", "RR": "False", "SIZE": "HD"}
-            Config.__configs["Positions"] = {"FL_x": "100", "FL_y": "100", "FR_x": "668",
-                                             "FR_y": "100", "RL_x": "100", "RL_y": "364",
-                                             "RR_x": "668", "RR_y": "364"}
+            Config.__configs["Windows"] = { "FL": "False", "FR": "False", "RL": "False", "RR": "False", "SIZE": "HD"}
+            Config.__configs["Positions"] = {"FL_x": "100", "FL_y": "100", "FR_x": "668", "FR_y": "100", "RL_x": "100", "RL_y": "364", "RR_x": "668", "RR_y": "364"}
 
     def get_resolution(self):
         """ Returns the windows resolution. """

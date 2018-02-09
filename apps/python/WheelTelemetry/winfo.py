@@ -2,8 +2,9 @@
 """
 Module to update one wheel infos from car and draw on screen.
 """
+from wcolors import Colors
 from wconfig import Config
-from wcomponents import BoxComponent, Brake, Camber, Dirt, Height, Load, Temps, Suspension, TyreAndPsi, Wear
+from wcomponents import BoxComponent, Brake, Camber, Dirt, Height, Load, Pressure, Temps, Suspension, Tyre, Wear
 from wsim_info import info
 import ac
 import acsys
@@ -19,6 +20,7 @@ class Data(object):
         self.tyre_d = 0.0
         self.tyre_l = 0.0
         self.tyre_p = 0.0
+        self.tyre_t_c = 0.0
         self.tyre_t_i = 0.0
         self.tyre_t_m = 0.0
         self.tyre_t_o = 0.0
@@ -39,6 +41,7 @@ class Data(object):
         # N to (5*kgf)
         self.tyre_l = info.physics.wheelLoad[index] / (5.0 * 9.80665)
         self.tyre_p = info.physics.wheelsPressure[index]
+        self.tyre_t_c = info.physics.tyreCoreTemperature[index]
         self.tyre_t_i = info.physics.tyreTempI[index]
         self.tyre_t_m = info.physics.tyreTempM[index]
         self.tyre_t_o = info.physics.tyreTempO[index]
@@ -82,17 +85,15 @@ class Info(object):
         ac.setFontAlignment(self.__bt_resolution, "center")
 
         self.__components = []
-        self.__components.append(
-            Temps(resolution, self.__id, self.__window_id))
+        self.__components.append(Temps(resolution, self.__id, self.__window_id))
         self.__components.append(Dirt(resolution))
-        self.__components.append(TyreAndPsi(resolution, self.__window_id))
+        self.__components.append(Tyre(resolution))
 
-        self.__components.append(
-            Brake(resolution, self.__id, self.__window_id))
+        self.__components.append(Brake(resolution, self.__id, self.__window_id))
         self.__components.append(Camber(resolution, self.__id))
         self.__components.append(Suspension(resolution, self.__id))
-        self.__components.append(
-            Height(resolution, self.__id, self.__window_id))
+        self.__components.append(Height(resolution, self.__id, self.__window_id))
+        self.__components.append(Pressure(resolution, self.__id, self.__window_id))
         self.__components.append(Wear(resolution, self.__id))
         self.__components.append(Load(resolution))
 
@@ -121,8 +122,10 @@ class Info(object):
     def draw(self):
         """ Draws all info on screen. """
         ac.setBackgroundOpacity(self.__window_id, 0)
+        ac.glColor4f(*Colors.white)
         for component in self.__components:
             component.draw(self.__data)
+        ac.glColor4f(*Colors.white)
 
     def resize(self, resolution):
         """ Resizes the window. """
@@ -136,4 +139,5 @@ class Info(object):
 
     def update(self):
         """ Updates the wheel infos. """
+        ac.glColor4f(*Colors.white)
         self.__data.update(self.__index, self.__info)
