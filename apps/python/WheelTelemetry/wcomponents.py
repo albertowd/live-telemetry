@@ -346,14 +346,17 @@ class Temps(BoxComponent):
         self.__lb_bg_i = ac.addLabel(window_id, "")
         ac.setBackgroundColor(self.__lb_bg_i, 0.0, 0.0, 0.0)
         ac.setBackgroundOpacity(self.__lb_bg_i, 1.0)
+        ac.setFontAlignment(self.__lb_bg_i, "center")
 
         self.__lb_bg_m = ac.addLabel(window_id, "")
         ac.setBackgroundColor(self.__lb_bg_m, 0.0, 0.0, 0.0)
         ac.setBackgroundOpacity(self.__lb_bg_m, 1.0)
+        ac.setFontAlignment(self.__lb_bg_m, "center")
 
         self.__lb_bg_o = ac.addLabel(window_id, "")
         ac.setBackgroundColor(self.__lb_bg_o, 0.0, 0.0, 0.0)
         ac.setBackgroundOpacity(self.__lb_bg_o, 1.0)
+        ac.setFontAlignment(self.__lb_bg_o, "center")
         
         self.__lb_c = ac.addLabel(window_id, "- ºC")
         ac.setFontAlignment(self.__lb_c, "center")
