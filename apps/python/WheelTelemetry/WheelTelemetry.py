@@ -1,29 +1,34 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Wheel Telemetry App for Assetto Corsa
 v 1.1
 https://github.com/albertowd/WheelTelemetry
+@author: albertowd
 """
 import os
 import platform
 import sys
+
+import ac
+from wacd import ACD
+from wcomponents import BoxComponent
+from wconfig import Config
+from winfo import Info
+from wutil import log
+
 STD_LIB = "stdlib"
 if platform.architecture()[0] == "64bit":
     STD_LIB = "stdlib64"
 sys.path.append(os.path.join(os.path.dirname(__file__), STD_LIB))
 os.environ["PATH"] = os.environ["PATH"] + ";."
 
-import ac
-from wcomponents import BoxComponent
-from winfo import Info
-from wconfig import Config
-from wutil import log
-
 # Each wheel window
 WHEEL_INFOS = {}
 
 
 def acMain(ac_version):
-    """ Setups the app. """
+    """ Initiates the program. """
     log("Starting Wheel Telemetry on AC Python API version {}...".format(ac_version))
 
     try:
@@ -44,17 +49,21 @@ def acMain(ac_version):
         ac.addRenderCallback(WHEEL_INFOS["FR"].get_window_id(), on_render_fr)
         ac.addRenderCallback(WHEEL_INFOS["RL"].get_window_id(), on_render_rl)
         ac.addRenderCallback(WHEEL_INFOS["RR"].get_window_id(), on_render_rr)
+        log("Wheel Telemetry started.")
+        
+        log("Loading {} info...".format(ac.getCarName(0)))
+        acd = ACD("content/cars/{}/data.acd".format(ac.getCarName(0)));
+        log(acd)
     except:
-            log(sys.exc_info()[0])
-
-    log("Success")
+        log("Start error:")
+        log(sys.exc_info()[0])
 
     return "Wheel Telemetry"
 
 
 def acShutdown():
     """ Called when the session ends (or restarts). """
-    log("Shuting down Wheel Telemetry...")
+    log("Ending down Wheel Telemetry...")
 
     configs = Config()
     global WHEEL_INFOS
@@ -67,7 +76,7 @@ def acShutdown():
         configs.set_position(wheel_id, pos_x, pos_y)
     configs.save_config()
 
-    log("Success")
+    log("Wheel Telemetry ended.")
 
 
 def acUpdate(delta_t):

@@ -3,7 +3,6 @@ Module to split and resize components on the screen.
 """
 import copy
 import math
-import sys
 import ac
 import acsys
 from wcolors import Colors
@@ -20,17 +19,9 @@ class Point(object):
 class Background(object):
     """ Class to draw a background in a box component. """
 
-    def __init__(self, background=None, border=None, size=1.0):
-        if background is None:
-            self.background = Colors.transparent
-        else:
-            self.background = background
-
-        if border is None:
-            self.border = Colors.transparent
-        else:
-            self.border = border
-
+    def __init__(self, background=Colors.transparent, border=Colors.transparent, size=1.0):
+        self.background = background
+        self.border = border
         self.size = size
 
     def draw(self, rect, texture_id=None):

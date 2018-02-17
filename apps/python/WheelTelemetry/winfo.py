@@ -51,7 +51,7 @@ class Data(object):
 
 
 class Info(object):
-    """ Wheel info to draw and update each tyre. """
+    """ Wheel info to draw and update each wheel. """
 
     indexes = {0: "FL", 1: "FR", 2: "RL", 3: "RR"}
     names = {"FL": 0, "FR": 1, "RL": 2, "RR": 3}

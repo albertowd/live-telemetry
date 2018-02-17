@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Uses the game shared memory.
+
+@author: ???
+"""
 import mmap
 import ctypes
 from ctypes import c_int32, c_float, c_wchar

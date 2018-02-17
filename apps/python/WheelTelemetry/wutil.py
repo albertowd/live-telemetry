@@ -1,5 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
-Module to keep some util functions.
+Module to keep some utility functions.
+
+@author: albertowd
 """
 import ac
 from wcolors import Colors
@@ -15,7 +19,7 @@ def color_interpolate(c_1, c_2, perc):
 
 
 def psi_color(compound, is_front, psi):
-    """ Calc pressure color. """
+    """ Calculates pressure color. """
     color = Colors.red
     ref = 29.0
     perc = psi / ref
@@ -32,7 +36,7 @@ def psi_color(compound, is_front, psi):
 
 
 def temp_color(compound, is_front, temp):
-    """ Calc tyre temperature color. """
+    """ Calculates tyre temperature color. """
     color = Colors.red
     if compound is "Street":
         if temp < 40.0:

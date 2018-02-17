@@ -1,6 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Module to load and save app options.
+
+@author: albertowd
 """
+
 import configparser
 import os
 
