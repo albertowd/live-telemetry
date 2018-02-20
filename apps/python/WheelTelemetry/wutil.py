@@ -5,8 +5,39 @@ Module to keep some utility functions.
 
 @author: albertowd
 """
-import ac
 from wcolors import Colors
+
+try:
+    import ac
+except:
+    from wacd import *
+
+
+class WheelPos(object):
+    """ Keep useful information about the wheel position. """
+
+    def __init__(self, index):
+        """ Construct the properties with the wheel index (0-3). """
+        self.__index = index
+        self.__is_front = (index // 2) == 0
+        self.__is_left = (index % 2) == 0
+        self.__name = "{}{}".format("F" if self.__is_front else "R", "L" if self.__is_left else "R")
+    
+    def index(self):
+        """ Return the wheel index. """
+        return self.__index
+    
+    def is_front(self):
+        """ Returns if the wheel is on front. """
+        return self.__is_front
+    
+    def name(self):
+        """ Returns the name of wheel position. """
+        return self.__name
+    
+    def is_left(self):
+        """ Returns if the wheel is on the left side. """
+        return self.__is_left
 
 
 def color_interpolate(c_1, c_2, perc):
@@ -16,23 +47,6 @@ def color_interpolate(c_1, c_2, perc):
     c_b = c_1[2] + (c_2[2] - c_1[2]) * perc
     c_a = c_1[3] + (c_2[3] - c_1[3]) * perc
     return [c_r, c_g, c_b, c_a]
-
-
-def psi_color(compound, is_front, psi):
-    """ Calculates pressure color. """
-    color = Colors.red
-    ref = 29.0
-    perc = psi / ref
-    if compound is "Street":
-        if perc < 0.85:
-            color = Colors.blue
-        elif perc < 0.95:
-            color = color_interpolate(Colors.blue, Colors.green, (perc - 0.85) / 0.1)
-        elif perc < 1.05:
-            color = Colors.green
-        elif perc < 1.15:
-            color = color_interpolate(Colors.green, Colors.red, (perc - 1.05) / 0.1)
-    return color
 
 
 def temp_color(compound, is_front, temp):
@@ -54,7 +68,9 @@ def temp_color(compound, is_front, temp):
 def log(message, console=True, app_log=True):
     """ Logs a message on the log and console. """
     formated = "[WT] {}".format(message)
+    
     if console:
         ac.console(formated)
+
     if app_log:
         ac.log(formated)

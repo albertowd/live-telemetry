@@ -3,17 +3,26 @@ Module to split and resize components on the screen.
 """
 import copy
 import math
-import ac
-import acsys
+
+from wacd import ACD
 from wcolors import Colors
-from wutil import log, psi_color, temp_color, color_interpolate
+from winterpolation import TyrePsi, TyreTemp
+from wutil import log, temp_color
+
+try:
+    import ac
+    import acsys
+except:
+    from wac import *
+
+ACD_FILE = None
 
 
-class Point(object):
-    
-    def __init__(self, p_x, p_y):
-        self.x = p_x
-        self.y = p_y
+def update_acd(path):
+    log("Loading {} info...".format(ac.getCarName(0)))
+    global ACD_FILE
+    ACD_FILE = ACD(path)
+    log("Loaded correctly")
 
 
 class Background(object):
@@ -102,11 +111,9 @@ class Brake(BoxComponent):
 
     texture_id = 0
 
-    def __init__(self, resolution, wheel_id, window_id):
-        is_left = wheel_id[1] == 'L'
-
+    def __init__(self, resolution, wheel, window_id):
         # Initial size is 96x96
-        super(Brake, self).__init__(70.0 if is_left else 382.0, 0.0, 60.0, 60.0)
+        super(Brake, self).__init__(70.0 if wheel.is_left() else 382.0, 0.0, 60.0, 60.0)
         self._back.background = Colors.white
 
         if Brake.texture_id == 0:
@@ -130,9 +137,7 @@ class Brake(BoxComponent):
 class Camber(BoxComponent):
     """ Class to handle tyre camber draw. """
 
-    def __init__(self, resolution, wheel_id):
-        self.__is_left = wheel_id[1] == 'L'
-
+    def __init__(self, resolution):
         # Initial size is 160x10
         super(Camber, self).__init__(170.0, 256.0, 172.0, 15.0)
         self.__mult = BoxComponent.resolution_map[resolution]
@@ -187,12 +192,10 @@ class Height(BoxComponent):
 
     texture_id = 0
 
-    def __init__(self, resolution, wheel_id, window_id):
-        is_left = wheel_id[1] == 'L'
-
+    def __init__(self, resolution, wheel, window_id):
         # Initial size is 64x48
         super(Height, self).__init__(
-            68.0 if is_left else 380.0, 208.0, 64.0, 48.0)
+            68.0 if wheel.is_left() else 380.0, 208.0, 64.0, 48.0)
         self._back.background = Colors.white
 
         if Height.texture_id == 0:
@@ -243,12 +246,11 @@ class Pressure(BoxComponent):
 
     texture_id = 0
 
-    def __init__(self, resolution, wheel_id, window_id):
-        self.__is_front = wheel_id[0] is 'F'
-        self.__is_left = wheel_id[1] is 'L'
+    def __init__(self, resolution, wheel, window_id):
+        self.__calc = TyrePsi(ACD_FILE.get_ideal_pressure(ac.getCarTyreCompound(0), wheel))
         
         # Initial size is 85x85
-        super(Pressure, self).__init__(70.0 if self.__is_left else 382.0, 95.0, 60.0, 60.0)
+        super(Pressure, self).__init__(70.0 if wheel.is_left() else 382.0, 95.0, 60.0, 60.0)
         self._back.background = Colors.white
         self.__mult = BoxComponent.resolution_map[resolution]
 
@@ -264,7 +266,7 @@ class Pressure(BoxComponent):
         psi = data.tyre_p
         ac.setText(self.__lb, "{:3.0f} psi".format(psi))
         
-        color = psi_color("Street", self.__is_front, psi)
+        color = self.__calc.interpolate_color(psi)
         ac.setFontColor(self.__lb, color[0], color[1], color[2], color[3])
         self._back.background = color
         self._draw(Pressure.texture_id)
@@ -280,11 +282,9 @@ class Suspension(BoxComponent):
 
     texture_id = 0
 
-    def __init__(self, resolution, wheel_id):
-        is_left = wheel_id[1] == 'L'
-
+    def __init__(self, resolution, wheel):
         # Initial size is 64x256
-        super(Suspension, self).__init__(346.0 if is_left else 102.0, 0.0, 64.0, 256.0)
+        super(Suspension, self).__init__(346.0 if wheel.is_left() else 102.0, 0.0, 64.0, 256.0)
         self._back.background = Colors.white
         self.__mult = BoxComponent.resolution_map[resolution]
 
@@ -323,9 +323,8 @@ class Suspension(BoxComponent):
 class Temps(BoxComponent):
     """ Class to handle tyre temperatures draw. """
 
-    def __init__(self, resolution, wheel_id, window_id):
-        self.__is_front = wheel_id[0] is 'F'
-        self.__is_left = wheel_id[1] is 'L'
+    def __init__(self, resolution, wheel, window_id):
+        self.__wheel = wheel
 
         # Initial size is 160x256
         super(Temps, self).__init__(176.0, 0.0, 160.0, 256.0, 16.0)
@@ -366,7 +365,7 @@ class Temps(BoxComponent):
         height = self._box.rect[1] + pad
         
         temp = data.tyre_t_c
-        color = temp_color("Street", self.__is_front, temp)
+        color = temp_color("Street", self.__wheel.is_front(), temp)
         ac.glColor4f(*color)
         ac.setBackgroundOpacity(self.__lb_bg_c, color[3])
         ac.setBackgroundColor(self.__lb_bg_c, color[0], color[1], color[2])
@@ -375,7 +374,7 @@ class Temps(BoxComponent):
         ac.setText(self.__lb_c, "{:3.0f} ºC".format(temp))
         
         temp = data.tyre_t_i
-        color = temp_color("Street", self.__is_front, temp)
+        color = temp_color("Street", self.__wheel.is_front(), temp)
         ac.glColor4f(*color)
         ac.glQuad(inner, height, part, quarter)
         ac.setBackgroundOpacity(self.__lb_bg_i, color[3])
@@ -383,7 +382,7 @@ class Temps(BoxComponent):
         ac.setText(self.__lb_bg_i, "{:3.0f}".format(temp))
         
         temp = data.tyre_t_m
-        color = temp_color("Street", self.__is_front, temp)
+        color = temp_color("Street", self.__wheel.is_front(), temp)
         ac.glColor4f(*color)
         ac.glQuad(self._box.rect[0] + pad + part, height, part, quarter)
         ac.setBackgroundOpacity(self.__lb_bg_m, color[3])
@@ -391,7 +390,7 @@ class Temps(BoxComponent):
         ac.setText(self.__lb_bg_m, "{:3.0f}".format(temp))
         
         temp = data.tyre_t_o
-        color = temp_color("Street", self.__is_front, temp)
+        color = temp_color("Street", self.__wheel.is_front(), temp)
         ac.glColor4f(*color)
         ac.glQuad(outer, height, part, quarter)
         ac.setBackgroundOpacity(self.__lb_bg_o, color[3])
@@ -455,11 +454,9 @@ class Tyre(BoxComponent):
 class Wear(BoxComponent):
     """ Class to handle tyre wear draw. """
 
-    def __init__(self, resolution, wheel_id):
-        is_left = wheel_id[1] == 'L'
-
+    def __init__(self, resolution, wheel):
         # Initial size is 14x256 (with borders)
-        super(Wear, self).__init__(154.0 if is_left else 348.0, 2.0, 10.0, 252.0)
+        super(Wear, self).__init__(154.0 if wheel.is_left() else 348.0, 2.0, 10.0, 252.0)
         self._back.background = Colors.black
         self._back.border = Colors.white
         self._back.size = 2.0

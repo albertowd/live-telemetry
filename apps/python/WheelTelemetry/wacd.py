@@ -6,7 +6,11 @@ Decrypt and extract information files about a car.
 @author: albertowd
 """
 
+from collections import OrderedDict
+import configparser
 from struct import unpack
+
+from wutil import log, WheelPos
 
 
 class ACD(object):
@@ -19,7 +23,7 @@ class ACD(object):
         # Initiate the class fields.
         self.__car = path_v[-2]
         self.__content = bytearray()
-        self.__files = {}
+        self.__files = OrderedDict()
         self.__key = generate_key(self.__car)
         
         # Read all the file into memory.
@@ -73,6 +77,30 @@ class ACD(object):
             return self.__files[name]
         else:
             return ""
+    
+    def get_ideal_pressure(self, compound, wheel):
+        """ Returns the compound ideal pressure. """
+        config = configparser.ConfigParser(empty_lines_in_values=False, inline_comment_prefixes=(';',))
+        config.read_string(self.get_file("tyres.ini"))
+        
+        name = get_tyre_name(compound, config, wheel)
+        return float(config[name]["PRESSURE_IDEAL"])
+    
+    def get_temp_curve(self, compound, wheel):
+        """ Returns the compound temperature grip curve. """
+        config = configparser.ConfigParser(empty_lines_in_values=False, inline_comment_prefixes=(';',))
+        config.read_string(self.get_file("tyres.ini"))
+        
+        name = "THERMAL_{}".format(get_tyre_name(compound, config, wheel))
+        return self.get_file(config[name]["PERFORMANCE_CURVE"])
+
+    def get_wear_curve(self, compound, wheel):
+        """ Returns the compound wear curve. """
+        config = configparser.ConfigParser(empty_lines_in_values=False, inline_comment_prefixes=(';',))
+        config.read_string(self.get_file("tyres.ini"))
+        
+        name = get_tyre_name(compound, config, wheel)
+        return self.get_file(config[name]["WEAR_CURVE"])
     
     def set_file(self, content, name):
         """ Sets a new content to an inner file. """
@@ -156,8 +184,22 @@ def generate_key(car_name):
     return "{}-{}-{}-{}-{}-{}-{}-{}".format(key1, key2, key3, key4, key5, key6, key7, key8)
 
 
+def get_tyre_name(compound, config, wheel):
+    """ Returns the compound session name on the tyre.ini configuration file. """
+    prefix = "FRONT{}" if wheel.is_front() else "REAR{}"
+    
+    for i in range(10):
+        name = prefix.format("" if i == 0 else "_{}".format(i))
+        if config[name]["SHORT_NAME"] == compound:
+            return name
+    
+    i = config["COMPOUND_DEFAULT"]["INDEX"]
+    return prefix.format("" if i == 0 else "_{}".format(i))
+
+
 if __name__ == "__main__":
     acd = ACD("D:/Program Files (x86)/Steam/steamapps/common/assettocorsa/content/cars/abarth500/data.acd")
-    print(acd)
-    print("Fuel Consumption file:\n{}".format(acd.get_file("fuel_cons.ini")))
-    print("Power Curve file:\n{}".format(acd.get_file("power.lut")))
+    log(acd)
+    log("Ideal Pressures:\nFL: {}\tFR: {}\nRL: {}\tRR: {}\n".format(acd.get_ideal_pressure("SM", WheelPos(0)), acd.get_ideal_pressure("SM", WheelPos(1)), acd.get_ideal_pressure("SM", WheelPos(2)), acd.get_ideal_pressure("SM", WheelPos(3))))
+    log("Temp Curve FL:\n{}\n".format(acd.get_temp_curve("SM", WheelPos(0))))
+    log("Wear Curve FL:\n{}\n".format(acd.get_wear_curve("SM", WheelPos(0))))

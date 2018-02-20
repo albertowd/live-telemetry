@@ -10,9 +10,12 @@ import os
 import platform
 import sys
 
-import ac
-from wacd import ACD
-from wcomponents import BoxComponent
+try:
+    import ac
+except:
+    from wacd import *
+
+from wcomponents import BoxComponent, update_acd
 from wconfig import Config
 from winfo import Info
 from wutil import log
@@ -32,6 +35,8 @@ def acMain(ac_version):
     log("Starting Wheel Telemetry on AC Python API version {}...".format(ac_version))
 
     try:
+        update_acd("content/cars/{}/data.acd".format(ac.getCarName(0)))
+        
         global WHEEL_INFOS
         for index in range(4):
             info = Info(index)
@@ -50,13 +55,11 @@ def acMain(ac_version):
         ac.addRenderCallback(WHEEL_INFOS["RL"].get_window_id(), on_render_rl)
         ac.addRenderCallback(WHEEL_INFOS["RR"].get_window_id(), on_render_rr)
         log("Wheel Telemetry started.")
-        
-        log("Loading {} info...".format(ac.getCarName(0)))
-        acd = ACD("content/cars/{}/data.acd".format(ac.getCarName(0)));
-        log(acd)
     except:
         log("Start error:")
         log(sys.exc_info()[0])
+        log(sys.exc_info()[1])
+        log(sys.exc_info()[2])
 
     return "Wheel Telemetry"
 
