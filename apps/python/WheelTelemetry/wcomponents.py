@@ -324,7 +324,7 @@ class Temps(BoxComponent):
     """ Class to handle tyre temperatures draw. """
 
     def __init__(self, resolution, wheel, window_id):
-        self.__wheel = wheel
+        self.__calc = TyreTemp(ACD_FILE.get_temp_curve(ac.getCarTyreCompound(0), wheel))
 
         # Initial size is 160x256
         super(Temps, self).__init__(176.0, 0.0, 160.0, 256.0, 16.0)
@@ -365,7 +365,8 @@ class Temps(BoxComponent):
         height = self._box.rect[1] + pad
         
         temp = data.tyre_t_c
-        color = temp_color("Street", self.__wheel.is_front(), temp)
+        interpolated = self.__calc.interpolate(temp)
+        color = self.__calc.interpolate_color(temp, interpolated)
         ac.glColor4f(*color)
         ac.setBackgroundOpacity(self.__lb_bg_c, color[3])
         ac.setBackgroundColor(self.__lb_bg_c, color[0], color[1], color[2])
@@ -374,7 +375,8 @@ class Temps(BoxComponent):
         ac.setText(self.__lb_c, "{:3.0f} ºC".format(temp))
         
         temp = data.tyre_t_i
-        color = temp_color("Street", self.__wheel.is_front(), temp)
+        interpolated = self.__calc.interpolate(temp)
+        color = self.__calc.interpolate_color(temp, interpolated)
         ac.glColor4f(*color)
         ac.glQuad(inner, height, part, quarter)
         ac.setBackgroundOpacity(self.__lb_bg_i, color[3])
@@ -382,7 +384,8 @@ class Temps(BoxComponent):
         ac.setText(self.__lb_bg_i, "{:3.0f}".format(temp))
         
         temp = data.tyre_t_m
-        color = temp_color("Street", self.__wheel.is_front(), temp)
+        interpolated = self.__calc.interpolate(temp)
+        color = self.__calc.interpolate_color(temp, interpolated)
         ac.glColor4f(*color)
         ac.glQuad(self._box.rect[0] + pad + part, height, part, quarter)
         ac.setBackgroundOpacity(self.__lb_bg_m, color[3])
@@ -390,7 +393,8 @@ class Temps(BoxComponent):
         ac.setText(self.__lb_bg_m, "{:3.0f}".format(temp))
         
         temp = data.tyre_t_o
-        color = temp_color("Street", self.__wheel.is_front(), temp)
+        interpolated = self.__calc.interpolate(temp)
+        color = self.__calc.interpolate_color(temp, interpolated)
         ac.glColor4f(*color)
         ac.glQuad(outer, height, part, quarter)
         ac.setBackgroundOpacity(self.__lb_bg_o, color[3])
