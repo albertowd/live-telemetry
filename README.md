@@ -44,6 +44,7 @@ Last step is to enter a session and select it on the right app bar to see it on 
 
 ## Changelog
 1.1
+   - Pressure and tyres now uses colors based on the tyres.ini configuration.
    - Tyre core, inner. middle and outer temperature with colors
    
 1.0.1
@@ -56,5 +57,8 @@ Last step is to enter a session and select it on the right app bar to see it on 
 ## Noted Bugs
 
    - Brake temperatures are not updated
-   - Tyre temperatures and pressure have no color (hard coded references don't count)
    - Tyre temperatures are with transparent background (WHY ASSETTO, WHY???)
+
+## Big Thanks
+
+My newest best friend [aluigi@zenhax.com](http://zenhax.com/viewtopic.php?f=9&t=90) who helped me to understand how to open .acd files!
