@@ -2,15 +2,17 @@
 """
 Module to update one wheel infos from car and draw on screen.
 """
+from wcolors import Colors
 from wconfig import Config
-from wcomponents import BoxComponent, Brake, Camber, Dirt, Height, Load, Temps, Suspension, TyreAndPsi, Wear
+from wcomponents import BoxComponent, Brake, Camber, Dirt, Height, Load, Pressure, Temps, Suspension, Tyre, Wear
 from wsim_info import info
-from wutil import log
+from wutil import log, WheelPos
 import ac
 import acsys
 
 
 class Data(object):
+
     def __init__(self):
         self.brake_t = 0.0
         self.camber = 0.0
@@ -19,6 +21,7 @@ class Data(object):
         self.tyre_d = 0.0
         self.tyre_l = 0.0
         self.tyre_p = 0.0
+        self.tyre_t_c = 0.0
         self.tyre_t_i = 0.0
         self.tyre_t_m = 0.0
         self.tyre_t_o = 0.0
@@ -39,6 +42,7 @@ class Data(object):
         # N to (5*kgf)
         self.tyre_l = info.physics.wheelLoad[index] / (5.0 * 9.80665)
         self.tyre_p = info.physics.wheelsPressure[index]
+        self.tyre_t_c = info.physics.tyreCoreTemperature[index]
         self.tyre_t_i = info.physics.tyreTempI[index]
         self.tyre_t_m = info.physics.tyreTempM[index]
         self.tyre_t_o = info.physics.tyreTempO[index]
@@ -48,29 +52,25 @@ class Data(object):
 
 
 class Info(object):
-    """ Wheel info to draw and update each tyre. """
-
-    indexes = {0: "FL", 1: "FR", 2: "RL", 3: "RR"}
-    names = {"FL": 0, "FR": 1, "RL": 2, "RR": 3}
+    """ Wheel info to draw and update each wheel. """
 
     def __init__(self, wheel_index):
         """ Default constructor receive the index of the wheel it will draw info. """
         configs = Config()
 
-        self.__id = Info.indexes[wheel_index]
+        self.__wheel = WheelPos(wheel_index)
         self.__active = False
         self.__data = Data()
-        self.__index = wheel_index
         self.__info = info
-        self.__is_left = wheel_index is 0 or wheel_index is 2
-        self.__window_id = ac.newApp("Wheel Telemetry {}".format(self.__id))
+        self.__window_id = ac.newApp("Wheel Telemetry {}".format(self.__wheel.name()))
         ac.drawBorder(self.__window_id, 0)
-        ac.drawBackground(self.__window_id, 0)
+        ac.setBackgroundColor(self.__window_id, 1.0, 1.0, 1.0)
+        ac.setBackgroundOpacity(self.__window_id, 0.0)
         ac.setIconPosition(self.__window_id, 0, -10000)
         ac.setTitle(self.__window_id, "")
 
-        pos_x = configs.get_x(self.__id)
-        pos_y = configs.get_y(self.__id)
+        pos_x = configs.get_x(self.__wheel)
+        pos_y = configs.get_y(self.__wheel)
         ac.setPosition(self.__window_id, pos_x, pos_y)
 
         resolution = configs.get_resolution()
@@ -82,25 +82,23 @@ class Info(object):
         ac.setFontAlignment(self.__bt_resolution, "center")
 
         self.__components = []
-        self.__components.append(
-            Temps(resolution, self.__id, self.__window_id))
+        self.__components.append(Temps(resolution, self.__wheel, self.__window_id))
         self.__components.append(Dirt(resolution))
-        self.__components.append(TyreAndPsi(resolution, self.__window_id))
+        self.__components.append(Tyre(resolution))
 
-        self.__components.append(
-            Brake(resolution, self.__id, self.__window_id))
-        self.__components.append(Camber(resolution, self.__id))
-        self.__components.append(Suspension(resolution, self.__id))
-        self.__components.append(
-            Height(resolution, self.__id, self.__window_id))
-        self.__components.append(Wear(resolution, self.__id))
+        self.__components.append(Brake(resolution, self.__wheel, self.__window_id))
+        self.__components.append(Camber(resolution))
+        self.__components.append(Suspension(resolution, self.__wheel))
+        self.__components.append(Height(resolution, self.__wheel, self.__window_id))
+        self.__components.append(Pressure(resolution, self.__wheel, self.__window_id))
+        self.__components.append(Wear(resolution, self.__wheel))
         self.__components.append(Load(resolution))
 
-        self.set_active(configs.is_active(self.__id))
+        self.set_active(configs.is_active(self.__wheel))
 
     def get_id(self):
-        """ Returns the whhel id. """
-        return self.__id
+        """ Returns the wheel id. """
+        return self.__wheel.name()
 
     def get_position(self):
         """ Returns the window position. """
@@ -120,11 +118,10 @@ class Info(object):
 
     def draw(self):
         """ Draws all info on screen. """
-        ac.setBackgroundOpacity(self.__window_id, 0)
+        ac.glColor4f(*Colors.white)
         for component in self.__components:
-            #log("drawing {}".format(component.__class__.__name__))
             component.draw(self.__data)
-            # log("drawed")
+            ac.glColor4f(*Colors.white)
 
     def resize(self, resolution):
         """ Resizes the window. """
@@ -137,5 +134,5 @@ class Info(object):
         self.__active = active
 
     def update(self):
-        """ Updates the wheel infos. """
-        self.__data.update(self.__index, self.__info)
+        """ Updates the wheel information. """
+        self.__data.update(self.__wheel.index(), self.__info)

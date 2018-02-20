@@ -1,0 +1,4 @@
+
+*.pyc
+
+apps/python/WheelTelemetry/\.settings/
