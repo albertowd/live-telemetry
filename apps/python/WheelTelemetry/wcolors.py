@@ -1,5 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Module to keep an app color palette.
+
+@author: albertowd
 """
 
 
