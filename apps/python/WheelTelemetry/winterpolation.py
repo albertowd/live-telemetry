@@ -14,8 +14,8 @@ class Curve(object):
 
     def __init__(self, content="", normalize=False):
         """ Default constructor receives a inner '.lut' ACD file content. """
-        self.__curve = []
-        self.__max = (0.0, 0.0)
+        self._curve = []
+        self._max = (0.0, 0.0)
         
         lines = content.split("\n")
         for line in lines:
@@ -25,25 +25,25 @@ class Curve(object):
                 values[1] = float(values[1])
                 if normalize:
                     values[1] /= 100.0
-                self.__curve.append((values[0], values[1]))
+                self._curve.append((values[0], values[1]))
                 
-                if values[1] > self.__max[1]:
-                    self.__max = (values[0], values[1])
+                if values[1] > self._max[1]:
+                    self._max = (values[0], values[1])
 
     def interpolate(self, current):
         """ Interpolates the current value in the curve. """
-        for index in range(len(self.__curve)):
-            point = self.__curve[index]
+        for index in range(len(self._curve)):
+            point = self._curve[index]
             if current < point[0]:
                 if index == 0:
                     return point[1]
                 else:
-                    p_point = self.__curve[index - 1]
+                    p_point = self._curve[index - 1]
                     p_diff = point[0] - p_point[0]
                     c_diff = (current - p_point[0]) / p_diff
                     v_diff = point[1] - p_point[1]
                     return p_point[1] + (v_diff * c_diff)
-        return self.__curve[-1][1] if len(self.__curve) > 0 else 0.0
+        return self._curve[-1][1] if len(self._curve) > 0 else 0.0
 
 
 class TyrePsi(object):
@@ -78,7 +78,7 @@ class TyreTemp(Curve):
     def interpolate_color(self, temp, interpolated):
         """ Interpolates the temp color. """
         if interpolated < 0.98:
-            return Colors.blue if temp < self.__max[0] else Colors.red
+            return Colors.blue if temp < self._max[0] else Colors.red
         else:
             if temp < 100.0:
                 return color_interpolate(Colors.blue, Colors.green, (interpolated - 0.98) / 0.02)

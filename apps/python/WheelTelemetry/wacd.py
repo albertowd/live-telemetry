@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Decrypt and extract information files about a car.
+Big thanks for aluigi@ZenHaxs.com that have the patience to help me to open the ACD files.
 
 @author: albertowd
 """

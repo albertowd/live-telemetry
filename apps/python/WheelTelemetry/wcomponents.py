@@ -7,7 +7,7 @@ import math
 from wacd import ACD
 from wcolors import Colors
 from winterpolation import TyrePsi, TyreTemp
-from wutil import log, temp_color
+from wutil import log
 
 try:
     import ac
@@ -331,21 +331,17 @@ class Temps(BoxComponent):
         
         self.__lb_bg_c = ac.addLabel(window_id, "")
         ac.setBackgroundColor(self.__lb_bg_c, 0.0, 0.0, 0.0)
-        ac.setBackgroundOpacity(self.__lb_bg_c, 1.0)
         
         self.__lb_bg_i = ac.addLabel(window_id, "")
         ac.setBackgroundColor(self.__lb_bg_i, 0.0, 0.0, 0.0)
-        ac.setBackgroundOpacity(self.__lb_bg_i, 1.0)
         ac.setFontAlignment(self.__lb_bg_i, "center")
 
         self.__lb_bg_m = ac.addLabel(window_id, "")
         ac.setBackgroundColor(self.__lb_bg_m, 0.0, 0.0, 0.0)
-        ac.setBackgroundOpacity(self.__lb_bg_m, 1.0)
         ac.setFontAlignment(self.__lb_bg_m, "center")
 
         self.__lb_bg_o = ac.addLabel(window_id, "")
         ac.setBackgroundColor(self.__lb_bg_o, 0.0, 0.0, 0.0)
-        ac.setBackgroundOpacity(self.__lb_bg_o, 1.0)
         ac.setFontAlignment(self.__lb_bg_o, "center")
         
         self.__lb_c = ac.addLabel(window_id, "- ºC")
@@ -368,7 +364,6 @@ class Temps(BoxComponent):
         interpolated = self.__calc.interpolate(temp)
         color = self.__calc.interpolate_color(temp, interpolated)
         ac.glColor4f(*color)
-        ac.setBackgroundOpacity(self.__lb_bg_c, color[3])
         ac.setBackgroundColor(self.__lb_bg_c, color[0], color[1], color[2])
         
         ac.glColor4f(*Colors.white)
@@ -379,7 +374,6 @@ class Temps(BoxComponent):
         color = self.__calc.interpolate_color(temp, interpolated)
         ac.glColor4f(*color)
         ac.glQuad(inner, height, part, quarter)
-        ac.setBackgroundOpacity(self.__lb_bg_i, color[3])
         ac.setBackgroundColor(self.__lb_bg_i, color[0], color[1], color[2])
         ac.setText(self.__lb_bg_i, "{:3.0f}".format(temp))
         
@@ -388,7 +382,6 @@ class Temps(BoxComponent):
         color = self.__calc.interpolate_color(temp, interpolated)
         ac.glColor4f(*color)
         ac.glQuad(self._box.rect[0] + pad + part, height, part, quarter)
-        ac.setBackgroundOpacity(self.__lb_bg_m, color[3])
         ac.setBackgroundColor(self.__lb_bg_m, color[0], color[1], color[2])
         ac.setText(self.__lb_bg_m, "{:3.0f}".format(temp))
         
@@ -397,7 +390,6 @@ class Temps(BoxComponent):
         color = self.__calc.interpolate_color(temp, interpolated)
         ac.glColor4f(*color)
         ac.glQuad(outer, height, part, quarter)
-        ac.setBackgroundOpacity(self.__lb_bg_o, color[3])
         ac.setBackgroundColor(self.__lb_bg_o, color[0], color[1], color[2])
         ac.setText(self.__lb_bg_o, "{:3.0f}".format(temp))
 

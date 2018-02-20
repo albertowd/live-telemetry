@@ -64,7 +64,8 @@ class Info(object):
         self.__info = info
         self.__window_id = ac.newApp("Wheel Telemetry {}".format(self.__wheel.name()))
         ac.drawBorder(self.__window_id, 0)
-        ac.drawBackground(self.__window_id, 0)
+        ac.setBackgroundColor(self.__window_id, 1.0, 1.0, 1.0)
+        ac.setBackgroundOpacity(self.__window_id, 0.0)
         ac.setIconPosition(self.__window_id, 0, -10000)
         ac.setTitle(self.__window_id, "")
 
@@ -117,11 +118,10 @@ class Info(object):
 
     def draw(self):
         """ Draws all info on screen. """
-        ac.setBackgroundOpacity(self.__window_id, 0)
         ac.glColor4f(*Colors.white)
         for component in self.__components:
             component.draw(self.__data)
-        ac.glColor4f(*Colors.white)
+            ac.glColor4f(*Colors.white)
 
     def resize(self, resolution):
         """ Resizes the window. """
@@ -135,5 +135,4 @@ class Info(object):
 
     def update(self):
         """ Updates the wheel information. """
-        ac.glColor4f(*Colors.white)
         self.__data.update(self.__wheel.index(), self.__info)
