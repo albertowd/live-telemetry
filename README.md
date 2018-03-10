@@ -30,15 +30,11 @@ Each component have a button designed to scale all the components to best fit ea
 
 ### App Install
 
-First unzip the release content direct on your Assetto Corsa main folder (C:/Program Files (x86)/steam/steamapps/common/assettocorsa) and load the game.
-
-![Game Menu](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/game-menu.png)
-
-Select the option menu and the general sub menu. In the UI Module section will be listed this app to be checked.
+First unzip the release content direct on your Assetto Corsa main folder (C:/Program Files (x86)/steam/steamapps/common/assettocorsa) and load the game. Select the option menu and the general sub menu. In the UI Module section will be listed this app to be checked.
 
 ![Session Menu](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/session-menu.png)
 
-Last step is to enter a session and select it on the right app bar to see it on screen.
+Last step is to enter any session (online, practice, race) and select it on the right app bar to see it on screen.
 
 ![App Window](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/app.png)
 
@@ -46,9 +42,10 @@ Last step is to enter a session and select it on the right app bar to see it on 
 
 1.2
    - Engine telemetry
-   - RPM x power curve user through the engine.ini configuration.
+   - RPM x power curve user through the engine.ini configuration
    - Brake Temp does not work, so it's not visible anymore
    - No tyre temp text anymore due label transparency issue
+   - Load not visible either cause it doest not have the ideal value yet (to be developed)
 
 1.1
    - Pressure and tyres now uses colors based on the tyres.ini configuration.

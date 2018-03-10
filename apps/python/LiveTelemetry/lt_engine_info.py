@@ -41,7 +41,6 @@ class EngineInfo(object):
         self.__info = info
         self.__window_id = ac.newApp("Live Telemetry Engine")
         ac.drawBorder(self.__window_id, 0)
-        ac.setBackgroundColor(self.__window_id, 1.0, 1.0, 1.0)
         ac.setBackgroundOpacity(self.__window_id, 0.0)
         ac.setIconPosition(self.__window_id, 0, -10000)
         ac.setTitle(self.__window_id, "")
@@ -81,6 +80,7 @@ class EngineInfo(object):
 
     def draw(self):
         """ Draws all info on screen. """
+        ac.setBackgroundOpacity(self.__window_id, 0.0)
         for component in self.__components:
             ac.glColor4f(*Colors.white)
             component.draw(self.__data)
