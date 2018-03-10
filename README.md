@@ -1,14 +1,15 @@
-# WheelTelemetry 1.1
-An Assetto Corsa app to view real time tyre and suspension telemetry
+# Live Telemetry 1.1
+An Assetto Corsa app to view real time telemetry
 
 ## App
 
-The app show on screen real time telemetry of each tyre and suspension individualy. The goal with this app is not to replace the Assetto Corsa built-in apps with theese informations, but to help developing better setups more efficiently.
+The app show on screen real time telemetry of engine, each tyre and suspension individualy. The goal with this app is not to replace the Assetto Corsa built-in apps with theese informations, but to help developing better setups more efficiently.
 
 ![Screenshot](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/screenshot.png)
 
 ### Telemetry Info
 
+   - Engine Ideal RPM/Power
    - Brake temperature (ºC): some cars doesn't have this info yet.
    - Suspension height (mm)
    - Suspension travel (%): gets warning yellow above 80% and danger red above 90% of the maximum and minimum values
@@ -43,6 +44,12 @@ Last step is to enter a session and select it on the right app bar to see it on 
 ![App Window](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/app.png)
 
 ## Changelog
+
+1.2
+   - Engine telemetry
+   - Brake Temp does not work, so it's not visible anymore
+   - Tyre Temp texts not visible anymore due label transparency issue
+
 1.1
    - Pressure and tyres now uses colors based on the tyres.ini configuration.
    - Tyre core, inner. middle and outer temperature with colors
@@ -56,8 +63,7 @@ Last step is to enter a session and select it on the right app bar to see it on 
 
 ## Noted Bugs
 
-   - Brake temperatures are not updated
-   - Tyre temperatures are with transparent background (WHY ASSETTO, WHY???)
+   - ???
 
 ## Big Thanks
 
