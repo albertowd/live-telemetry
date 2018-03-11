@@ -51,15 +51,31 @@ class Power(Curve):
 
     def __init__(self, content=""):
         super(Power, self).__init__(content)
+        
+        new_curve = []
+        self._max = (0.0, 0.0)
+        
+        # Processes the curve to HP values
+        for point in self._curve:
+            rpm = point[0]
+            torque = point[1]
+            new_point = (rpm, (torque * rpm) / 5252)
+            
+            if new_point[1] > self._max[1]:
+                    self._max = new_point
+            
+            new_curve.append(new_point)
+        
+        self._curve = new_curve
 
     def interpolate_color(self, rpm):
         """ Interpolates the power color. """
         perc = self.interpolate(rpm) / self._max[1]
-        if perc < 0.999:
+        if perc < 0.995:
             if rpm < self._max[0]:
-                if perc < 0.998:
+                if perc < 0.985:
                     return Colors.white
-                elif perc < 0.999:
+                elif perc < 0.995:
                     return Colors.blue
             else:
                 return Colors.red
@@ -117,4 +133,11 @@ if __name__ == "__main__":
     interpolation = TyrePsi(psi)
     psis = [24.0, 28.0, 30.0, 32.0, 36.0]
     for current in psis:
+        log("\t{} => {}".format(current, interpolation.interpolate(current)))
+    
+    curve = "0|100\n500|195\n1000|231\n1500|244\n2000|263\n2500|286\n3000|330\n3250|360\n3500|403\n3750|429\n4000|482\n4250|520\n4500|532\n4750|535\n5000|539\n5250|540\n5500|541\n5750|540\n6000|538\n6250|524\n6500|517\n6750|501\n6900|493\n7000|482\n7250|464\n7500|440\n8000|374\n8500|0"
+    interpolation = Power(curve)
+    log("Power: {}".format(curve.replace("\n", "\n\t")))
+    rpms = [4000, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500]
+    for current in rpms:
         log("\t{} => {}".format(current, interpolation.interpolate(current)))
