@@ -1,4 +1,4 @@
-# Live Telemetry 1.2
+# Live Telemetry 1.2.2
 An Assetto Corsa app to view real time telemetry
 
 ## App
@@ -42,7 +42,7 @@ Last step is to enter any session (online, practice, race) and select it on the 
 
 1.2
    - Engine telemetry
-   - RPM x power curve user through the engine.ini configuration
+   - RPM x HP curve user through the engine.ini configuration
    - Brake Temp does not work, so it's not visible anymore
    - No tyre temp text anymore due label transparency issue
    - Load not visible either cause it doest not have the ideal value yet (to be developed)
