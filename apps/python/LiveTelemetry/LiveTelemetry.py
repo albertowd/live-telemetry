@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Live Telemetry App for Assetto Corsa
-v 1.2
+v 1.2.2
 https://github.com/albertowd/WheelTelemetry
 @author: albertowd
 """
@@ -13,7 +13,7 @@ import sys
 try:
     import ac
 except:
-    from lt_ac import *
+    from lt_ac import ac
 
 from lt_components import BoxComponent, update_acd
 from lt_config import Config
