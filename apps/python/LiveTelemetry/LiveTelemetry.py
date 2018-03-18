@@ -59,7 +59,6 @@ def acMain(ac_version):
         window_id = ENGINE_INFO.get_window_id()
         ac.addOnAppActivatedListener(window_id, on_activation)
         ac.addOnAppDismissedListener(window_id, on_dismiss)
-        ac.addOnClickedListener(ENGINE_INFO.get_button_id(), on_click_resolution)
         ac.addRenderCallback(ENGINE_INFO.get_window_id(), on_render_engine)
         
         log("Live Telemetry started.")

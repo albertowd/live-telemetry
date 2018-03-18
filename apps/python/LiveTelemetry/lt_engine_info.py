@@ -51,10 +51,6 @@ class EngineInfo(object):
         mult = BoxComponent.resolution_map[resolution]
         ac.setSize(self.__window_id, 512 * mult, 85 * mult)
 
-        self.__bt_resolution = ac.addButton(self.__window_id, resolution)
-        ac.setSize(self.__bt_resolution, 50, 30)
-        ac.setFontAlignment(self.__bt_resolution, "center")
-
         self.__components = []
         self.__components.append(RPMPower(resolution, self.__window_id))
 
@@ -63,10 +59,6 @@ class EngineInfo(object):
     def get_position(self):
         """ Returns the window position. """
         return ac.getPosition(self.__window_id)
-
-    def get_button_id(self):
-        """ Returns the resolution button id. """
-        return self.__bt_resolution
 
     def get_window_id(self):
         """ Returns the window id. """
@@ -88,7 +80,6 @@ class EngineInfo(object):
         """ Resizes the window. """
         mult = BoxComponent.resolution_map[resolution]
         ac.setSize(self.__window_id, 512 * mult, 85 * mult)
-        ac.setText(self.__bt_resolution, resolution)
         for component in self.__components:
             component.resize(resolution)
 
