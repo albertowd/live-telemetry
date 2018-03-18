@@ -4,16 +4,13 @@ Module to split and resize components on the screen.
 import copy
 import math
 
+import ac
+import acsys
+
 from lt_acd import ACD
 from lt_colors import Colors
 from lt_interpolation import Power, TyrePsi, TyreTemp
 from lt_util import log
-
-try:
-    import ac
-    import acsys
-except:
-    from lt_ac import *
 
 ACD_FILE = None
 
@@ -74,8 +71,8 @@ class Box(object):
 class BoxComponent(object):
     """ Class to handle position and resize of a component. """
 
-    resolutions = ["HD", "FHD", "2K", "UHD", "4K", "8K"]
-    resolution_map = {"HD": 1.0, "FHD": 1.5, "2K": 1.6, "UHD": 3.0, "4K": 3.2, "8K": 6.0}
+    resolutions = ["HD", "FHD", "1440p", "UHD", "4K", "8K"]
+    resolution_map = {"HD": 1.0, "FHD": 1.5, "1440p": 2, "UHD": 3.0, "4K": 3.2, "8K": 6.0}
 
     def __init__(self, p_x=0.0, p_y=0.0, width=100.0, height=100.0, font=24.0):
         self.__ini_font = font

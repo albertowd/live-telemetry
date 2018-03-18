@@ -5,12 +5,10 @@ Module to keep some utility functions.
 
 @author: albertowd
 """
-from lt_colors import Colors
 
-try:
-    import ac
-except:
-    from lt_ac import ac
+import ac
+
+from lt_colors import Colors
 
 
 class WheelPos(object):
