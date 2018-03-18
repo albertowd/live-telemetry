@@ -23,7 +23,7 @@ The app show on screen real time telemetry of engine, each tyre and suspension i
 Each component have a button designed to scale all the components to best fit each default resolution. Choose be free to choose the best scale for your taste. ;)
    - HD:  1280x720
    - FH:  1920x1080
-   - 2K:  2048x1152
+   - 1440p:  2560x1440
    - UHD: 3840x2160
    - 4K:  4096x2304
    - 8K:  7680x4320

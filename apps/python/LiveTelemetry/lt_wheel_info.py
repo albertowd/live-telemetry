@@ -3,16 +3,14 @@
 """
 Module to update one wheel infos from car and draw on screen.
 """
+
+import ac
+
 from lt_colors import Colors
 from lt_config import Config
 from lt_components import BoxComponent, Camber, Dirt, Height, Pressure, Temps, Suspension, Tyre, Wear
 from lt_sim_info import info
 from lt_util import WheelPos
-
-try:
-    import ac
-except:
-    from lt_ac import ac
 
 
 class Data(object):

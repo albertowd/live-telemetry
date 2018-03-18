@@ -10,10 +10,7 @@ import os
 import platform
 import sys
 
-try:
-    import ac
-except:
-    from lt_ac import ac
+import ac
 
 from lt_components import BoxComponent, update_acd
 from lt_config import Config

@@ -3,15 +3,13 @@
 """
 Module to update one engine infos from car and draw on screen.
 """
+
+import ac
+
 from lt_colors import Colors
 from lt_config import Config
 from lt_components import BoxComponent, RPMPower
 from lt_sim_info import info
-
-try:
-    import ac
-except:
-    from lt_ac import ac
 
 
 class Data(object):
