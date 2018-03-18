@@ -195,8 +195,7 @@ class Height(BoxComponent):
 
     def __init__(self, resolution, wheel, window_id):
         # Initial size is 64x48
-        super(Height, self).__init__(
-            68.0 if wheel.is_left() else 380.0, 208.0, 64.0, 48.0)
+        super(Height, self).__init__(430.0 if wheel.is_left() else 18.0, 208.0, 64.0, 48.0)
         self._back.color = Colors.white
 
         if Height.texture_id == 0:
