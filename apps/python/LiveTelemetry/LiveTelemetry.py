@@ -12,17 +12,17 @@ import sys
 
 import ac
 
+if platform.architecture()[0] == "64bit":
+    sys.path.append("apps/python/LiveTelemetry/stdlib64")
+else:
+    sys.path.append("apps/python/LiveTelemetry/stdlib")
+os.environ["PATH"] = os.environ["PATH"] + ";."
+
 from lt_components import BoxComponent, update_acd
 from lt_config import Config
 from lt_engine_info import EngineInfo
 from lt_wheel_info import WheelInfo
 from lt_util import log
-
-STD_LIB = "stdlib"
-if platform.architecture()[0] == "64bit":
-    STD_LIB = "stdlib64"
-sys.path.append(os.path.join(os.path.dirname(__file__), STD_LIB))
-os.environ["PATH"] = os.environ["PATH"] + ";."
 
 # Each window
 ENGINE_INFO = None

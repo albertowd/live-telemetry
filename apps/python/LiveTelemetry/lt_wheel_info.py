@@ -9,7 +9,7 @@ import ac
 from lt_colors import Colors
 from lt_config import Config
 from lt_components import BoxComponent, Camber, Dirt, Height, Pressure, Temps, Suspension, Tyre, Wear
-from lt_sim_info import info
+from sim_info.sim_info import info
 from lt_util import WheelPos
 
 
