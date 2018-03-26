@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Live Telemetry App for Assetto Corsa
-v 1.2.2
+v 1.2.3
 https://github.com/albertowd/WheelTelemetry
 @author: albertowd
 """
@@ -10,22 +10,19 @@ import os
 import platform
 import sys
 
-try:
-    import ac
-except:
-    from lt_ac import ac
+import ac
 
-from lt_components import BoxComponent, update_acd
-from lt_config import Config
-from lt_engine_info import EngineInfo
-from lt_wheel_info import WheelInfo
-from lt_util import log
-
-STD_LIB = "stdlib"
 if platform.architecture()[0] == "64bit":
-    STD_LIB = "stdlib64"
-sys.path.append(os.path.join(os.path.dirname(__file__), STD_LIB))
+    sys.path.append("apps/python/LiveTelemetry/stdlib64")
+else:
+    sys.path.append("apps/python/LiveTelemetry/stdlib")
 os.environ["PATH"] = os.environ["PATH"] + ";."
+
+from lib.lt_components import BoxComponent, update_acd
+from lib.lt_config import Config
+from lib.lt_engine_info import EngineInfo
+from lib.lt_wheel_info import WheelInfo
+from lib.lt_util import log
 
 # Each window
 ENGINE_INFO = None
@@ -62,7 +59,6 @@ def acMain(ac_version):
         window_id = ENGINE_INFO.get_window_id()
         ac.addOnAppActivatedListener(window_id, on_activation)
         ac.addOnAppDismissedListener(window_id, on_dismiss)
-        ac.addOnClickedListener(ENGINE_INFO.get_button_id(), on_click_resolution)
         ac.addRenderCallback(ENGINE_INFO.get_window_id(), on_render_engine)
         
         log("Live Telemetry started.")
