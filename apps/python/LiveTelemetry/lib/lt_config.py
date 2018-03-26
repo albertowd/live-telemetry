@@ -22,8 +22,8 @@ class Config(object):
             Config.__configs.read("apps/python/LiveTelemetry/cfg.ini")
         else:
             video = configparser.ConfigParser()
-            Config.__configs["Windows"] = { "Engine": "False", "FL": "False", "FR": "False", "RL": "False", "RR": "False", "SIZE": "HD"}
-            Config.__configs["Positions"] = { "Engine_x": "384", "Engine_y": "104", "FL_x": "100", "FL_y": "100", "FR_x": "668", "FR_y": "100", "RL_x": "100", "RL_y": "364", "RR_x": "668", "RR_y": "364"}
+            Config.__configs["Windows"] = { "Engine": "False", "FL": "False", "FR": "False", "RL": "False", "RR": "False", "SIZE": "480p"}
+            Config.__configs["Positions"] = {}
             
             # Try to use video.ini settings to recalculate window positions.
             CSIDL_PERSONAL = 5  # My Documents
@@ -34,11 +34,11 @@ class Config(object):
             video.read("{}/Assetto Corsa/cfg/video.ini".format(buf.value));
             h = int(video.get("VIDEO", "HEIGHT"))
             w = int(video.get("VIDEO", "WIDTH"))
-            self.set_engine_position((w - 512) / 2, h - 85 - 10)
-            self.set_position("FL", 10, 10)
-            self.set_position("FR", w - 512 - 10, 10)
-            self.set_position("RL", 10, h - 271 - 10)
-            self.set_position("RR", w - 512 - 10, h - 271 - 10)
+            self.set_engine_position((w - 360) / 2, h - 51 - 160)
+            self.set_position("FL", 10, 80)
+            self.set_position("FR", w - 360 - 10, 80)
+            self.set_position("RL", 10, h - 163 - 80)
+            self.set_position("RR", w - 360 - 10, h - 163 - 80)
 
     def get_engine_x(self):
         """ Returns the x position of the engine window. """

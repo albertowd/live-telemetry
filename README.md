@@ -21,6 +21,7 @@ The app show on screen real time telemetry of engine, each tyre and suspension i
 ### Resolutions
 
 Each component have a button designed to scale all the components to best fit each default resolution. Choose be free to choose the best scale for your taste. ;)
+   - 480p:  854x480
    - HD:  1280x720
    - FH:  1920x1080
    - 1440p:  2560x1440
@@ -47,6 +48,7 @@ Last step is to enter any session (online, practice, race) and select it on the 
    - No tyre temp text anymore due label transparency issue
    - Load not visible either cause it doest not have the ideal value yet (to be developed)
    - Fix importing sim_info after other imports
+   - Added 480p resolution
 
 1.1
    - Pressure and tyres now uses colors based on the tyres.ini configuration.
