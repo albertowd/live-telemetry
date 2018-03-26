@@ -6,9 +6,9 @@ Module to update one engine infos from car and draw on screen.
 
 import ac
 
-from lt_colors import Colors
-from lt_config import Config
-from lt_components import BoxComponent, RPMPower
+from lib.lt_colors import Colors
+from lib.lt_config import Config
+from lib.lt_components import BoxComponent, RPMPower
 from sim_info.sim_info import info
 
 

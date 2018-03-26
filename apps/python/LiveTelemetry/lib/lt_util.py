@@ -8,8 +8,6 @@ Module to keep some utility functions.
 
 import ac
 
-from lt_colors import Colors
-
 
 class WheelPos(object):
     """ Keep useful information about the wheel position. """
@@ -45,22 +43,6 @@ def color_interpolate(c_1, c_2, perc):
     c_b = c_1[2] + (c_2[2] - c_1[2]) * perc
     c_a = c_1[3] + (c_2[3] - c_1[3]) * perc
     return [c_r, c_g, c_b, c_a]
-
-
-def temp_color(compound, is_front, temp):
-    """ Calculates tyre temperature color. """
-    color = Colors.red
-    if compound is "Street":
-        if temp < 40.0:
-            color = Colors.blue
-        elif temp < 75.0:
-            color = color_interpolate(Colors.blue, Colors.green, (temp - 40.0) / 35.0)
-        elif temp < 110.0:
-            color = Colors.green
-        elif temp < 140.0:
-            color = color_interpolate(Colors.green, Colors.red, (temp - 110.0) / 30.0)
-
-    return color
 
 
 def log(message, console=True, app_log=True):

@@ -1,4 +1,4 @@
-# Live Telemetry 1.2.2
+# Live Telemetry 1.2.3
 An Assetto Corsa app to view real time telemetry
 
 ## App
@@ -46,6 +46,7 @@ Last step is to enter any session (online, practice, race) and select it on the 
    - Brake Temp does not work, so it's not visible anymore
    - No tyre temp text anymore due label transparency issue
    - Load not visible either cause it doest not have the ideal value yet (to be developed)
+   - Fix importing sim_info after other imports
 
 1.1
    - Pressure and tyres now uses colors based on the tyres.ini configuration.

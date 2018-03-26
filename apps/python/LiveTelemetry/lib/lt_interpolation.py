@@ -5,8 +5,8 @@ Handles wheel interpolations and colors.
 
 @author: albertowd
 """
-from lt_colors import Colors
-from lt_util import color_interpolate, log
+from lib.lt_colors import Colors
+from lib.lt_util import color_interpolate, log
 
 
 class Curve(object):

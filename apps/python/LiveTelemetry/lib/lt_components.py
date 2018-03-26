@@ -7,10 +7,10 @@ import math
 import ac
 import acsys
 
-from lt_acd import ACD
-from lt_colors import Colors
-from lt_interpolation import Power, TyrePsi, TyreTemp
-from lt_util import log
+from lib.lt_acd import ACD
+from lib.lt_colors import Colors
+from lib.lt_interpolation import Power, TyrePsi, TyreTemp
+from lib.lt_util import log
 
 ACD_FILE = None
 

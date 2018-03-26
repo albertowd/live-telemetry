@@ -6,11 +6,11 @@ Module to update one wheel infos from car and draw on screen.
 
 import ac
 
-from lt_colors import Colors
-from lt_config import Config
-from lt_components import BoxComponent, Camber, Dirt, Height, Pressure, Temps, Suspension, Tyre, Wear
+from lib.lt_colors import Colors
+from lib.lt_config import Config
+from lib.lt_components import BoxComponent, Camber, Dirt, Height, Pressure, Temps, Suspension, Tyre, Wear
 from sim_info.sim_info import info
-from lt_util import WheelPos
+from lib.lt_util import WheelPos
 
 
 class Data(object):
