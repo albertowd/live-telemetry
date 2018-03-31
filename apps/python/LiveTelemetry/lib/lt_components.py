@@ -344,7 +344,7 @@ class Suspension(BoxComponent):
         rect[2] -= 20 * self.__mult
         rect[3] -= 88 * self.__mult
 
-        rect[1] += (1.0 - travel) * rect[3]
+        #rect[1] += (1.0 - travel) * rect[3]
         rect[3] *= travel
 
         ac.glColor4f(*self._back.color)
