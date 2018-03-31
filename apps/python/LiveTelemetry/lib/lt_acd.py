@@ -9,6 +9,7 @@ Big thanks for aluigi@ZenHaxs.com that have the patience to help me to open the 
 
 from collections import OrderedDict
 import configparser
+import os
 from struct import unpack
 
 from lib.lt_util import log, WheelPos
@@ -22,10 +23,20 @@ class ACD(object):
         path_v = path.split("/")
         
         # Initiate the class fields.
-        self.__car = path_v[-2]
+        self.__car = path_v[-1]
         self.__content = bytearray()
         self.__files = OrderedDict()
         self.__key = generate_key(self.__car)
+        
+        # Verify if the data.acd exists to load car information.
+        if os.path.isfile("{}/data.acd".format(path)):
+            self.__load_from_file(path)
+        else:
+            # If it don't, try to load from data folder.
+            self.__load_from_folder("{}/data".format(path))
+    
+    def __load_from_file(self, path):
+        """ Loads the car information by the data.acd encrypted file. """
         
         # Read all the file into memory.
         with open(path, "rb") as rb:
@@ -72,6 +83,23 @@ class ACD(object):
             # Save the decrypted file.
             self.set_file(decrypted_content, file_name)
     
+    def __load_from_folder(self, path):
+        """ Loads the car information by the data folder. """
+        for file_name in os.listdir(path):
+            file_path = "{}/{}".format(path, file_name)
+            log(file_path)
+            if os.path.isfile(file_path):
+                with open(file_path, 'r') as r:
+                    self.set_file(r.read(), file_name)
+    
+    def __str__(self):
+        """ Just print some useful information. """
+        info = "Car: {} - {}kb\n".format(self.__car, self.__content_size // 1024)
+        info += "Key: {}\nFiles:\n".format(self.__key)
+        for name in self.__files:
+            info += "   {} - {}b\n".format(name, len(self.__files[name]))
+        return info
+    
     def get_file(self, name):
         """ Returns the content of an inner file. """
         if name in self.__files:
@@ -113,14 +141,6 @@ class ACD(object):
     def set_file(self, content, name):
         """ Sets a new content to an inner file. """
         self.__files[name] = content
-    
-    def __str__(self):
-        """ Just print some useful information. """
-        info = "Car: {} - {}kb\n".format(self.__car, self.__content_size // 1024)
-        info += "Key: {}\nFiles:\n".format(self.__key)
-        for name in self.__files:
-            info += "   {} - {}b\n".format(name, len(self.__files[name]))
-        return info
 
 
 def generate_key(car_name):
@@ -198,15 +218,16 @@ def get_tyre_name(compound, config, wheel):
     
     for i in range(10):
         name = prefix.format("" if i == 0 else "_{}".format(i))
-        if config[name]["SHORT_NAME"] == compound:
+        # Check if the SHORT_NAME index exists for tyre backward compatibility.
+        if config.has_option(name, "SHORT_NAME") and config[name]["SHORT_NAME"] == compound:
             return name
     
-    i = config["COMPOUND_DEFAULT"]["INDEX"]
+    i = int(config["COMPOUND_DEFAULT"]["INDEX"])
     return prefix.format("" if i == 0 else "_{}".format(i))
 
 
 if __name__ == "__main__":
-    acd = ACD("D:/Program Files (x86)/Steam/steamapps/common/assettocorsa/content/cars/abarth500/data.acd")
+    acd = ACD("D:/Program Files (x86)/Steam/steamapps/common/assettocorsa/content/cars/abarth500")
     log(acd)
     log("Ideal Pressures:\nFL: {}\tFR: {}\nRL: {}\tRR: {}\n".format(acd.get_ideal_pressure("SM", WheelPos(0)), acd.get_ideal_pressure("SM", WheelPos(1)), acd.get_ideal_pressure("SM", WheelPos(2)), acd.get_ideal_pressure("SM", WheelPos(3))))
     log("Temp Curve FL:\n{}\n".format(acd.get_temp_curve("SM", WheelPos(0))))

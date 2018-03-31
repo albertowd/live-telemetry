@@ -34,7 +34,7 @@ def acMain(ac_version):
     log("Starting Live Telemetry on AC Python API version {}...".format(ac_version))
 
     try:
-        update_acd("content/cars/{}/data.acd".format(ac.getCarName(0)))
+        update_acd("content/cars/{}".format(ac.getCarName(0)))
         
         global WHEEL_INFOS
         for index in range(4):
