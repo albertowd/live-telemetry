@@ -64,6 +64,7 @@ class ACD(object):
             # File name.
             file_name = self.__content[offset:offset + name_size].decode("utf8")
             offset += name_size
+            log(file_name)
             
             # File size.
             file_size = unpack("L", self.__content[offset:offset + 4])[0]
@@ -87,8 +88,8 @@ class ACD(object):
         """ Loads the car information by the data folder. """
         for file_name in os.listdir(path):
             file_path = "{}/{}".format(path, file_name)
-            log(file_path)
             if os.path.isfile(file_path):
+                log(file_name)
                 with open(file_path, 'r') as r:
                     self.set_file(r.read(), file_name)
     
