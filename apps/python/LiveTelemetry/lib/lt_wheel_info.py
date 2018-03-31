@@ -4,6 +4,7 @@
 Module to update one wheel infos from car and draw on screen.
 """
 import copy
+import sys
 
 import ac
 
@@ -30,16 +31,21 @@ class Data(object):
         self.tyre_t_o = 0.0
         self.tyre_w = 0.0
 
-    def update(self, index, info):
+    def update(self, wheel, info):
+        index = wheel.index()
         self.camber = info.physics.camberRAD[index]
-
-        # um to mm
-        self.height = info.physics.rideHeight[int(index / 2)] * 1000.0
 
         # If there's no max travel, keep it 50%.
         self.susp_t = info.physics.suspensionTravel[index]
         max_travel = info.static.suspensionMaxTravel[index]
         self.susp_m_t = max_travel if max_travel > 0.0 else (self.susp_t * 2.0)
+        
+        # um to mm
+        self.height = info.physics.rideHeight[int(index / 2)] * 1000.0
+        
+        # Get susp diff
+        susp_diff = self.susp_t - info.physics.suspensionTravel[index + (1 if wheel.is_left() else -1)]
+        self.height -= ((susp_diff / 2.0) * 1000.0)
         
         self.timestamp = info.graphics.iCurrentTime
         self.tyre_d = info.physics.tyreDirtyLevel[index] * 4.0
@@ -87,7 +93,7 @@ class WheelInfo(object):
         ac.setFontAlignment(self.__bt_resolution, "center")
 
         self.__components = []
-        self.__components.append(Temps(resolution, self.__wheel, self.__window_id))
+        self.__components.append(Temps(resolution, self.__wheel))
         self.__components.append(Dirt(resolution))
         self.__components.append(Tyre(resolution, self.__wheel))
 
@@ -147,7 +153,7 @@ class WheelInfo(object):
 
     def update(self):
         """ Updates the wheel information. """
-        self.__data.update(self.__wheel.index(), self.__info)
+        self.__data.update(self.__wheel, self.__info)
         self.__data_log.append(copy.copy(self.__data))
         for component in self.__components:
             ac.glColor4f(*Colors.white)

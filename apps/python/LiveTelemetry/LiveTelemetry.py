@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Live Telemetry App for Assetto Corsa
-v 1.2.3
+v 1.2.4
 https://github.com/albertowd/WheelTelemetry
 @author: albertowd
 """
@@ -18,11 +18,11 @@ else:
     sys.path.append("apps/python/LiveTelemetry/stdlib")
 os.environ["PATH"] = os.environ["PATH"] + ";."
 
-from lib.lt_components import BoxComponent, update_acd
+from lib.lt_components import BoxComponent
 from lib.lt_config import Config
 from lib.lt_engine_info import EngineInfo
 from lib.lt_wheel_info import WheelInfo
-from lib.lt_util import export_saved_log, log
+from lib.lt_util import export_saved_log, log, update_acd
 
 # Each window
 ENGINE_INFO = None

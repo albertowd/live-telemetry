@@ -5,10 +5,12 @@ Module to keep some utility functions.
 
 @author: albertowd
 """
+from datetime import datetime
 import ctypes.wintypes
 
 import ac
-from datetime import datetime
+
+ACD_FILE = None
 
 
 class WheelPos(object):
@@ -47,6 +49,12 @@ def color_interpolate(c_1, c_2, perc):
     return [c_r, c_g, c_b, c_a]
 
 
+def get_acd():
+    """ Returns the global ACD file. """
+    global ACD_FILE
+    return ACD_FILE
+
+
 def log(message, console=True, app_log=True):
     """ Logs a message on the log and console. """
     time_str = datetime.utcnow().strftime("%H:%M:%S.%f")
@@ -83,5 +91,14 @@ def export_saved_log(data_log, csv_name):
     buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
     ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
     
-    with open("{}/Assetto Corsa/log/{}.log".format(buf.value, csv_name), "w") as w:
+    with open("{}/Assetto Corsa/logs/LiveTelemetry_{}.log".format(buf.value, csv_name), "w") as w:
         w.write("\n".join(csv))
+
+
+def update_acd(path):
+    """ Updates the ACD car information. """
+    log("Loading {} info...".format(ac.getCarName(0)))
+    from lib.lt_acd import ACD
+    global ACD_FILE
+    ACD_FILE = ACD(path)
+    log("Loaded correctly")

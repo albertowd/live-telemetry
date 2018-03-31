@@ -6,13 +6,12 @@ Big thanks for aluigi@ZenHaxs.com that have the patience to help me to open the 
 
 @author: albertowd
 """
-
 from collections import OrderedDict
 import configparser
 import os
 from struct import unpack
 
-from lib.lt_util import log, WheelPos
+from lib.lt_util import log
 
 
 class ACD(object):
@@ -126,13 +125,6 @@ class ACD(object):
         
         return self.get_file(config["HEADER"]["POWER_CURVE"])
     
-    def get_suspension_track(self, wheel):
-        """ Returns the suspension track to calculate ride height. """
-        config = configparser.ConfigParser(empty_lines_in_values=False, inline_comment_prefixes=(';',))
-        config.read_string(self.get_file("suspensions.ini"))
-        
-        return float(config["FRONT" if wheel.is_front() else "REAR"]["TRACK"])
-    
     def get_temp_curve(self, compound, wheel):
         """ Returns the compound temperature grip curve. """
         config = configparser.ConfigParser(empty_lines_in_values=False, inline_comment_prefixes=(';',))
@@ -235,13 +227,3 @@ def get_tyre_name(compound, config, wheel):
     
     i = int(config["COMPOUND_DEFAULT"]["INDEX"])
     return prefix.format("" if i == 0 else "_{}".format(i))
-
-
-if __name__ == "__main__":
-    acd = ACD("D:/Program Files (x86)/Steam/steamapps/common/assettocorsa/content/cars/abarth500")
-    log(acd)
-    log("Ideal Pressures:\nFL: {}\tFR: {}\nRL: {}\tRR: {}\n".format(acd.get_ideal_pressure("SM", WheelPos(0)), acd.get_ideal_pressure("SM", WheelPos(1)), acd.get_ideal_pressure("SM", WheelPos(2)), acd.get_ideal_pressure("SM", WheelPos(3))))
-    log("Temp Curve FL:\n{}\n".format(acd.get_temp_curve("SM", WheelPos(0))))
-    log("Wear Curve FL:\n{}\n".format(acd.get_wear_curve("SM", WheelPos(0))))
-    log("Power Curve:\n{}\n".format(acd.get_power_curve()))
-    log("Suspension Width:\n{}\n".format(acd.get_suspension_track(WheelPos(0))))

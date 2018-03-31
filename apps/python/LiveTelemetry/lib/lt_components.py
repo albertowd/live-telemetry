@@ -7,19 +7,9 @@ import math
 import ac
 import acsys
 
-from lib.lt_acd import ACD
 from lib.lt_colors import Colors
 from lib.lt_interpolation import Power, TyrePsi, TyreTemp
-from lib.lt_util import log
-
-ACD_FILE = None
-
-
-def update_acd(path):
-    log("Loading {} info...".format(ac.getCarName(0)))
-    global ACD_FILE
-    ACD_FILE = ACD(path)
-    log("Loaded correctly")
+from lib.lt_util import get_acd
 
 
 class Background(object):
@@ -219,7 +209,7 @@ class Pressure(BoxComponent):
     texture_id = 0
 
     def __init__(self, resolution, wheel, window_id):
-        self.__calc = TyrePsi(ACD_FILE.get_ideal_pressure(ac.getCarTyreCompound(0), wheel))
+        self.__calc = TyrePsi(get_acd().get_ideal_pressure(ac.getCarTyreCompound(0), wheel))
         
         # Initial size is 85x85
         super(Pressure, self).__init__(70.0 if wheel.is_left() else 382.0, 95.0, 60.0, 60.0)
@@ -251,7 +241,7 @@ class RPMPower(BoxComponent):
     """ Class to handle best power change. """
 
     def __init__(self, resolution, window_id):
-        self.__calc = Power(ACD_FILE.get_power_curve())
+        self.__calc = Power(get_acd().get_power_curve())
         
         # Initial size is 512x85
         super(RPMPower, self).__init__(0.0, 0.0, 512.0, 50.0)
@@ -327,8 +317,8 @@ class Suspension(BoxComponent):
 class Temps(BoxComponent):
     """ Class to handle tyre temperatures draw. """
 
-    def __init__(self, resolution, wheel, window_id):
-        self.__calc = TyreTemp(ACD_FILE.get_temp_curve(ac.getCarTyreCompound(0), wheel))
+    def __init__(self, resolution, wheel):
+        self.__calc = TyreTemp(get_acd().get_temp_curve(ac.getCarTyreCompound(0), wheel))
 
         # Initial size is 160x256
         super(Temps, self).__init__(176.0, 0.0, 160.0, 256.0, 16.0)
@@ -383,7 +373,7 @@ class Tyre(BoxComponent):
     texture_id = 0
 
     def __init__(self, resolution, wheel):
-        self.__calc = TyreTemp(ACD_FILE.get_temp_curve(ac.getCarTyreCompound(0), wheel))
+        self.__calc = TyreTemp(get_acd().get_temp_curve(ac.getCarTyreCompound(0), wheel))
         
         # Initial size is 160x256
         super(Tyre, self).__init__(176.0, 0.0, 160.0, 256.0)
