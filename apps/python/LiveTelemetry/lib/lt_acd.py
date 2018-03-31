@@ -29,10 +29,13 @@ class ACD(object):
         self.__key = generate_key(self.__car)
         
         # Verify if the data.acd exists to load car information.
-        if os.path.isfile("{}/data.acd".format(path)):
-            self.__load_from_file(path)
+        data_acd_path = "{}/data.acd".format(path)
+        if os.path.isfile(data_acd_path):
+            log("Loading from data.acd...")
+            self.__load_from_file(data_acd_path)
         else:
             # If it don't, try to load from data folder.
+            log("Loading from data folder...")
             self.__load_from_folder("{}/data".format(path))
     
     def __load_from_file(self, path):
@@ -122,6 +125,13 @@ class ACD(object):
         config.read_string(self.get_file("engine.ini"))
         
         return self.get_file(config["HEADER"]["POWER_CURVE"])
+    
+    def get_suspension_track(self, wheel):
+        """ Returns the suspension track to calculate ride height. """
+        config = configparser.ConfigParser(empty_lines_in_values=False, inline_comment_prefixes=(';',))
+        config.read_string(self.get_file("suspensions.ini"))
+        
+        return float(config["FRONT" if wheel.is_front() else "REAR"]["TRACK"])
     
     def get_temp_curve(self, compound, wheel):
         """ Returns the compound temperature grip curve. """
@@ -234,3 +244,4 @@ if __name__ == "__main__":
     log("Temp Curve FL:\n{}\n".format(acd.get_temp_curve("SM", WheelPos(0))))
     log("Wear Curve FL:\n{}\n".format(acd.get_wear_curve("SM", WheelPos(0))))
     log("Power Curve:\n{}\n".format(acd.get_power_curve()))
+    log("Suspension Width:\n{}\n".format(acd.get_suspension_track(WheelPos(0))))
