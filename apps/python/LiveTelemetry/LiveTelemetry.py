@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Live Telemetry App for Assetto Corsa
-v 1.2.4
+v 1.3.0
 https://github.com/albertowd/WheelTelemetry
 @author: albertowd
 """

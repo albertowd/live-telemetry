@@ -1,4 +1,4 @@
-# Live Telemetry 1.2.3
+# Live Telemetry 1.3.0
 An Assetto Corsa app to view real time telemetry
 
 ## App
@@ -40,6 +40,11 @@ Last step is to enter any session (online, practice, race) and select it on the 
 ![App Window](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/app.png)
 
 ## Change-log
+
+1.3
+   - Unpacked car support (for debugging unfinished mods)
+   - Save each wheel data in a csv file after the session
+   - Suspension height is now being interpolated with half of suspension difference of oposite wheel
 
 1.2
    - Engine telemetry
