@@ -3,6 +3,7 @@
 """
 Module to update one wheel infos from car and draw on screen.
 """
+import copy
 
 import ac
 
@@ -16,12 +17,12 @@ from lib.lt_util import WheelPos
 class Data(object):
 
     def __init__(self):
-        # self.brake_t = 0.0
         self.camber = 0.0
         self.height = 0.0
+        self.susp_m_t = 1.0
         self.susp_t = 0.0
+        self.timestamp = 0
         self.tyre_d = 0.0
-        # self.tyre_l = 0.0
         self.tyre_p = 0.0
         self.tyre_t_c = 0.0
         self.tyre_t_i = 0.0
@@ -30,15 +31,17 @@ class Data(object):
         self.tyre_w = 0.0
 
     def update(self, index, info):
-        # self.brake_t = info.physics.brakeTemp[index]
         self.camber = info.physics.camberRAD[index]
 
         # um to mm
         self.height = info.physics.rideHeight[int(index / 2)] * 1000.0
 
+        # If there's no max travel, keep it 50%.
+        self.susp_t = info.physics.suspensionTravel[index]
         max_travel = info.static.suspensionMaxTravel[index]
-        max_travel = max_travel if max_travel > 0.0 else 1.0
-        self.susp_t = info.physics.suspensionTravel[index] / max_travel
+        self.susp_m_t = max_travel if max_travel > 0.0 else (self.susp_t * 2.0)
+        
+        self.timestamp = info.graphics.iCurrentTime
         self.tyre_d = info.physics.tyreDirtyLevel[index] * 4.0
 
         # N to (5*kgf)
@@ -63,6 +66,7 @@ class WheelInfo(object):
         self.__wheel = WheelPos(wheel_index)
         self.__active = False
         self.__data = Data()
+        self.__data_log = []
         self.__info = info
         self.__window_id = ac.newApp("Live Telemetry {}".format(self.__wheel.name()))
         ac.drawBorder(self.__window_id, 0)
@@ -96,6 +100,10 @@ class WheelInfo(object):
         # self.__components.append(Load(resolution))
 
         self.set_active(configs.is_active(self.__wheel.name()))
+    
+    def get_data_log(self):
+        """ Returns the saved data from the session. """
+        return self.__data_log
 
     def get_id(self):
         """ Returns the wheel id. """
@@ -140,6 +148,7 @@ class WheelInfo(object):
     def update(self):
         """ Updates the wheel information. """
         self.__data.update(self.__wheel.index(), self.__info)
+        self.__data_log.append(copy.copy(self.__data))
         for component in self.__components:
             ac.glColor4f(*Colors.white)
             component.update(self.__data)

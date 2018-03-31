@@ -22,7 +22,7 @@ from lib.lt_components import BoxComponent, update_acd
 from lib.lt_config import Config
 from lib.lt_engine_info import EngineInfo
 from lib.lt_wheel_info import WheelInfo
-from lib.lt_util import log
+from lib.lt_util import export_saved_log, log
 
 # Each window
 ENGINE_INFO = None
@@ -77,14 +77,20 @@ def acShutdown():
 
     try:
         configs = Config()
-        
         global ENGINE_INFO
+        global WHEEL_INFOS
+        
+        log("Saving csv data...")
+        for wheel_id in WHEEL_INFOS:
+            info = WHEEL_INFOS[wheel_id]
+            export_saved_log(info.get_data_log(), wheel_id)
+        
+        log("Saving window configurations...")
         configs.set_engine_active(ENGINE_INFO.is_active())
         ENGINE_INFO.set_active(False)
         pos_x, pos_y = ENGINE_INFO.get_position()
         configs.set_engine_position(pos_x, pos_y)
 
-        global WHEEL_INFOS
         for wheel_id in WHEEL_INFOS:
             info = WHEEL_INFOS[wheel_id]
             configs.set_active(wheel_id, info.is_active())

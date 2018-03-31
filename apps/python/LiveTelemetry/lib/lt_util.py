@@ -5,8 +5,10 @@ Module to keep some utility functions.
 
 @author: albertowd
 """
+import ctypes.wintypes
 
 import ac
+from datetime import datetime
 
 
 class WheelPos(object):
@@ -47,10 +49,39 @@ def color_interpolate(c_1, c_2, perc):
 
 def log(message, console=True, app_log=True):
     """ Logs a message on the log and console. """
-    formated = "[LT] {}".format(message)
+    time_str = datetime.utcnow().strftime("%H:%M:%S.%f")
+    formated = "[LT][{}] {}".format(time_str, message)
     
     if console:
         ac.console(formated)
 
     if app_log:
         ac.log(formated)
+
+
+def export_saved_log(data_log, csv_name):
+    """ Export saved data to a CSV file. """
+    csv = []
+    
+    # Verifies the log length.
+    if(len(data_log) > 0):
+        # Create the header row
+        keys = data_log[0].__dict__.keys()
+        csv.append(";".join(keys))
+        
+        # Create the each data row.
+        for data in data_log:
+            row = []
+            data_dict = vars(data)
+            for key in keys:
+                row.append(str(data_dict[key]))
+            csv.append(";".join(row))
+    
+    # Load the My Documents folder.
+    CSIDL_PERSONAL = 5  # My Documents
+    SHGFP_TYPE_CURRENT = 0  # Get current, not default value            
+    buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+    ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+    
+    with open("{}/Assetto Corsa/log/{}.log".format(buf.value, csv_name), "w") as w:
+        w.write("\n".join(csv))

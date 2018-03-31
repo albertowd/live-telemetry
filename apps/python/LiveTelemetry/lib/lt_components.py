@@ -107,34 +107,6 @@ class BoxComponent(object):
         pass
 
 
-class Brake(BoxComponent):
-    """ Class to handle brake draw. """
-
-    texture_id = 0
-
-    def __init__(self, resolution, wheel, window_id):
-        # Initial size is 96x96
-        super(Brake, self).__init__(70.0 if wheel.is_left() else 382.0, 0.0, 60.0, 60.0)
-        self._back.background = Colors.white
-
-        if Brake.texture_id == 0:
-            Brake.texture_id = ac.newTexture("apps/python/LiveTelemetry/img/brake.png")
-
-        self.__lb = ac.addLabel(window_id, "- ºC")
-        ac.setFontAlignment(self.__lb, "center")
-
-        self.resize(resolution)
-
-    def draw(self, data):
-        self._draw(Brake.texture_id)
-        ac.setText(self.__lb, "{:3.0f} ºC".format(data.brake_t))
-
-    def resize_fonts(self, resolution):
-        ac.setFontSize(self.__lb, self._font)
-        rect = self._box.rect
-        ac.setPosition(self.__lb, self._box.center[0], rect[1] + rect[3])
-
-
 class Camber(BoxComponent):
     """ Class to handle tyre camber draw. """
 
@@ -328,7 +300,7 @@ class Suspension(BoxComponent):
         self.resize(resolution)
 
     def draw(self, data):
-        travel = data.susp_t
+        travel = data.susp_t / data.susp_m_t
         if travel > 0.9 or travel < 0.1:
             self._back.color = Colors.red
         if travel > 0.8 or travel < 0.2:
@@ -343,9 +315,7 @@ class Suspension(BoxComponent):
         rect[1] += 44 * self.__mult
         rect[2] -= 20 * self.__mult
         rect[3] -= 88 * self.__mult
-
-        #rect[1] += (1.0 - travel) * rect[3]
-        rect[3] *= travel
+        rect[3] *= (1.0 - travel)
 
         ac.glColor4f(*self._back.color)
         ac.glQuad(*rect)
