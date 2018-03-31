@@ -6,7 +6,7 @@ Handles wheel interpolations and colors.
 @author: albertowd
 """
 from lib.lt_colors import Colors
-from lib.lt_util import color_interpolate, log
+from lib.lt_util import color_interpolate
 
 
 class Curve(object):
@@ -118,26 +118,3 @@ class TyreTemp(Curve):
             return color_interpolate(Colors.blue, Colors.green, max(0.0, interpolated - 0.98) / 0.02)
         else:
             return color_interpolate(Colors.red, Colors.green, max(0.0, interpolated - 0.98) / 0.02)
-
-        
-if __name__ == "__main__":
-    curve = "0|99.5\n0.57|100\n2.0|100\n4|99\n7.6|97\n15.2|92\n20.9|90\n22.8|85"
-    interpolation = TyreTemp(curve)
-    log("Tyre Temp:\n\t{}".format(curve.replace("\n", "\n\t")))
-    currents = [0.0, 0.25, 0.57, 1.0, 4.0, 6.0, 23.0]
-    for current in currents:
-        log("\t{} => {}".format(current, interpolation.interpolate(current)))
-    
-    psi = 30.0
-    log("Tyre Psi: {}".format(psi))
-    interpolation = TyrePsi(psi)
-    psis = [24.0, 28.0, 30.0, 32.0, 36.0]
-    for current in psis:
-        log("\t{} => {}".format(current, interpolation.interpolate(current)))
-    
-    curve = "0|100\n500|195\n1000|231\n1500|244\n2000|263\n2500|286\n3000|330\n3250|360\n3500|403\n3750|429\n4000|482\n4250|520\n4500|532\n4750|535\n5000|539\n5250|540\n5500|541\n5750|540\n6000|538\n6250|524\n6500|517\n6750|501\n6900|493\n7000|482\n7250|464\n7500|440\n8000|374\n8500|0"
-    interpolation = Power(curve)
-    log("Power: {}".format(curve.replace("\n", "\n\t")))
-    rpms = [4000, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500]
-    for current in rpms:
-        log("\t{} => {}".format(current, interpolation.interpolate(current)))
