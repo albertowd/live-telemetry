@@ -6,13 +6,12 @@ Big thanks for aluigi@ZenHaxs.com that have the patience to help me to open the 
 
 @author: albertowd
 """
-
 from collections import OrderedDict
 import configparser
 import os
 from struct import unpack
 
-from lib.lt_util import log, WheelPos
+from lib.lt_util import log
 
 
 class ACD(object):
@@ -29,10 +28,13 @@ class ACD(object):
         self.__key = generate_key(self.__car)
         
         # Verify if the data.acd exists to load car information.
-        if os.path.isfile("{}/data.acd".format(path)):
-            self.__load_from_file(path)
+        data_acd_path = "{}/data.acd".format(path)
+        if os.path.isfile(data_acd_path):
+            log("Loading from data.acd...")
+            self.__load_from_file(data_acd_path)
         else:
             # If it don't, try to load from data folder.
+            log("Loading from data folder...")
             self.__load_from_folder("{}/data".format(path))
     
     def __load_from_file(self, path):
@@ -64,6 +66,7 @@ class ACD(object):
             # File name.
             file_name = self.__content[offset:offset + name_size].decode("utf8")
             offset += name_size
+            log(file_name)
             
             # File size.
             file_size = unpack("L", self.__content[offset:offset + 4])[0]
@@ -87,8 +90,8 @@ class ACD(object):
         """ Loads the car information by the data folder. """
         for file_name in os.listdir(path):
             file_path = "{}/{}".format(path, file_name)
-            log(file_path)
             if os.path.isfile(file_path):
+                log(file_name)
                 with open(file_path, 'r') as r:
                     self.set_file(r.read(), file_name)
     
@@ -224,12 +227,3 @@ def get_tyre_name(compound, config, wheel):
     
     i = int(config["COMPOUND_DEFAULT"]["INDEX"])
     return prefix.format("" if i == 0 else "_{}".format(i))
-
-
-if __name__ == "__main__":
-    acd = ACD("D:/Program Files (x86)/Steam/steamapps/common/assettocorsa/content/cars/abarth500")
-    log(acd)
-    log("Ideal Pressures:\nFL: {}\tFR: {}\nRL: {}\tRR: {}\n".format(acd.get_ideal_pressure("SM", WheelPos(0)), acd.get_ideal_pressure("SM", WheelPos(1)), acd.get_ideal_pressure("SM", WheelPos(2)), acd.get_ideal_pressure("SM", WheelPos(3))))
-    log("Temp Curve FL:\n{}\n".format(acd.get_temp_curve("SM", WheelPos(0))))
-    log("Wear Curve FL:\n{}\n".format(acd.get_wear_curve("SM", WheelPos(0))))
-    log("Power Curve:\n{}\n".format(acd.get_power_curve()))
