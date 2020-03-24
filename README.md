@@ -5,7 +5,7 @@ An Assetto Corsa app to view real time telemetry
 
 The app show on screen real time telemetry of engine, each tyre and suspension individually. The goal with this app is not to replace the Assetto Corsa built-in apps with theese informations, but to help developing better setups more efficiently.
 
-![Screen-shot](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/screenshot.png)
+[![Screen-shot](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/screenshot.png)](https://www.youtube.com/watch?v=i7jyqPhZp4Y)
 
 ### Telemetry Info
 
