@@ -1,4 +1,4 @@
-# Live Telemetry 1.3.0
+# Live Telemetry 1.3.1
 An Assetto Corsa app to view real time telemetry
 
 ## App
