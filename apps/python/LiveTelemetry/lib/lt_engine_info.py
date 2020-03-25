@@ -3,13 +3,13 @@
 """
 Module to update one engine infos from car and draw on screen.
 """
-
+import copy
 import ac
 
 from lib.lt_colors import Colors
 from lib.lt_config import Config
 from lib.lt_components import BoxComponent, RPMPower
-from sim_info.sim_info import info
+from lib.sim_info import info
 
 
 class Data(object):
@@ -19,12 +19,14 @@ class Data(object):
         self.max_rpm = 0.0
         self.max_torque = 0.0
         self.rpm = 0.0
+        self.timestamp = 0
 
     def update(self, info):
         self.max_power = info.static.maxPower
         self.max_rpm = info.static.maxRpm
         self.max_torque = info.static.maxTorque
         self.rpm = info.physics.rpms
+        self.timestamp = info.graphics.iCurrentTime
 
 
 class EngineInfo(object):
@@ -36,6 +38,7 @@ class EngineInfo(object):
 
         self.__active = False
         self.__data = Data()
+        self.__data_log = []
         self.__info = info
         self.__window_id = ac.newApp("Live Telemetry Engine")
         ac.drawBorder(self.__window_id, 0)
@@ -55,6 +58,10 @@ class EngineInfo(object):
         self.__components.append(RPMPower(resolution, self.__window_id))
 
         self.set_active(configs.is_engine_active())
+    
+    def get_data_log(self):
+        """ Returns the saved data from the session. """
+        return self.__data_log
 
     def get_position(self):
         """ Returns the window position. """
@@ -90,6 +97,7 @@ class EngineInfo(object):
     def update(self):
         """ Updates the engine information. """
         self.__data.update(self.__info)
+        self.__data_log.append(copy.copy(self.__data))
         for component in self.__components:
             ac.glColor4f(*Colors.white)
             component.update(self.__data)
