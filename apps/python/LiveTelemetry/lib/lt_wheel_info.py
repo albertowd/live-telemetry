@@ -88,10 +88,6 @@ class WheelInfo(object):
         mult = BoxComponent.resolution_map[resolution]
         ac.setSize(self.__window_id, 512 * mult, 271 * mult)
 
-        self.__bt_resolution = ac.addButton(self.__window_id, resolution)
-        ac.setSize(self.__bt_resolution, 50, 30)
-        ac.setFontAlignment(self.__bt_resolution, "center")
-
         self.__components = []
         self.__components.append(Temps(resolution, self.__wheel))
         self.__components.append(Dirt(resolution))
@@ -119,10 +115,6 @@ class WheelInfo(object):
         """ Returns the window position. """
         return ac.getPosition(self.__window_id)
 
-    def get_button_id(self):
-        """ Returns the resolution button id. """
-        return self.__bt_resolution
-
     def get_window_id(self):
         """ Returns the window id. """
         return self.__window_id
@@ -143,7 +135,6 @@ class WheelInfo(object):
         """ Resizes the window. """
         mult = BoxComponent.resolution_map[resolution]
         ac.setSize(self.__window_id, 512 * mult, 271 * mult)
-        ac.setText(self.__bt_resolution, resolution)
         for component in self.__components:
             component.resize(resolution)
 
