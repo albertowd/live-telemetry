@@ -62,7 +62,7 @@ class BoxComponent(object):
     """ Class to handle position and resize of a component. """
 
     resolutions = ["480p", "HD", "FHD", "1440p", "UHD", "4K", "8K", "480p"]
-    resolution_map = {"480p": 0.7, "HD": 1.0, "FHD": 1.5, "1440p": 2, "UHD": 3.0, "4K": 3.2, "8K": 6.0}
+    resolution_map = {"480p": 0.25, "HD": 0.5, "FHD": 0.75, "1440p": 1.0, "UHD": 1.5, "4K": 1.6, "8K": 3.0}
 
     def __init__(self, p_x=0.0, p_y=0.0, width=100.0, height=100.0, font=24.0):
         self.__ini_font = font
