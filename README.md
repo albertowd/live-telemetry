@@ -47,6 +47,10 @@ Last step is to enter any session (online, practice, race) and select it on the 
 
 ## Change-log
 
+1.3.1
+   - Changed sim_info.py path to work on all installations
+   - Save engin data in a csv file after the session
+
 1.3
    - Unpacked car support (for debugging unfinished mods)
    - Save each wheel data in a csv file after the session
