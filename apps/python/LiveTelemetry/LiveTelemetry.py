@@ -84,6 +84,7 @@ def acShutdown():
         for wheel_id in WHEEL_INFOS:
             info = WHEEL_INFOS[wheel_id]
             export_saved_log(info.get_data_log(), wheel_id)
+        export_saved_log(ENGINE_INFO.get_data_log(), 'EN')
         
         log("Saving window configurations...")
         configs.set_engine_active(ENGINE_INFO.is_active())

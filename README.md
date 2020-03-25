@@ -3,9 +3,11 @@ An Assetto Corsa app to view real time telemetry
 
 ## App
 
-The app show on screen real time telemetry of engine, each tyre and suspension individually. The goal with this app is not to replace the Assetto Corsa built-in apps with theese informations, but to help developing better setups more efficiently.
+The app show on screen real time telemetry of engine, each tire and suspension individually. The goal with this app is not to replace the Assetto Corsa built-in apps with these information, but to help developing better setups more efficiently.
 
-![Screen-shot](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/screenshot.png)
+The app uses the mod file directly or the encrypted Kunos files to calculate it's limits, does not need configuration.
+
+[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/img/screenshot.png)](https://www.youtube.com/watch?v=i7jyqPhZp4Y)
 
 ### Telemetry Info
 
@@ -17,6 +19,10 @@ The app show on screen real time telemetry of engine, each tyre and suspension i
    - Tyre load (N)
    - Tyre wear: bar gets warning yellow below 98% and danger red below 96%
    - Wheel camber (rad)
+
+### Telemetry Log
+
+All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs`.
 
 ### Resolutions
 
@@ -33,11 +39,11 @@ Each component have a button designed to scale all the components to best fit ea
 
 First unzip the release content direct on your Assetto Corsa main folder (C:/Program Files (x86)/steam/steamapps/common/assettocorsa) and load the game. Select the option menu and the general sub menu. In the UI Module section will be listed this app to be checked.
 
-![Session Menu](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/session-menu.png)
+![Session Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/img/session-menu.png)
 
 Last step is to enter any session (online, practice, race) and select it on the right app bar to see it on screen.
 
-![App Window](https://raw.githubusercontent.com/albertowd/WheelTelemetry/master/img/app.png)
+![App Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/img/app.png)
 
 ## Change-log
 
