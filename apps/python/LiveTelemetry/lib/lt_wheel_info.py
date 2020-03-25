@@ -11,8 +11,8 @@ import ac
 from lib.lt_colors import Colors
 from lib.lt_config import Config
 from lib.lt_components import BoxComponent, Camber, Dirt, Height, Pressure, Temps, Suspension, Tyre, Wear
-from sim_info.sim_info import info
 from lib.lt_util import WheelPos
+from lib.sim_info import info
 
 
 class Data(object):
