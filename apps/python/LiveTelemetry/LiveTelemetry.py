@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Live Telemetry App for Assetto Corsa
-v 1.3.0
+v 1.4.0
 https://github.com/albertowd/WheelTelemetry
 @author: albertowd
 """
@@ -151,7 +151,6 @@ def on_click_resolution(pos_x, pos_y):
         WHEEL_INFOS[wheel_id].resize(new_resolution)
     
     configs.set_resolution(new_resolution)
-    configs.save_config()
 
 
 def on_dismiss(window_id):

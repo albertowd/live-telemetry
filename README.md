@@ -1,4 +1,4 @@
-# Live Telemetry 1.3.0
+# Live Telemetry 1.4.0
 An Assetto Corsa app to view real time telemetry
 
 ## App
@@ -20,9 +20,12 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
    - Tire wear: bar gets warning yellow below 98% and danger red below 96%
    - Wheel camber (rad)
 
-### Telemetry Log
+### Logs
 
-All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs`.
+All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs`. It can be toggled in the options window (default is not to log).
+
+   - LiveTelemetry_EN.log - session engine data.
+   - LiveTelemetry_[FL|FR|RL|RR].log - session wheels data.
 
 ### Resolutions
 
@@ -45,7 +48,13 @@ Last step is to enter any session (online, practice, race) and select it on the 
 
 ![App Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/img/app.png)
 
-## Change-log
+## Changelog
+
+1.4.0
+   - Log can be toggled in run time
+   - New options window to change scale and toggle log
+   - New scales dimensions
+   - Tire load back available
 
 1.3.1
    - Changed sim_info.py path to work on all installations
@@ -78,7 +87,7 @@ Last step is to enter any session (online, practice, race) and select it on the 
 
 ## Noted Bugs
 
-   - ???
+All the issues can be found on the isseues page of the github repository: [Live Telemetry Issues](https://github.com/albertowd/live-telemetry/issues).
 
 ## Big Thanks
 
