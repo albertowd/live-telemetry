@@ -7,7 +7,6 @@ import copy
 import ac
 
 from lib.lt_colors import Colors
-from lib.lt_config import Config
 from lib.lt_components import BoxComponent, RPMPower
 from lib.sim_info import info
 
@@ -32,13 +31,12 @@ class Data(object):
 class EngineInfo(object):
     """ Engine info to draw and update. """
 
-    def __init__(self):
+    def __init__(self, configs):
         """ Default constructor. """
-        configs = Config()
-
         self.__active = False
         self.__data = Data()
         self.__data_log = []
+        self.__logging = False
         self.__info = info
         self.__window_id = ac.newApp("Live Telemetry Engine")
         ac.drawBorder(self.__window_id, 0)
@@ -58,7 +56,7 @@ class EngineInfo(object):
         self.__components.append(RPMPower(resolution, self.__window_id))
 
         self.set_active(configs.is_engine_active())
-    
+
     def get_data_log(self):
         """ Returns the saved data from the session. """
         return self.__data_log
@@ -94,10 +92,15 @@ class EngineInfo(object):
         """ Toggles the window status. """
         self.__active = active
 
+    def set_logging_active(self, active):
+        """ Updates if the logging is active. """
+        self.__logging = active
+
     def update(self):
         """ Updates the engine information. """
         self.__data.update(self.__info)
-        self.__data_log.append(copy.copy(self.__data))
+        if self.__logging is True:
+            self.__data_log.append(copy.copy(self.__data))
         for component in self.__components:
             ac.glColor4f(*Colors.white)
             component.update(self.__data)

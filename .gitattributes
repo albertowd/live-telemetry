@@ -1,0 +1,6 @@
+* eol=lf
+
+*.jpg binary
+*.png binary
+*.psd binary
+*.pyd binary

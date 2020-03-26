@@ -7,6 +7,7 @@ Module to keep some utility functions.
 """
 from datetime import datetime
 import ctypes.wintypes
+import os
 
 import ac
 
@@ -21,23 +22,45 @@ class WheelPos(object):
         self.__index = index
         self.__is_front = (index // 2) == 0
         self.__is_left = (index % 2) == 0
-        self.__name = "{}{}".format("F" if self.__is_front else "R", "L" if self.__is_left else "R")
-    
+        self.__name = "{}{}".format(
+            "F" if self.__is_front else "R", "L" if self.__is_left else "R")
+
     def index(self):
         """ Return the wheel index. """
         return self.__index
-    
+
     def is_front(self):
         """ Returns if the wheel is on front. """
         return self.__is_front
-    
+
     def name(self):
         """ Returns the name of wheel position. """
         return self.__name
-    
+
     def is_left(self):
         """ Returns if the wheel is on the left side. """
         return self.__is_left
+
+
+def clear_logs():
+    """ Clears saved CSV data files. """
+    # Load the My Documents folder.
+    CSIDL_PERSONAL = 5  # My Documents
+    SHGFP_TYPE_CURRENT = 0  # Get current, not default value
+    buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+    ctypes.windll.shell32.SHGetFolderPathW(
+        None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_EN.log".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_EN.log".format(buf.value))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FL.log".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FL.log".format(buf.value))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FR.log".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FR.log".format(buf.value))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RL.log".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RL.log".format(buf.value))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RR.log".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RR.log".format(buf.value))
 
 
 def color_interpolate(c_1, c_2, perc):
@@ -59,7 +82,7 @@ def log(message, console=True, app_log=True):
     """ Logs a message on the log and console. """
     time_str = datetime.utcnow().strftime("%H:%M:%S.%f")
     formated = "[LT][{}] {}".format(time_str, message)
-    
+
     if console:
         ac.console(formated)
 
@@ -70,13 +93,13 @@ def log(message, console=True, app_log=True):
 def export_saved_log(data_log, csv_name):
     """ Export saved data to a CSV file. """
     csv = []
-    
+
     # Verifies the log length.
     if(len(data_log) > 0):
         # Create the header row
         keys = data_log[0].__dict__.keys()
         csv.append(";".join(keys))
-        
+
         # Create the each data row.
         for data in data_log:
             row = []
@@ -84,13 +107,14 @@ def export_saved_log(data_log, csv_name):
             for key in keys:
                 row.append(str(data_dict[key]))
             csv.append(";".join(row))
-    
+
     # Load the My Documents folder.
     CSIDL_PERSONAL = 5  # My Documents
-    SHGFP_TYPE_CURRENT = 0  # Get current, not default value            
+    SHGFP_TYPE_CURRENT = 0  # Get current, not default value
     buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-    ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
-    
+    ctypes.windll.shell32.SHGetFolderPathW(
+        None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+
     with open("{}/Assetto Corsa/logs/LiveTelemetry_{}.log".format(buf.value, csv_name), "w") as w:
         w.write("\n".join(csv))
 
