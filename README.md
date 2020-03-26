@@ -7,7 +7,7 @@ The app show on screen real time telemetry of engine, each tire and suspension i
 
 The app uses the mod file directly or the encrypted Kunos files to calculate it's limits, does not need configuration.
 
-[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/img/screenshot.png)](https://www.youtube.com/watch?v=i7jyqPhZp4Y)
+[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/img/screenshot.jpg)](https://www.youtube.com/watch?v=i7jyqPhZp4Y)
 
 ### Telemetry Info
 
@@ -42,11 +42,11 @@ Each component have a button designed to scale all the components to best fit ea
 
 First unzip the release content direct on your Assetto Corsa main folder (C:/Program Files (x86)/steam/steamapps/common/assettocorsa) and load the game. Select the option menu and the general sub menu. In the UI Module section will be listed this app to be checked.
 
-![Session Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/img/session-menu.png)
+![Session Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/img/session-menu.jpg)
 
 Last step is to enter any session (online, practice, race) and select it on the right app bar to see it on screen.
 
-![App Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/img/app.png)
+![App Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/img/app.jpg)
 
 ## Changelog
 
