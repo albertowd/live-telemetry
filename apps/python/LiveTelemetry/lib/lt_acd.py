@@ -149,7 +149,7 @@ class ACD(object):
 def generate_key(car_name):
     """ Generates the 8 values key from the car name. """
     i = 0
-    key1 = 0;
+    key1 = 0
     while i < len(car_name):
         key1 += ord(car_name[i])
         i += 1
@@ -176,14 +176,14 @@ def generate_key(car_name):
     key3 &= 0xff
     
     i = 1
-    key4 = 0x1683;
+    key4 = 0x1683
     while i < len(car_name):
         key4 -= ord(car_name[i])
         i += 1
     key4 &= 0xff
     
     i = 1
-    key5 = 0x42;
+    key5 = 0x42
     while i < len(car_name) - 4:
         tmp = (ord(car_name[i]) + 0xf) * key5
         i -= 1
@@ -192,21 +192,21 @@ def generate_key(car_name):
     key5 &= 0xff
     
     i = 0
-    key6 = 0x65;
+    key6 = 0x65
     while i < len(car_name) - 2:
         key6 -= ord(car_name[i])
         i += 2
     key6 &= 0xff
     
     i = 0
-    key7 = 0xab;
+    key7 = 0xab
     while i < len(car_name) - 2:
         key7 %= ord(car_name[i])
         i += 2
     key7 &= 0xff
     
     i = 0
-    key8 = 0xab;
+    key8 = 0xab
     while i < len(car_name) - 1:
         key8 = int(key8 / ord(car_name[i])) + ord(car_name[i + 1])
         i += 1
