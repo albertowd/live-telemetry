@@ -9,7 +9,6 @@ import sys
 import ac
 
 from lib.lt_colors import Colors
-from lib.lt_config import Config
 from lib.lt_components import BoxComponent, Camber, Dirt, Height, Load, Pressure, Temps, Suspension, Tire, Wear
 from lib.lt_util import WheelPos
 from lib.sim_info import info
@@ -67,14 +66,13 @@ class Data(object):
 class WheelInfo(object):
     """ Wheel info to draw and update each wheel. """
 
-    def __init__(self, wheel_index):
+    def __init__(self, configs, wheel_index):
         """ Default constructor receive the index of the wheel it will draw info. """
-        configs = Config()
-
         self.__wheel = WheelPos(wheel_index)
         self.__active = False
         self.__data = Data()
         self.__data_log = []
+        self.__logging = False
         self.__info = info
         self.__window_id = ac.newApp(
             "Live Telemetry {}".format(self.__wheel.name()))
@@ -146,10 +144,15 @@ class WheelInfo(object):
         """ Toggles the window status. """
         self.__active = active
 
+    def set_logging(self, logging):
+        """ Updates if the logging is enabled. """
+        self.__logging = logging
+
     def update(self):
         """ Updates the wheel information. """
         self.__data.update(self.__wheel, self.__info)
-        self.__data_log.append(copy.copy(self.__data))
+        if self.__logging is True:
+            self.__data_log.append(copy.copy(self.__data))
         for component in self.__components:
             ac.glColor4f(*Colors.white)
             component.update(self.__data)

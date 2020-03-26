@@ -42,6 +42,27 @@ class WheelPos(object):
         return self.__is_left
 
 
+def clear_logs():
+    """ Clears saved CSV data files. """
+    # Load the My Documents folder.
+    CSIDL_PERSONAL = 5  # My Documents
+    SHGFP_TYPE_CURRENT = 0  # Get current, not default value
+    buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+    ctypes.windll.shell32.SHGetFolderPathW(
+        None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_EN.log".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_EN.log".format(buf.value))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FL.log".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FL.log".format(buf.value))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FR.log".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FR.log".format(buf.value))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RL.log".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RL.log".format(buf.value))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RR.log".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RR.log".format(buf.value))
+
+
 def color_interpolate(c_1, c_2, perc):
     """ Interpolate between two colors. """
     c_r = c_1[0] + (c_2[0] - c_1[0]) * perc

@@ -51,7 +51,9 @@ Last step is to enter any session (online, practice, race) and select it on the 
 ## Changelog
 
 1.4.0
-   - Log can be toggled in run time
+   - Fixed: not showing 480p scale
+   - Log can be enabled (it will not save data while disabled) in run time
+   - Log is deleted if not enabled at the end of a session
    - New options window to change scale and toggle log
    - New scales dimensions
    - Tire load back available
