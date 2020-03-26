@@ -39,14 +39,16 @@ class Data(object):
         self.susp_t = info.physics.suspensionTravel[index]
         max_travel = info.static.suspensionMaxTravel[index]
         self.susp_m_t = max_travel if max_travel > 0.0 else (self.susp_t * 2.0)
-        
+
         # um to mm
         self.height = info.physics.rideHeight[int(index / 2)] * 1000.0
-        
+
         # Get susp diff
-        susp_diff = self.susp_t - info.physics.suspensionTravel[index + (1 if wheel.is_left() else -1)]
+        susp_diff = self.susp_t - \
+            info.physics.suspensionTravel[index +
+                                          (1 if wheel.is_left() else -1)]
         self.height -= ((susp_diff / 2.0) * 1000.0)
-        
+
         self.timestamp = info.graphics.iCurrentTime
         self.tire_d = info.physics.tyreDirtyLevel[index] * 4.0
 
@@ -74,7 +76,8 @@ class WheelInfo(object):
         self.__data = Data()
         self.__data_log = []
         self.__info = info
-        self.__window_id = ac.newApp("Live Telemetry {}".format(self.__wheel.name()))
+        self.__window_id = ac.newApp(
+            "Live Telemetry {}".format(self.__wheel.name()))
         ac.drawBorder(self.__window_id, 0)
         ac.setBackgroundOpacity(self.__window_id, 0.0)
         ac.setIconPosition(self.__window_id, 0, -10000)
@@ -95,13 +98,15 @@ class WheelInfo(object):
 
         self.__components.append(Camber(resolution))
         self.__components.append(Suspension(resolution, self.__wheel))
-        self.__components.append(Height(resolution, self.__wheel, self.__window_id))
-        self.__components.append(Pressure(resolution, self.__wheel, self.__window_id))
+        self.__components.append(
+            Height(resolution, self.__wheel, self.__window_id))
+        self.__components.append(
+            Pressure(resolution, self.__wheel, self.__window_id))
         self.__components.append(Wear(resolution, self.__wheel))
         self.__components.append(Load(resolution, self.__wheel))
 
         self.set_active(configs.is_active(self.__wheel.name()))
-    
+
     def get_data_log(self):
         """ Returns the saved data from the session. """
         return self.__data_log

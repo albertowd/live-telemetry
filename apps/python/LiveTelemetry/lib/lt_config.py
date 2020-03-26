@@ -27,10 +27,11 @@ class Config(object):
             
             # Try to use video.ini settings to recalculate window positions.
             CSIDL_PERSONAL = 5  # My Documents
-            SHGFP_TYPE_CURRENT = 0  # Get current, not default value            
+            SHGFP_TYPE_CURRENT = 0  # Get current, not default value
             buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-            ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
-            
+            ctypes.windll.shell32.SHGetFolderPathW(
+                None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+
             video.read("{}/Assetto Corsa/cfg/video.ini".format(buf.value))
             h = int(video.get("VIDEO", "HEIGHT"))
             w = int(video.get("VIDEO", "WIDTH"))
@@ -81,7 +82,7 @@ class Config(object):
     def set_active(self, wheel_id, active):
         """ Updates if window is active. """
         self.set_str("Windows", wheel_id, str(active))
-    
+
     def set_engine_active(self, active):
         """ Updates if engine window is active. """
         self.set_str("Windows", "Engine", str(active))
@@ -95,7 +96,7 @@ class Config(object):
         """ Updates window position. """
         self.set_str("Positions", "{}_x".format(wheel_id), str(pos_x))
         self.set_str("Positions", "{}_y".format(wheel_id), str(pos_y))
-    
+
     def set_resolution(self, resolution):
         """ Updates windows resolution. """
         self.set_str("Windos", "Size", str(resolution))

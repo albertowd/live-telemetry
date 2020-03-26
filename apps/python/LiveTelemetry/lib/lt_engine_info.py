@@ -58,7 +58,7 @@ class EngineInfo(object):
         self.__components.append(RPMPower(resolution, self.__window_id))
 
         self.set_active(configs.is_engine_active())
-    
+
     def get_data_log(self):
         """ Returns the saved data from the session. """
         return self.__data_log
