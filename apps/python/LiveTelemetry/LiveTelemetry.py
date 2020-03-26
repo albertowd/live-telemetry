@@ -44,19 +44,6 @@ def acMain(ac_version):
 
     update_acd("content/cars/{}".format(ac.getCarName(0)))
 
-    global WHEEL_INFOS
-    for index in range(4):
-        info = WheelInfo(configs,index)
-        window_id = info.get_window_id()
-        ac.addOnAppActivatedListener(window_id, on_activation)
-        ac.addOnAppDismissedListener(window_id, on_dismiss)
-        WHEEL_INFOS[info.get_id()] = info
-
-    ac.addRenderCallback(WHEEL_INFOS["FL"].get_window_id(), on_render_fl)
-    ac.addRenderCallback(WHEEL_INFOS["FR"].get_window_id(), on_render_fr)
-    ac.addRenderCallback(WHEEL_INFOS["RL"].get_window_id(), on_render_rl)
-    ac.addRenderCallback(WHEEL_INFOS["RR"].get_window_id(), on_render_rr)
-
     global OPTIONS_INFO
     OPTIONS_INFO = OptionsInfo(configs, LT_VERSION)
     ac.addOnClickedListener(
@@ -72,6 +59,19 @@ def acMain(ac_version):
     ac.addOnAppActivatedListener(window_id, on_activation)
     ac.addOnAppDismissedListener(window_id, on_dismiss)
     ac.addRenderCallback(ENGINE_INFO.get_window_id(), on_render_engine)
+
+    global WHEEL_INFOS
+    for index in range(4):
+        info = WheelInfo(configs, index)
+        window_id = info.get_window_id()
+        ac.addOnAppActivatedListener(window_id, on_activation)
+        ac.addOnAppDismissedListener(window_id, on_dismiss)
+        WHEEL_INFOS[info.get_id()] = info
+
+    ac.addRenderCallback(WHEEL_INFOS["FL"].get_window_id(), on_render_fl)
+    ac.addRenderCallback(WHEEL_INFOS["FR"].get_window_id(), on_render_fr)
+    ac.addRenderCallback(WHEEL_INFOS["RL"].get_window_id(), on_render_rl)
+    ac.addRenderCallback(WHEEL_INFOS["RR"].get_window_id(), on_render_rr)
 
     log("Live Telemetry started.")
 
@@ -147,6 +147,7 @@ def on_activation(window_id):
         if info.get_window_id() is window_id:
             info.set_active(True)
 
+
 def on_click_load(pos_x, pos_y):
     """ Handles the click in one of the options load button. """
     global OPTIONS_INFO
@@ -157,6 +158,7 @@ def on_click_load(pos_x, pos_y):
     OPTIONS_INFO.set_load_active(enabled)
     for wheel_id in WHEEL_INFOS:
         WHEEL_INFOS[wheel_id].set_load_active(enabled)
+
 
 def on_click_logging(pos_x, pos_y):
     """ Handles the click in one of the options logging button. """
