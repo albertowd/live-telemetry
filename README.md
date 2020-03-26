@@ -14,10 +14,10 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
    - Engine Ideal RPM/Power
    - Suspension height (mm)
    - Suspension travel (%): gets warning yellow above 80% and danger red above 90% of the maximum and minimum values
-   - Tyre pressure (psi)
-   - Tyre core, inner, middle and outer temperatures (ºC)
-   - Tyre load (N)
-   - Tyre wear: bar gets warning yellow below 98% and danger red below 96%
+   - Tire pressure (psi)
+   - Tire core, inner, middle and outer temperatures (ºC)
+   - Tire load (N)
+   - Tire wear: bar gets warning yellow below 98% and danger red below 96%
    - Wheel camber (rad)
 
 ### Telemetry Log
@@ -60,20 +60,20 @@ Last step is to enter any session (online, practice, race) and select it on the 
    - Engine telemetry
    - RPM x HP curve user through the engine.ini configuration
    - Brake Temp does not work, so it's not visible anymore
-   - No tyre temp text anymore due label transparency issue
+   - No tire temp text anymore due label transparency issue
    - Load not visible either cause it doest not have the ideal value yet (to be developed)
    - Fix importing sim_info after other imports
    - Added 480p resolution
 
 1.1
-   - Pressure and tyres now uses colors based on the tyres.ini configuration.
-   - Tyre core, inner. middle and outer temperature with colors
+   - Pressure and tires now uses colors based on the tires.ini configuration.
+   - Tire core, inner. middle and outer temperature with colors
    
 1.0.1
    - Resolution adaptive HUD up to 8k
    - New 8k textures
    - Brake temperatures (not working in AC yet)
-   - Tyre inner, middle, outer temperatures
+   - Tire inner, middle, outer temperatures
    - Fix camber asphalt angle
 
 ## Noted Bugs

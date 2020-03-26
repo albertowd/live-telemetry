@@ -8,7 +8,7 @@ import ac
 import acsys
 
 from lib.lt_colors import Colors
-from lib.lt_interpolation import Power, TyrePsi, TyreTemp
+from lib.lt_interpolation import Power, TirePsi, TireTemp
 from lib.lt_util import get_acd
 
 
@@ -98,7 +98,7 @@ class BoxComponent(object):
 
 
 class Camber(BoxComponent):
-    """ Class to handle tyre camber draw. """
+    """ Class to handle tire camber draw. """
 
     def __init__(self, resolution):
         # Initial size is 160x10
@@ -127,7 +127,7 @@ class Camber(BoxComponent):
 
 
 class Dirt(BoxComponent):
-    """ Class to handle tyre dirt draw. """
+    """ Class to handle tire dirt draw. """
 
     def __init__(self, resolution):
         # Initial size is 136x116
@@ -137,7 +137,7 @@ class Dirt(BoxComponent):
         self.resize(resolution)
 
     def draw(self, data):
-        dirt = data.tyre_d * self.__mult
+        dirt = data.tire_d * self.__mult
 
         rect = copy.copy(self._box.rect)
         rect[1] += (rect[3] - dirt)
@@ -178,7 +178,7 @@ class Height(BoxComponent):
 
 
 class Load(BoxComponent):
-    """ Class to handle tyre load draw. """
+    """ Class to handle tire load draw. """
 
     texture_id = 0
 
@@ -193,7 +193,7 @@ class Load(BoxComponent):
         self.resize(resolution)
 
     def draw(self, data):
-        load = data.tyre_l * self.__mult
+        load = data.tire_l * self.__mult
         load_2 = load / 2.0
         self._box.set_position(self._box.center[0] - load_2, self._box.center[1] - load_2)
         self._box.set_size(load, load)
@@ -204,12 +204,12 @@ class Load(BoxComponent):
 
 
 class Pressure(BoxComponent):
-    """ Class to handle tyre pressure draw. """
+    """ Class to handle tire pressure draw. """
 
     texture_id = 0
 
     def __init__(self, resolution, wheel, window_id):
-        self.__calc = TyrePsi(get_acd().get_ideal_pressure(ac.getCarTyreCompound(0), wheel))
+        self.__calc = TirePsi(get_acd().get_ideal_pressure(ac.getCarTyreCompound(0), wheel))
         
         # Initial size is 85x85
         super(Pressure, self).__init__(70.0 if wheel.is_left() else 382.0, 95.0, 60.0, 60.0)
@@ -224,7 +224,7 @@ class Pressure(BoxComponent):
         self.resize(resolution)
 
     def draw(self, data):
-        psi = data.tyre_p
+        psi = data.tire_p
         ac.setText(self.__lb, "{:3.1f} psi".format(psi))
         
         color = self.__calc.interpolate_color(psi)
@@ -315,10 +315,10 @@ class Suspension(BoxComponent):
 
 
 class Temps(BoxComponent):
-    """ Class to handle tyre temperatures draw. """
+    """ Class to handle tire temperatures draw. """
 
     def __init__(self, resolution, wheel):
-        self.__calc = TyreTemp(get_acd().get_temp_curve(ac.getCarTyreCompound(0), wheel))
+        self.__calc = TireTemp(get_acd().get_temp_curve(ac.getCarTyreCompound(0), wheel))
 
         # Initial size is 160x256
         super(Temps, self).__init__(176.0, 0.0, 160.0, 256.0, 16.0)
@@ -335,27 +335,27 @@ class Temps(BoxComponent):
         outer = self._box.rect[0] + pad + 2.0 * part
         height = self._box.rect[1] + pad
         
-        temp = data.tyre_t_c
+        temp = data.tire_t_c
         interpolated = self.__calc.interpolate(temp)
         color = self.__calc.interpolate_color(temp, interpolated)
         ac.glColor4f(*color)
         ac.glQuad(inner, height + quarter, part * 3.0, quarter * 6.0)
         
-        temp = data.tyre_t_i
+        temp = data.tire_t_i
         interpolated = self.__calc.interpolate(temp)
         color = self.__calc.interpolate_color(temp, interpolated)
         ac.glColor4f(*color)
         ac.glQuad(inner, height, part, quarter)
         ac.glQuad(inner, height + quarter * 7, part, quarter)
         
-        temp = data.tyre_t_m
+        temp = data.tire_t_m
         interpolated = self.__calc.interpolate(temp)
         color = self.__calc.interpolate_color(temp, interpolated)
         ac.glColor4f(*color)
         ac.glQuad(self._box.rect[0] + pad + part, height, part, quarter)
         ac.glQuad(self._box.rect[0] + pad + part, height + quarter * 7, part, quarter)
         
-        temp = data.tyre_t_o
+        temp = data.tire_t_o
         interpolated = self.__calc.interpolate(temp)
         color = self.__calc.interpolate_color(temp, interpolated)
         ac.glColor4f(*color)
@@ -367,33 +367,33 @@ class Temps(BoxComponent):
         self.__mult = BoxComponent.resolution_map[resolution]
 
 
-class Tyre(BoxComponent):
-    """ Class to handle tyre draw. """
+class Tire(BoxComponent):
+    """ Class to handle tire draw. """
 
     texture_id = 0
 
     def __init__(self, resolution, wheel):
-        self.__calc = TyreTemp(get_acd().get_temp_curve(ac.getCarTyreCompound(0), wheel))
+        self.__calc = TireTemp(get_acd().get_temp_curve(ac.getCarTyreCompound(0), wheel))
         
         # Initial size is 160x256
-        super(Tyre, self).__init__(176.0, 0.0, 160.0, 256.0)
+        super(Tire, self).__init__(176.0, 0.0, 160.0, 256.0)
         self._back.color = Colors.white
 
-        if Tyre.texture_id == 0:
-            Tyre.texture_id = ac.newTexture("apps/python/LiveTelemetry/img/tyre.png")
+        if Tire.texture_id == 0:
+            Tire.texture_id = ac.newTexture("apps/python/LiveTelemetry/img/tire.png")
 
         self.resize(resolution)
 
     def draw(self, data):
-        """ Draws the tyre. """
-        temp = data.tyre_t_c * 0.75 + ((data.tyre_t_i + data.tyre_t_m + data.tyre_t_o) / 3.0) * 0.25
+        """ Draws the tire. """
+        temp = data.tire_t_c * 0.75 + ((data.tire_t_i + data.tire_t_m + data.tire_t_o) / 3.0) * 0.25
         interpolated = self.__calc.interpolate(temp)
         self._back.color = self.__calc.interpolate_color(temp, interpolated)
-        self._draw(Tyre.texture_id)
+        self._draw(Tire.texture_id)
 
 
 class Wear(BoxComponent):
-    """ Class to handle tyre wear draw. """
+    """ Class to handle tire wear draw. """
 
     def __init__(self, resolution, wheel):
         # Initial size is 14x256 (with borders)
@@ -408,7 +408,7 @@ class Wear(BoxComponent):
     def draw(self, data):
         """ Draws the wear. """
         self._draw()
-        wear = data.tyre_w
+        wear = data.tire_w
         if wear > 0.98:
             ac.glColor4f(*Colors.green)
         elif wear > 0.96:

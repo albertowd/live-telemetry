@@ -83,8 +83,8 @@ class Power(Curve):
             return Colors.green
 
 
-class TyrePsi(object):
-    """ Handles tyre pressure interpolations. """
+class TirePsi(object):
+    """ Handles tire pressure interpolations. """
 
     def __init__(self, ref=26.0):
         self.__ref = ref
@@ -106,11 +106,11 @@ class TyrePsi(object):
             return Colors.red
 
 
-class TyreTemp(Curve):
-    """ Handles tyre temperature interpolations. """
+class TireTemp(Curve):
+    """ Handles tire temperature interpolations. """
     
     def __init__(self, content=""):
-        super(TyreTemp, self).__init__(content)
+        super(TireTemp, self).__init__(content)
 
     def interpolate_color(self, temp, interpolated):
         """ Interpolates the temp color. """

@@ -10,7 +10,7 @@ import ac
 
 from lib.lt_colors import Colors
 from lib.lt_config import Config
-from lib.lt_components import BoxComponent, Camber, Dirt, Height, Load, Pressure, Temps, Suspension, Tyre, Wear
+from lib.lt_components import BoxComponent, Camber, Dirt, Height, Load, Pressure, Temps, Suspension, Tire, Wear
 from lib.lt_util import WheelPos
 from lib.sim_info import info
 
@@ -23,13 +23,13 @@ class Data(object):
         self.susp_m_t = 1.0
         self.susp_t = 0.0
         self.timestamp = 0
-        self.tyre_d = 0.0
-        self.tyre_p = 0.0
-        self.tyre_t_c = 0.0
-        self.tyre_t_i = 0.0
-        self.tyre_t_m = 0.0
-        self.tyre_t_o = 0.0
-        self.tyre_w = 0.0
+        self.tire_d = 0.0
+        self.tire_p = 0.0
+        self.tire_t_c = 0.0
+        self.tire_t_i = 0.0
+        self.tire_t_m = 0.0
+        self.tire_t_o = 0.0
+        self.tire_w = 0.0
 
     def update(self, wheel, info):
         index = wheel.index()
@@ -48,18 +48,18 @@ class Data(object):
         self.height -= ((susp_diff / 2.0) * 1000.0)
         
         self.timestamp = info.graphics.iCurrentTime
-        self.tyre_d = info.physics.tyreDirtyLevel[index] * 4.0
+        self.tire_d = info.physics.tyreDirtyLevel[index] * 4.0
 
         # N to (5*kgf)
-        self.tyre_l = info.physics.wheelLoad[index] / (5.0 * 9.80665)
-        self.tyre_p = info.physics.wheelsPressure[index]
-        self.tyre_t_c = info.physics.tyreCoreTemperature[index]
-        self.tyre_t_i = info.physics.tyreTempI[index]
-        self.tyre_t_m = info.physics.tyreTempM[index]
-        self.tyre_t_o = info.physics.tyreTempO[index]
+        self.tire_l = info.physics.wheelLoad[index] / (5.0 * 9.80665)
+        self.tire_p = info.physics.wheelsPressure[index]
+        self.tire_t_c = info.physics.tyreCoreTemperature[index]
+        self.tire_t_i = info.physics.tyreTempI[index]
+        self.tire_t_m = info.physics.tyreTempM[index]
+        self.tire_t_o = info.physics.tyreTempO[index]
 
         # Normal to percent
-        self.tyre_w = info.physics.tyreWear[index] / 100.0
+        self.tire_w = info.physics.tyreWear[index] / 100.0
 
 
 class WheelInfo(object):
@@ -91,7 +91,7 @@ class WheelInfo(object):
         self.__components = []
         self.__components.append(Temps(resolution, self.__wheel))
         self.__components.append(Dirt(resolution))
-        self.__components.append(Tyre(resolution, self.__wheel))
+        self.__components.append(Tire(resolution, self.__wheel))
 
         self.__components.append(Camber(resolution))
         self.__components.append(Suspension(resolution, self.__wheel))

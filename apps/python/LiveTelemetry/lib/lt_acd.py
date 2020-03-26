@@ -115,7 +115,7 @@ class ACD(object):
         config = configparser.ConfigParser(empty_lines_in_values=False, inline_comment_prefixes=(';',))
         config.read_string(self.get_file("tyres.ini"))
         
-        name = get_tyre_name(compound, config, wheel)
+        name = get_tire_name(compound, config, wheel)
         return float(config[name]["PRESSURE_IDEAL"])
     
     def get_power_curve(self):
@@ -130,7 +130,7 @@ class ACD(object):
         config = configparser.ConfigParser(empty_lines_in_values=False, inline_comment_prefixes=(';',))
         config.read_string(self.get_file("tyres.ini"))
         
-        name = "THERMAL_{}".format(get_tyre_name(compound, config, wheel))
+        name = "THERMAL_{}".format(get_tire_name(compound, config, wheel))
         return self.get_file(config[name]["PERFORMANCE_CURVE"])
 
     def get_wear_curve(self, compound, wheel):
@@ -138,7 +138,7 @@ class ACD(object):
         config = configparser.ConfigParser(empty_lines_in_values=False, inline_comment_prefixes=(';',))
         config.read_string(self.get_file("tyres.ini"))
         
-        name = get_tyre_name(compound, config, wheel)
+        name = get_tire_name(compound, config, wheel)
         return self.get_file(config[name]["WEAR_CURVE"])
     
     def set_file(self, content, name):
@@ -215,13 +215,13 @@ def generate_key(car_name):
     return "{}-{}-{}-{}-{}-{}-{}-{}".format(key1, key2, key3, key4, key5, key6, key7, key8)
 
 
-def get_tyre_name(compound, config, wheel):
-    """ Returns the compound session name on the tyre.ini configuration file. """
+def get_tire_name(compound, config, wheel):
+    """ Returns the compound session name on the tire.ini configuration file. """
     prefix = "FRONT{}" if wheel.is_front() else "REAR{}"
     
     for i in range(10):
         name = prefix.format("" if i == 0 else "_{}".format(i))
-        # Check if the SHORT_NAME index exists for tyre backward compatibility.
+        # Check if the SHORT_NAME index exists for tire backward compatibility.
         if config.has_option(name, "SHORT_NAME") and config[name]["SHORT_NAME"] == compound:
             return name
     
