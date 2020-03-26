@@ -60,6 +60,8 @@ def acMain(ac_version):
     global OPTIONS_INFO
     OPTIONS_INFO = OptionsInfo(configs, LT_VERSION)
     ac.addOnClickedListener(
+        OPTIONS_INFO.get_load_button_id(), on_click_load)
+    ac.addOnClickedListener(
         OPTIONS_INFO.get_logging_button_id(), on_click_logging)
     ac.addOnClickedListener(
         OPTIONS_INFO.get_resolution_button_id(), on_click_resolution)
@@ -85,7 +87,7 @@ def acShutdown():
     global OPTIONS_INFO
     global WHEEL_INFOS
 
-    if OPTIONS_INFO.get_logging():
+    if OPTIONS_INFO.is_logging_active():
         log("Saving csv data...")
         for wheel_id in WHEEL_INFOS:
             info = WHEEL_INFOS[wheel_id]
@@ -102,7 +104,8 @@ def acShutdown():
     configs.set_engine_position(pos_x, pos_y)
 
     log("Saving options configurations...")
-    configs.set_logging(OPTIONS_INFO.get_logging())
+    configs.set_load_active(OPTIONS_INFO.is_load_active())
+    configs.set_logging_active(OPTIONS_INFO.is_logging_active())
     configs.set_resolution(OPTIONS_INFO.get_resolution())
     pos_x, pos_y = OPTIONS_INFO.get_position()
     configs.set_options_position(pos_x, pos_y)
@@ -144,23 +147,33 @@ def on_activation(window_id):
         if info.get_window_id() is window_id:
             info.set_active(True)
 
+def on_click_load(pos_x, pos_y):
+    """ Handles the click in one of the options load button. """
+    global OPTIONS_INFO
+    global WHEEL_INFOS
+
+    enabled = not OPTIONS_INFO.is_load_active()
+
+    OPTIONS_INFO.set_load_active(enabled)
+    for wheel_id in WHEEL_INFOS:
+        WHEEL_INFOS[wheel_id].set_load_active(enabled)
 
 def on_click_logging(pos_x, pos_y):
-    """ Handles the click in one of the resolution buttons. """
+    """ Handles the click in one of the options logging button. """
     global ENGINE_INFO
     global OPTIONS_INFO
     global WHEEL_INFOS
 
-    logging = not OPTIONS_INFO.get_logging()
+    enabled = not OPTIONS_INFO.is_logging_active()
 
-    ENGINE_INFO.set_logging(logging)
-    OPTIONS_INFO.set_logging(logging)
+    ENGINE_INFO.set_logging_active(enabled)
+    OPTIONS_INFO.set_logging_active(enabled)
     for wheel_id in WHEEL_INFOS:
-        WHEEL_INFOS[wheel_id].set_logging(logging)
+        WHEEL_INFOS[wheel_id].set_logging_active(enabled)
 
 
 def on_click_resolution(pos_x, pos_y):
-    """ Handles the click in one of the resolution buttons. """
+    """ Handles the click in one of the options resolution button. """
     global ENGINE_INFO
     global OPTIONS_INFO
     global WHEEL_INFOS
