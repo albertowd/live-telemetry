@@ -8,7 +8,7 @@ The app show on screen real time telemetry of engine, each tire and suspension i
 
 The app uses the mod file directly or the encrypted Kunos files to calculate it's limits, does not need configuration.
 
-[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/screenshot.jpg)](https://www.youtube.com/watch?v=i7jyqPhZp4Y)
+[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/screenshot.jpg)](https://www.youtube.com/watch?v=KI4pK0c7n1Q)
 
 ### Telemetry Info
 
@@ -65,7 +65,7 @@ Each windows will apear separately on screen.
 
 1.3.1
    - Changed sim_info.py path to work on all installations
-   - Save engin data in a csv file after the session
+   - Save engine data in a csv file after the session
 
 1.3
    - Unpacked car support (for debugging unfinished mods)
