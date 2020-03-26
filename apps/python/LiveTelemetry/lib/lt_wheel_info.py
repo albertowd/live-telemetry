@@ -72,6 +72,7 @@ class WheelInfo(object):
         self.__active = False
         self.__data = Data()
         self.__data_log = []
+        self.__load = False
         self.__logging = False
         self.__info = info
         self.__window_id = ac.newApp(
@@ -101,9 +102,12 @@ class WheelInfo(object):
         self.__components.append(
             Pressure(resolution, self.__wheel, self.__window_id))
         self.__components.append(Wear(resolution, self.__wheel))
+        # Needs to be the last to render above all components
         self.__components.append(Load(resolution, self.__wheel))
 
         self.set_active(configs.is_active(self.__wheel.name()))
+        self.set_load_active(configs.is_load_active())
+        self.set_logging_active(configs.is_logging_active())
 
     def get_data_log(self):
         """ Returns the saved data from the session. """
@@ -129,6 +133,8 @@ class WheelInfo(object):
         """ Draws all info on screen. """
         ac.setBackgroundOpacity(self.__window_id, 0.0)
         for component in self.__components:
+            if isinstance(component, Load) and not self.__load:
+                continue
             ac.glColor4f(*Colors.white)
             component.draw(self.__data)
         ac.glColor4f(*Colors.white)
@@ -138,21 +144,30 @@ class WheelInfo(object):
         mult = BoxComponent.resolution_map[resolution]
         ac.setSize(self.__window_id, 512 * mult, 271 * mult)
         for component in self.__components:
+            if isinstance(component, Load) and not self.__load:
+                continue
             component.resize(resolution)
 
     def set_active(self, active):
         """ Toggles the window status. """
         self.__active = active
 
-    def set_logging(self, logging):
-        """ Updates if the logging is enabled. """
-        self.__logging = logging
+    def set_load_active(self, active):
+        """ Updates if the load feature is active. """
+        self.__load = active
+
+    def set_logging_active(self, active):
+        """ Updates if the logging is active. """
+        self.__logging = active
 
     def update(self):
         """ Updates the wheel information. """
         self.__data.update(self.__wheel, self.__info)
         if self.__logging is True:
             self.__data_log.append(copy.copy(self.__data))
+
         for component in self.__components:
+            if isinstance(component, Load) and not self.__load:
+                continue
             ac.glColor4f(*Colors.white)
             component.update(self.__data)

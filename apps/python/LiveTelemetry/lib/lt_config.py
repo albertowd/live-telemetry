@@ -22,7 +22,8 @@ class Config(object):
             Config.__configs.read("apps/python/LiveTelemetry/cfg.ini")
         else:
             video = configparser.ConfigParser()
-            Config.__configs["Options"] = {"Logging": "False", "Size": "FHD"}
+            Config.__configs["Options"] = {
+                "Load": "True", "Logging": "False", "Size": "FHD"}
             Config.__configs["Positions"] = {}
             Config.__configs["Windows"] = {
                 "Engine": "False", "FL": "False", "FR": "False", "RL": "False", "RR": "False"}
@@ -52,10 +53,6 @@ class Config(object):
     def get_engine_y(self):
         """ Returns the y position of the engine window. """
         return float(self.get_str("Positions", "Engine_y"))
-
-    def get_logging(self):
-        """ Returns if logging is active. """
-        return self.get_str("Options", "Logging").lower() == "true"
 
     def get_options_x(self):
         """ Returns the x position of the options window. """
@@ -89,6 +86,14 @@ class Config(object):
         """ Returns if engine window is active. """
         return self.get_str("Windows", "Engine").lower() == "true"
 
+    def is_load_active(self):
+        """ Returns if load feature is active. """
+        return self.get_str("Options", "Load").lower() == "true"
+
+    def is_logging_active(self):
+        """ Returns if logging is active. """
+        return self.get_str("Options", "Logging").lower() == "true"
+
     def save_config(self):
         """ Writes the actual options on the configuration file. """
         cfg_file = open("apps/python/LiveTelemetry/cfg.ini", 'w')
@@ -112,8 +117,12 @@ class Config(object):
         """ Updates engine window position. """
         self.set_str("Positions", "Engine_x", str(pos_x))
         self.set_str("Positions", "Engine_y", str(pos_y))
+    
+    def set_load_active(self, enabled):
+        """ Updates logging status. """
+        self.set_str("Options", "Load", str(enabled))
 
-    def set_logging(self, logging):
+    def set_logging_active(self, logging):
         """ Updates logging status. """
         self.set_str("Options", "Logging", str(logging))
 

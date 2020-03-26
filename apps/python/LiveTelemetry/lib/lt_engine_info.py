@@ -92,9 +92,9 @@ class EngineInfo(object):
         """ Toggles the window status. """
         self.__active = active
 
-    def set_logging(self, logging):
-        """ Updates if the logging is enabled. """
-        self.__logging = logging
+    def set_logging_active(self, active):
+        """ Updates if the logging is active. """
+        self.__logging = active
 
     def update(self):
         """ Updates the engine information. """
