@@ -182,7 +182,7 @@ class Load(BoxComponent):
 
     texture_id = 0
 
-    def __init__(self, resolution):
+    def __init__(self, resolution, wheel):
         super(Load, self).__init__(128.0, 0.0, 256.0, 256.0)
         self._back.color = Colors.white
         self.__mult = BoxComponent.resolution_map[resolution]

@@ -44,10 +44,10 @@ def acMain(ac_version):
             ac.addOnAppDismissedListener(window_id, on_dismiss)
             WHEEL_INFOS[info.get_id()] = info
 
-        ac.addOnClickedListener(WHEEL_INFOS["FL"].get_button_id(), on_click_resolution)
-        ac.addOnClickedListener(WHEEL_INFOS["FR"].get_button_id(), on_click_resolution)
-        ac.addOnClickedListener(WHEEL_INFOS["RL"].get_button_id(), on_click_resolution)
-        ac.addOnClickedListener(WHEEL_INFOS["RR"].get_button_id(), on_click_resolution)
+        # ac.addOnClickedListener(WHEEL_INFOS["FL"].get_button_id(), on_click_resolution)
+        # ac.addOnClickedListener(WHEEL_INFOS["FR"].get_button_id(), on_click_resolution)
+        # ac.addOnClickedListener(WHEEL_INFOS["RL"].get_button_id(), on_click_resolution)
+        # ac.addOnClickedListener(WHEEL_INFOS["RR"].get_button_id(), on_click_resolution)
     
         ac.addRenderCallback(WHEEL_INFOS["FL"].get_window_id(), on_render_fl)
         ac.addRenderCallback(WHEEL_INFOS["FR"].get_window_id(), on_render_fr)
@@ -136,8 +136,10 @@ def on_activation(window_id):
 
 def on_click_resolution(pos_x, pos_y):
     """ Handles the click in one of the resolution buttons. """
+    configs = Config()
     global WHEEL_INFOS
-    old_resolution = ac.getText(WHEEL_INFOS["FL"].get_button_id())
+
+    old_resolution = configs.get_resolution()
     new_resolution = "HD"
     for index, resolution in enumerate(BoxComponent.resolutions):
         if resolution == old_resolution and index + 1 < len(BoxComponent.resolutions):
@@ -147,6 +149,9 @@ def on_click_resolution(pos_x, pos_y):
     ENGINE_INFO.resize(new_resolution)
     for wheel_id in WHEEL_INFOS:
         WHEEL_INFOS[wheel_id].resize(new_resolution)
+    
+    configs.set_resolution(new_resolution)
+    configs.save_config()
 
 
 def on_dismiss(window_id):

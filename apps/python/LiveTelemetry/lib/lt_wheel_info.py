@@ -10,7 +10,7 @@ import ac
 
 from lib.lt_colors import Colors
 from lib.lt_config import Config
-from lib.lt_components import BoxComponent, Camber, Dirt, Height, Pressure, Temps, Suspension, Tyre, Wear
+from lib.lt_components import BoxComponent, Camber, Dirt, Height, Load, Pressure, Temps, Suspension, Tyre, Wear
 from lib.lt_util import WheelPos
 from lib.sim_info import info
 
@@ -51,7 +51,7 @@ class Data(object):
         self.tyre_d = info.physics.tyreDirtyLevel[index] * 4.0
 
         # N to (5*kgf)
-        # self.tyre_l = info.physics.wheelLoad[index] / (5.0 * 9.80665)
+        self.tyre_l = info.physics.wheelLoad[index] / (5.0 * 9.80665)
         self.tyre_p = info.physics.wheelsPressure[index]
         self.tyre_t_c = info.physics.tyreCoreTemperature[index]
         self.tyre_t_i = info.physics.tyreTempI[index]
@@ -93,13 +93,12 @@ class WheelInfo(object):
         self.__components.append(Dirt(resolution))
         self.__components.append(Tyre(resolution, self.__wheel))
 
-        # self.__components.append(Brake(resolution, self.__wheel, self.__window_id))
         self.__components.append(Camber(resolution))
         self.__components.append(Suspension(resolution, self.__wheel))
         self.__components.append(Height(resolution, self.__wheel, self.__window_id))
         self.__components.append(Pressure(resolution, self.__wheel, self.__window_id))
         self.__components.append(Wear(resolution, self.__wheel))
-        # self.__components.append(Load(resolution))
+        self.__components.append(Load(resolution, self.__wheel))
 
         self.set_active(configs.is_active(self.__wheel.name()))
     

@@ -22,7 +22,7 @@ class Config(object):
             Config.__configs.read("apps/python/LiveTelemetry/cfg.ini")
         else:
             video = configparser.ConfigParser()
-            Config.__configs["Windows"] = { "Engine": "False", "FL": "False", "FR": "False", "RL": "False", "RR": "False", "SIZE": "480p"}
+            Config.__configs["Windows"] = { "Engine": "False", "FL": "False", "FR": "False", "RL": "False", "RR": "False", "Size": "480p"}
             Config.__configs["Positions"] = {}
             
             # Try to use video.ini settings to recalculate window positions.
@@ -31,7 +31,7 @@ class Config(object):
             buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
             ctypes.windll.shell32.SHGetFolderPathW(None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
             
-            video.read("{}/Assetto Corsa/cfg/video.ini".format(buf.value));
+            video.read("{}/Assetto Corsa/cfg/video.ini".format(buf.value))
             h = int(video.get("VIDEO", "HEIGHT"))
             w = int(video.get("VIDEO", "WIDTH"))
             self.set_engine_position((w - 360) / 2, h - 51 - 160)
@@ -50,7 +50,7 @@ class Config(object):
 
     def get_resolution(self):
         """ Returns the windows resolution. """
-        return self.get_str("Windows", "SIZE")
+        return self.get_str("Windows", "Size")
 
     def get_str(self, section, option):
         """ Returns an option. """
@@ -95,6 +95,10 @@ class Config(object):
         """ Updates window position. """
         self.set_str("Positions", "{}_x".format(wheel_id), str(pos_x))
         self.set_str("Positions", "{}_y".format(wheel_id), str(pos_y))
+    
+    def set_resolution(self, resolution):
+        """ Updates windows resolution. """
+        self.set_str("Windos", "Size", str(resolution))
 
     def set_str(self, section, option, value):
         """ Updates an option. """
