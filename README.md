@@ -1,4 +1,4 @@
-# Live Telemetry 1.3.0
+# Live Telemetry 1.4.0
 An Assetto Corsa app to view real time telemetry
 
 ## App
@@ -14,15 +14,18 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
    - Engine Ideal RPM/Power
    - Suspension height (mm)
    - Suspension travel (%): gets warning yellow above 80% and danger red above 90% of the maximum and minimum values
-   - Tyre pressure (psi)
-   - Tyre core, inner, middle and outer temperatures (ºC)
-   - Tyre load (N)
-   - Tyre wear: bar gets warning yellow below 98% and danger red below 96%
+   - Tire pressure (psi)
+   - Tire core, inner, middle and outer temperatures (ºC)
+   - Tire load (N)
+   - Tire wear: bar gets warning yellow below 98% and danger red below 96%
    - Wheel camber (rad)
 
-### Telemetry Log
+### Logs
 
-All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs`.
+All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs`. It can be toggled in the options window (default is not to log).
+
+   - LiveTelemetry_EN.log - session engine data.
+   - LiveTelemetry_[FL|FR|RL|RR].log - session wheels data.
 
 ### Resolutions
 
@@ -45,7 +48,19 @@ Last step is to enter any session (online, practice, race) and select it on the 
 
 ![App Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/img/app.png)
 
-## Change-log
+## Changelog
+
+1.4.0
+   - Fixed: not showing 480p scale
+   - Log can be enabled (it will not save data while disabled) in run time
+   - Log is deleted if not enabled at the end of a session
+   - New options window to change scale and toggle log
+   - New scales dimensions
+   - Tire load back available
+
+1.3.1
+   - Changed sim_info.py path to work on all installations
+   - Save engin data in a csv file after the session
 
 1.3
    - Unpacked car support (for debugging unfinished mods)
@@ -56,25 +71,25 @@ Last step is to enter any session (online, practice, race) and select it on the 
    - Engine telemetry
    - RPM x HP curve user through the engine.ini configuration
    - Brake Temp does not work, so it's not visible anymore
-   - No tyre temp text anymore due label transparency issue
+   - No tire temp text anymore due label transparency issue
    - Load not visible either cause it doest not have the ideal value yet (to be developed)
    - Fix importing sim_info after other imports
    - Added 480p resolution
 
 1.1
-   - Pressure and tyres now uses colors based on the tyres.ini configuration.
-   - Tyre core, inner. middle and outer temperature with colors
+   - Pressure and tires now uses colors based on the tires.ini configuration.
+   - Tire core, inner. middle and outer temperature with colors
    
 1.0.1
    - Resolution adaptive HUD up to 8k
    - New 8k textures
    - Brake temperatures (not working in AC yet)
-   - Tyre inner, middle, outer temperatures
+   - Tire inner, middle, outer temperatures
    - Fix camber asphalt angle
 
 ## Noted Bugs
 
-   - ???
+All the issues can be found on the isseues page of the github repository: [Live Telemetry Issues](https://github.com/albertowd/live-telemetry/issues).
 
 ## Big Thanks
 

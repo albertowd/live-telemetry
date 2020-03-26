@@ -16,7 +16,7 @@ class Curve(object):
         """ Default constructor receives a inner '.lut' ACD file content. """
         self._curve = []
         self._max = (0.0, 0.0)
-        
+
         lines = content.split("\n")
         for line in lines:
             if len(line) > 0:
@@ -26,7 +26,7 @@ class Curve(object):
                 if normalize:
                     values[1] /= 100.0
                 self._curve.append((values[0], values[1]))
-                
+
                 if values[1] > self._max[1]:
                     self._max = (values[0], values[1])
 
@@ -51,21 +51,21 @@ class Power(Curve):
 
     def __init__(self, content=""):
         super(Power, self).__init__(content)
-        
+
         new_curve = []
         self._max = (0.0, 0.0)
-        
+
         # Processes the curve to HP values
         for point in self._curve:
             rpm = point[0]
             torque = point[1]
             new_point = (rpm, (torque * rpm) / 5252)
-            
+
             if new_point[1] > self._max[1]:
-                    self._max = new_point
-            
+                self._max = new_point
+
             new_curve.append(new_point)
-        
+
         self._curve = new_curve
 
     def interpolate_color(self, rpm):
@@ -83,12 +83,12 @@ class Power(Curve):
             return Colors.green
 
 
-class TyrePsi(object):
-    """ Handles tyre pressure interpolations. """
+class TirePsi(object):
+    """ Handles tire pressure interpolations. """
 
     def __init__(self, ref=26.0):
         self.__ref = ref
-    
+
     def interpolate(self, psi):
         """ Returns the normalized psi. """
         return psi / self.__ref
@@ -106,11 +106,11 @@ class TyrePsi(object):
             return Colors.red
 
 
-class TyreTemp(Curve):
-    """ Handles tyre temperature interpolations. """
-    
+class TireTemp(Curve):
+    """ Handles tire temperature interpolations. """
+
     def __init__(self, content=""):
-        super(TyreTemp, self).__init__(content)
+        super(TireTemp, self).__init__(content)
 
     def interpolate_color(self, temp, interpolated):
         """ Interpolates the temp color. """
