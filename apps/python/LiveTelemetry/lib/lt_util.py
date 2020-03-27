@@ -51,16 +51,16 @@ def clear_logs():
     ctypes.windll.shell32.SHGetFolderPathW(
         None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
 
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_EN.log".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_EN.log".format(buf.value))
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FL.log".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FL.log".format(buf.value))
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FR.log".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FR.log".format(buf.value))
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RL.log".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RL.log".format(buf.value))
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RR.log".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RR.log".format(buf.value))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_EN.csv".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_EN.csv".format(buf.value))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FL.csv".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FL.csv".format(buf.value))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FR.csv".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FR.csv".format(buf.value))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RL.csv".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RL.csv".format(buf.value))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RR.csv".format(buf.value)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RR.csv".format(buf.value))
 
 
 def color_interpolate(c_1, c_2, perc):
@@ -115,7 +115,7 @@ def export_saved_log(data_log, csv_name):
     ctypes.windll.shell32.SHGetFolderPathW(
         None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
 
-    with open("{}/Assetto Corsa/logs/LiveTelemetry_{}.log".format(buf.value, csv_name), "w") as w:
+    with open("{}/Assetto Corsa/logs/LiveTelemetry_{}.csv".format(buf.value, csv_name), "w") as w:
         w.write("\n".join(csv))
 
 
