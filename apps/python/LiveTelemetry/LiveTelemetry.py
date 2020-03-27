@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Live Telemetry App for Assetto Corsa
-v 1.4.0
+v 1.4.1
 https://github.com/albertowd/Wheellive-telemetry
 @author: albertowd
 """
@@ -26,7 +26,7 @@ os.environ["PATH"] = os.environ["PATH"] + ";."
 
 
 # VERSION
-LT_VERSION = '1.4.0'
+LT_VERSION = "1.4.1"
 
 # Each window
 ENGINE_INFO = None
@@ -36,14 +36,16 @@ WHEEL_INFOS = {}
 
 def acMain(ac_version):
     """ Initiates the program. """
-    configs = Config()
-
     global LT_VERSION
+
     log("Starting Live Telemetry {} on AC Python API version {}...".format(
         LT_VERSION, ac_version))
 
+    log("Loading configs...")
+    configs = Config(LT_VERSION)
     update_acd("content/cars/{}".format(ac.getCarName(0)))
 
+    log("Loading options window...")
     global OPTIONS_INFO
     OPTIONS_INFO = OptionsInfo(configs, LT_VERSION)
     ac.addOnClickedListener(
@@ -53,6 +55,7 @@ def acMain(ac_version):
     ac.addOnClickedListener(
         OPTIONS_INFO.get_resolution_button_id(), on_click_resolution)
 
+    log("Loading engine window...")
     global ENGINE_INFO
     ENGINE_INFO = EngineInfo(configs)
     window_id = ENGINE_INFO.get_window_id()
@@ -60,6 +63,7 @@ def acMain(ac_version):
     ac.addOnAppDismissedListener(window_id, on_dismiss)
     ac.addRenderCallback(ENGINE_INFO.get_window_id(), on_render_engine)
 
+    log("Loading wheel windows...")
     global WHEEL_INFOS
     for index in range(4):
         info = WheelInfo(configs, index)
@@ -80,9 +84,11 @@ def acMain(ac_version):
 
 def acShutdown():
     """ Called when the session ends (or restarts). """
+    global LT_VERSION
+
     log("Ending down Live Telemetry...")
 
-    configs = Config()
+    configs = Config(LT_VERSION)
     global ENGINE_INFO
     global OPTIONS_INFO
     global WHEEL_INFOS

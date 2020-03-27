@@ -1,4 +1,4 @@
-# Live Telemetry 1.4.0
+# Live Telemetry 1.4.1
 
 An Assetto Corsa app to view real time telemetry
 
@@ -54,6 +54,10 @@ Each windows will apear separately on screen.
 ![Options Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-options.jpg) ![Engine Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-engine.jpg) ![Wheel Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-wheel.jpg)
 
 ## Changelog
+
+1.4.1
+   - Config error handling
+   - Auto delete old version config files
 
 1.4.0
    - Fixed: not showing 480p scale
