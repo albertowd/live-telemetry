@@ -2,15 +2,17 @@
 # -*- coding: utf-8 -*-
 """
 Module to split and resize components on the screen.
+
+@author: albertowd
 """
-import copy, math
+import copy
+import math
 
 import ac
 import acsys
 
 from lib.lt_colors import Colors
 from lib.lt_interpolation import Power, TirePsi, TireTemp
-from lib.lt_util import get_acd
 
 
 class Background(object):
@@ -218,8 +220,8 @@ class Pressure(BoxComponent):
 
     texture_id = 0
 
-    def __init__(self, resolution, wheel, window_id):
-        self.__calc = TirePsi(get_acd().get_ideal_pressure(
+    def __init__(self, acd, resolution, wheel, window_id):
+        self.__calc = TirePsi(acd.get_ideal_pressure(
             ac.getCarTyreCompound(0), wheel))
 
         # Initial size is 85x85
@@ -254,8 +256,8 @@ class Pressure(BoxComponent):
 class RPMPower(BoxComponent):
     """ Class to handle best power change. """
 
-    def __init__(self, resolution, window_id):
-        self.__calc = Power(get_acd().get_power_curve())
+    def __init__(self, acd, resolution, window_id):
+        self.__calc = Power(acd.get_power_curve())
 
         # Initial size is 512x85
         super(RPMPower, self).__init__(0.0, 0.0, 512.0, 50.0)
@@ -334,8 +336,8 @@ class Suspension(BoxComponent):
 class Temps(BoxComponent):
     """ Class to handle tire temperatures draw. """
 
-    def __init__(self, resolution, wheel):
-        self.__calc = TireTemp(get_acd().get_temp_curve(
+    def __init__(self, acd, resolution, wheel):
+        self.__calc = TireTemp(acd.get_temp_curve(
             ac.getCarTyreCompound(0), wheel))
 
         # Initial size is 160x256
@@ -391,8 +393,8 @@ class Tire(BoxComponent):
 
     texture_id = 0
 
-    def __init__(self, resolution, wheel):
-        self.__calc = TireTemp(get_acd().get_temp_curve(
+    def __init__(self, acd, resolution, wheel):
+        self.__calc = TireTemp(acd.get_temp_curve(
             ac.getCarTyreCompound(0), wheel))
 
         # Initial size is 160x256

@@ -6,22 +6,22 @@ v 1.4.1
 https://github.com/albertowd/Wheellive-telemetry
 @author: albertowd
 """
-from lib.lt_util import clear_logs, export_saved_log, log, update_acd
-from lib.lt_wheel_info import WheelInfo
-from lib.lt_options_info import OptionsInfo
-from lib.lt_engine_info import EngineInfo
-from lib.lt_config import Config
-from lib.lt_components import BoxComponent
-import os, platform, sys
+
+
+import a_ctypes_aux
 
 import ac
 
-if platform.architecture()[0] == "64bit":
-    sys.path.append("apps/python/LiveTelemetry/stdlib64")
-else:
-    sys.path.append("apps/python/LiveTelemetry/stdlib")
-os.environ["PATH"] = os.environ["PATH"] + ";."
+from lib.lt_acd import ACD
+from lib.lt_components import BoxComponent
+from lib.lt_config import Config
+from lib.lt_engine_info import EngineInfo
+from lib.lt_options_info import OptionsInfo
+from lib.lt_wheel_info import WheelInfo
+from lib.lt_util import clear_logs, export_saved_log, log
 
+# Loaded car files
+ACD_OBJ = None
 
 # VERSION
 LT_VERSION = "1.4.1"
@@ -34,6 +34,7 @@ WHEEL_INFOS = {}
 
 def acMain(ac_version):
     """ Initiates the program. """
+    global ACD_OBJ
     global LT_VERSION
 
     log("Starting Live Telemetry {} on AC Python API version {}...".format(
@@ -41,7 +42,10 @@ def acMain(ac_version):
 
     log("Loading configs...")
     configs = Config(LT_VERSION)
-    update_acd("content/cars/{}".format(ac.getCarName(0)))
+
+    log("Loading {} info...".format(ac.getCarName(0)))
+    ACD_OBJ = ACD("content/cars/{}".format(ac.getCarName(0)))
+    log("Loaded correctly")
 
     log("Loading options window...")
     global OPTIONS_INFO
@@ -55,7 +59,7 @@ def acMain(ac_version):
 
     log("Loading engine window...")
     global ENGINE_INFO
-    ENGINE_INFO = EngineInfo(configs)
+    ENGINE_INFO = EngineInfo(ACD_OBJ, configs)
     window_id = ENGINE_INFO.get_window_id()
     ac.addOnAppActivatedListener(window_id, on_activation)
     ac.addOnAppDismissedListener(window_id, on_dismiss)
@@ -64,7 +68,7 @@ def acMain(ac_version):
     log("Loading wheel windows...")
     global WHEEL_INFOS
     for index in range(4):
-        info = WheelInfo(configs, index)
+        info = WheelInfo(ACD_OBJ, configs, index)
         window_id = info.get_window_id()
         ac.addOnAppActivatedListener(window_id, on_activation)
         ac.addOnAppDismissedListener(window_id, on_dismiss)

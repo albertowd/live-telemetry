@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 """
 Module to update one wheel infos from car and draw on screen.
+
+@author: albertowd
 """
-import copy, sys
+import copy
+import sys
 
 import ac
 
@@ -65,7 +68,7 @@ class Data(object):
 class WheelInfo(object):
     """ Wheel info to draw and update each wheel. """
 
-    def __init__(self, configs, wheel_index):
+    def __init__(self, acd, configs, wheel_index):
         """ Default constructor receive the index of the wheel it will draw info. """
         self.__wheel = WheelPos(wheel_index)
         self.__active = False
@@ -90,16 +93,16 @@ class WheelInfo(object):
         ac.setSize(self.__window_id, 512 * mult, 271 * mult)
 
         self.__components = []
-        self.__components.append(Temps(resolution, self.__wheel))
+        self.__components.append(Temps(acd, resolution, self.__wheel))
         self.__components.append(Dirt(resolution))
-        self.__components.append(Tire(resolution, self.__wheel))
+        self.__components.append(Tire(acd, resolution, self.__wheel))
 
         self.__components.append(Camber(resolution))
         self.__components.append(Suspension(resolution, self.__wheel))
         self.__components.append(
             Height(resolution, self.__wheel, self.__window_id))
         self.__components.append(
-            Pressure(resolution, self.__wheel, self.__window_id))
+            Pressure(acd, resolution, self.__wheel, self.__window_id))
         self.__components.append(Wear(resolution, self.__wheel))
         # Needs to be the last to render above all components
         self.__components.append(Load(resolution, self.__wheel))

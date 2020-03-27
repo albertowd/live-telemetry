@@ -7,11 +7,11 @@ Module to keep some utility functions.
 """
 from datetime import datetime
 import ctypes.wintypes
-import os, sys
+import os
+import platform
+import sys
 
 import ac
-
-ACD_FILE = None
 
 
 class WheelPos(object):
@@ -65,11 +65,6 @@ def color_interpolate(c_1, c_2, perc):
     c_a = c_1[3] + (c_2[3] - c_1[3]) * perc
     return [c_r, c_g, c_b, c_a]
 
-
-def get_acd():
-    """ Returns the global ACD file. """
-    global ACD_FILE
-    return ACD_FILE
 
 def get_docs_path():
     """Load the My Documents folder path."""
@@ -127,12 +122,3 @@ def export_saved_log(data_log, csv_name):
 
     with open("{}/Assetto Corsa/logs/LiveTelemetry_{}.csv".format(buf.value, csv_name), "w") as w:
         w.write("\n".join(csv))
-
-
-def update_acd(path):
-    """ Updates the ACD car information. """
-    log("Loading {} info...".format(ac.getCarName(0)))
-    from lib.lt_acd import ACD
-    global ACD_FILE
-    ACD_FILE = ACD(path)
-    log("Loaded correctly")

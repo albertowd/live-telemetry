@@ -6,7 +6,8 @@ Module to load and save app options.
 @author: albertowd
 """
 
-import configparser, os
+import configparser
+import os
 
 from lib.lt_util import get_docs_path, log
 
@@ -20,7 +21,7 @@ class Config(object):
         """ Loads or creates the app configuration file. """
         if os.path.isfile("apps/python/LiveTelemetry/cfg.ini"):
             Config.__configs.read("apps/python/LiveTelemetry/cfg.ini")
-        
+
         # If the config does not have it's version or is invalid, create a new one.
         try:
             config_version = self.get_version()
@@ -42,7 +43,8 @@ class Config(object):
             w = 1280
             try:
                 video = configparser.ConfigParser()
-                video.read("{}/Assetto Corsa/cfg/video.ini".format(get_docs_path()))
+                video.read(
+                    "{}/Assetto Corsa/cfg/video.ini".format(get_docs_path()))
                 h = int(video.get("VIDEO", "HEIGHT"))
                 w = int(video.get("VIDEO", "WIDTH"))
             except:
@@ -79,7 +81,7 @@ class Config(object):
     def get_str(self, section, option):
         """ Returns an option. """
         return Config.__configs.get(section, option)
-    
+
     def get_version(self):
         """ Returns the config file version. """
         return self.get_str("About", "version")
@@ -131,7 +133,7 @@ class Config(object):
         """ Updates engine window position. """
         self.set_str("Positions", "Engine_x", str(pos_x))
         self.set_str("Positions", "Engine_y", str(pos_y))
-    
+
     def set_load_active(self, enabled):
         """ Updates logging status. """
         self.set_str("Options", "Load", str(enabled))

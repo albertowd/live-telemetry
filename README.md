@@ -23,7 +23,7 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
 
 ### CSV Log
 
-All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs` within CSV files. It can be toggled in the options window (default is not to log).
+All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs` within CSV files. It can be toggled in the `Logging` button on options window (default is off).
 
    - LiveTelemetry_EN.csv - session engine data.
    - LiveTelemetry_[FL|FR|RL|RR].csv - session wheels data.
@@ -41,6 +41,8 @@ Each component have a button designed to scale all the components to best fit ea
 
 ### App Install
 
+#### New Installation
+
 First unzip the release content direct on your Assetto Corsa main folder (C:/Program Files (x86)/steam/steamapps/common/assettocorsa) and load the game. Select the option menu and the general sub menu. In the UI Module section will be listed this app to be checked.
 
 ![Launcher Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/launcher-menu.jpg)
@@ -53,9 +55,16 @@ Each windows will apear separately on screen.
 
 ![Options Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-options.jpg) ![Engine Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-engine.jpg) ![Wheel Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-wheel.jpg)
 
+#### Update Insatllation
+
+For 1.4.1+ versions, just extract the .zip file on the AC folder.
+
+For olders versions, its recommended to delete the plugins files from the foder `apps/python/LiveTelemetry` before extracting the new content.
+
 ## Changelog
 
 1.4.1
+   - Fixed: _ctypes.pyd loading errors
    - Config error handling
    - Auto delete old version config files
 
