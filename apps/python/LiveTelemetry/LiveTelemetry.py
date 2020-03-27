@@ -95,7 +95,7 @@ def acShutdown():
     global OPTIONS_INFO
     global WHEEL_INFOS
 
-    if OPTIONS_INFO.is_logging_active():
+    if ENGINE_INFO.has_data_logged() or WHEEL_INFOS["FL"].has_data_logged() or WHEEL_INFOS["FL"].has_data_logged() or WHEEL_INFOS["RL"].has_data_logged() or WHEEL_INFOS["RR"].has_data_logged():
         log("Saving csv data...")
         for wheel_id in WHEEL_INFOS:
             info = WHEEL_INFOS[wheel_id]

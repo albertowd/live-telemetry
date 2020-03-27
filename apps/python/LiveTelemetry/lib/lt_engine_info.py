@@ -72,6 +72,10 @@ class EngineInfo(object):
         """ Returns the window id. """
         return self.__window_id
 
+    def has_data_logged(self):
+        """Returns if the info has data logged."""
+        return len(self.__data_log) > 0
+
     def is_active(self):
         """ Returns window status. """
         return self.__active

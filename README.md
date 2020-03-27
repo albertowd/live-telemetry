@@ -65,6 +65,7 @@ For olders versions, its recommended to delete the plugins files from the foder 
 
 1.4.1
    - Changed suspension colors to 90% and 95%
+   - Fixed: suspension travel above maximum draw
    - Fixed: _ctypes.pyd loading errors
    - Config error handling
    - Auto delete old version config files
