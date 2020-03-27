@@ -7,8 +7,7 @@ Big thanks for aluigi@ZenHaxs.com that have the patience to help me to open the 
 @author: albertowd
 """
 from collections import OrderedDict
-import configparser
-import os
+import configparser, os
 from struct import unpack
 
 from lib.lt_util import log

@@ -21,12 +21,12 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
    - Tire wear: bar gets warning yellow below 98% and danger red below 96%
    - Wheel camber (rad)
 
-### Logs
+### CSV Log
 
-All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs`. It can be toggled in the options window (default is not to log).
+All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs` within CSV files. It can be toggled in the options window (default is not to log).
 
-   - LiveTelemetry_EN.log - session engine data.
-   - LiveTelemetry_[FL|FR|RL|RR].log - session wheels data.
+   - LiveTelemetry_EN.csv - session engine data.
+   - LiveTelemetry_[FL|FR|RL|RR].csv - session wheels data.
 
 ### Resolutions
 

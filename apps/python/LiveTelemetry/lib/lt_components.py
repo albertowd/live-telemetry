@@ -3,8 +3,7 @@
 """
 Module to split and resize components on the screen.
 """
-import copy
-import math
+import copy, math
 
 import ac
 import acsys

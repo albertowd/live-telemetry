@@ -3,8 +3,7 @@
 """
 Module to update one wheel infos from car and draw on screen.
 """
-import copy
-import sys
+import copy, sys
 
 import ac
 

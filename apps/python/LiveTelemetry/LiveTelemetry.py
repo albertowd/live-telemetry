@@ -12,9 +12,7 @@ from lib.lt_options_info import OptionsInfo
 from lib.lt_engine_info import EngineInfo
 from lib.lt_config import Config
 from lib.lt_components import BoxComponent
-import os
-import platform
-import sys
+import os, platform, sys
 
 import ac
 
@@ -47,7 +45,7 @@ def acMain(ac_version):
 
     log("Loading options window...")
     global OPTIONS_INFO
-    OPTIONS_INFO = OptionsInfo(configs, LT_VERSION)
+    OPTIONS_INFO = OptionsInfo(configs)
     ac.addOnClickedListener(
         OPTIONS_INFO.get_load_button_id(), on_click_load)
     ac.addOnClickedListener(

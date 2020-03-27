@@ -14,14 +14,14 @@ from lib.lt_config import Config
 class OptionsInfo(object):
     """ Options info to change app options while in game. """
 
-    def __init__(self, configs, lt_version):
+    def __init__(self, configs):
         """ Default constructor. """
         self.__load = False
         self.__logging = False
 
         self.__window_id = ac.newApp("Live Telemetry")
         ac.setIconPosition(self.__window_id, 0, -10000)
-        ac.setTitle(self.__window_id, "Live Telemetry {}".format(lt_version))
+        ac.setTitle(self.__window_id, "Live Telemetry {}".format(configs.get_version()))
 
         pos_x = configs.get_options_x()
         pos_y = configs.get_options_y()
