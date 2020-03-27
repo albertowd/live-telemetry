@@ -7,7 +7,7 @@ Module to keep some utility functions.
 """
 from datetime import datetime
 import ctypes.wintypes
-import os
+import os, sys
 
 import ac
 
@@ -44,23 +44,17 @@ class WheelPos(object):
 
 def clear_logs():
     """ Clears saved CSV data files. """
-    # Load the My Documents folder.
-    CSIDL_PERSONAL = 5  # My Documents
-    SHGFP_TYPE_CURRENT = 0  # Get current, not default value
-    buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-    ctypes.windll.shell32.SHGetFolderPathW(
-        None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
-
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_EN.csv".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_EN.csv".format(buf.value))
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FL.csv".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FL.csv".format(buf.value))
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FR.csv".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FR.csv".format(buf.value))
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RL.csv".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RL.csv".format(buf.value))
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RR.csv".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RR.csv".format(buf.value))
+    my_docs = get_docs_path()
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_EN.csv".format(my_docs)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_EN.csv".format(my_docs))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FL.csv".format(my_docs)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FL.csv".format(my_docs))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FR.csv".format(my_docs)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FR.csv".format(my_docs))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RL.csv".format(my_docs)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RL.csv".format(my_docs))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RR.csv".format(my_docs)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RR.csv".format(my_docs))
 
 
 def color_interpolate(c_1, c_2, perc):
@@ -76,6 +70,22 @@ def get_acd():
     """ Returns the global ACD file. """
     global ACD_FILE
     return ACD_FILE
+
+def get_docs_path():
+    """Load the My Documents folder path."""
+    try:
+        CSIDL_PERSONAL = 5  # My Documents
+        SHGFP_TYPE_CURRENT = 0  # Get current, not default value
+        buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+        ctypes.windll.shell32.SHGetFolderPathW(
+            None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+        return buf.value
+    except:
+        log("Could not load My Documents folder")
+        log(sys.exc_info()[0])
+        log(sys.exc_info()[1])
+        log(sys.exc_info()[2])
+        raise Exception("Could not load My Documents folder")
 
 
 def log(message, console=True, app_log=True):

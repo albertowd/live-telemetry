@@ -6,11 +6,9 @@ Module to load and save app options.
 @author: albertowd
 """
 
-import ctypes.wintypes
-import configparser
-import os
+import configparser, os
 
-from lib.lt_util import log
+from lib.lt_util import get_docs_path, log
 
 
 class Config(object):
@@ -40,18 +38,11 @@ class Config(object):
             Config.__configs["Windows"] = {
                 "Engine": "False", "FL": "False", "FR": "False", "RL": "False", "RR": "False"}
 
-            # Try to use video.ini settings to recalculate window positions.
-            CSIDL_PERSONAL = 5  # My Documents
-            SHGFP_TYPE_CURRENT = 0  # Get current, not default value
-            buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-            ctypes.windll.shell32.SHGetFolderPathW(
-                None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
-
             h = 720
             w = 1280
             try:
                 video = configparser.ConfigParser()
-                video.read("{}/Assetto Corsa/cfg/video.ini".format(buf.value))
+                video.read("{}/Assetto Corsa/cfg/video.ini".format(get_docs_path()))
                 h = int(video.get("VIDEO", "HEIGHT"))
                 w = int(video.get("VIDEO", "WIDTH"))
             except:
