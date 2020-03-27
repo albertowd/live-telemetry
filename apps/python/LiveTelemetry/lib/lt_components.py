@@ -310,9 +310,9 @@ class Suspension(BoxComponent):
 
     def draw(self, data):
         travel = data.susp_t / data.susp_m_t
-        if travel > 0.9 or travel < 0.1:
+        if travel > 0.95 or travel < 0.05:
             self._back.color = Colors.red
-        if travel > 0.8 or travel < 0.2:
+        if travel > 0.9 or travel < 0.1:
             self._back.color = Colors.yellow
         else:
             self._back.color = Colors.white
@@ -323,8 +323,8 @@ class Suspension(BoxComponent):
         rect[0] += 10 * self.__mult
         rect[1] += 44 * self.__mult
         rect[2] -= 20 * self.__mult
-        rect[3] -= 88 * self.__mult
-        rect[3] *= (1.0 - travel)
+        rect[3] -= 88 * self.__mult # 100%
+        rect[3] -= (rect[3] - rect[1]) * travel
 
         ac.glColor4f(*self._back.color)
         ac.glQuad(*rect)

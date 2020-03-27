@@ -14,7 +14,7 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
 
    - Engine Ideal RPM/Power
    - Suspension height (mm)
-   - Suspension travel (%): gets warning yellow above 80% and danger red above 90% of the maximum and minimum values
+   - Suspension travel (%): gets warning yellow above 90% and danger red above 95% of the maximum and minimum values
    - Tire pressure (psi)
    - Tire core, inner, middle and outer temperatures (ºC)
    - Tire load (N)
@@ -64,6 +64,7 @@ For olders versions, its recommended to delete the plugins files from the foder 
 ## Changelog
 
 1.4.1
+   - Changed suspension colors to 90% and 95%
    - Fixed: _ctypes.pyd loading errors
    - Config error handling
    - Auto delete old version config files
