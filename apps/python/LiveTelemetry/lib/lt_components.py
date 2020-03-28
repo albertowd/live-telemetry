@@ -310,9 +310,9 @@ class Suspension(BoxComponent):
 
     def draw(self, data):
         travel = data.susp_t / data.susp_m_t
-        if travel > 0.95 or travel < 0.05:
+        if travel > 0.98 or travel < 0.02:
             self._back.color = Colors.red
-        if travel > 0.9 or travel < 0.1:
+        elif travel > 0.95 or travel < 0.05:
             self._back.color = Colors.yellow
         else:
             self._back.color = Colors.white
