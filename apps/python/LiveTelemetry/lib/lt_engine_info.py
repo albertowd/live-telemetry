@@ -39,30 +39,37 @@ class EngineInfo(object):
         self.__active = False
         self.__data = Data()
         self.__data_log = []
-        self.__logging = False
         self.__info = info
+        self.__options = {
+            "Logging": configs.get_bool_option("Logging"),
+            "RPMPower": configs.get_bool_option("RPMPower")
+        }
         self.__window_id = ac.newApp("Live Telemetry Engine")
         ac.drawBorder(self.__window_id, 0)
         ac.setBackgroundOpacity(self.__window_id, 0.0)
         ac.setIconPosition(self.__window_id, 0, -10000)
         ac.setTitle(self.__window_id, "")
 
-        pos_x = configs.get_engine_x()
-        pos_y = configs.get_engine_y()
-        ac.setPosition(self.__window_id, pos_x, pos_y)
+        position = configs.get_window_position("EN")
+        ac.setPosition(self.__window_id, *position)
 
-        resolution = configs.get_resolution()
-        mult = BoxComponent.resolution_map[resolution]
+        size = configs.get_option("Size")
+        mult = BoxComponent.resolution_map[size]
         ac.setSize(self.__window_id, 512 * mult, 85 * mult)
 
         self.__components = []
-        self.__components.append(RPMPower(acd, resolution, self.__window_id))
+        self.__components.append(RPMPower(acd, size, self.__window_id))
 
-        self.set_active(configs.is_engine_active())
+        # Only starts to draw after the setup.
+        self.set_active(configs.is_window_active("EN"))
 
     def get_data_log(self):
         """ Returns the saved data from the session. """
         return self.__data_log
+
+    def get_option(self, name):
+        """ Returns an option value. """
+        return self.__options[name]
 
     def get_position(self):
         """ Returns the window position. """
@@ -84,8 +91,9 @@ class EngineInfo(object):
         """ Draws all info on screen. """
         ac.setBackgroundOpacity(self.__window_id, 0.0)
         for component in self.__components:
-            ac.glColor4f(*Colors.white)
-            component.draw(self.__data)
+            if self.__options[type(component).__name__] == True:
+                ac.glColor4f(*Colors.white)
+                component.draw(self.__data)
         ac.glColor4f(*Colors.white)
 
     def resize(self, resolution):
@@ -99,15 +107,16 @@ class EngineInfo(object):
         """ Toggles the window status. """
         self.__active = active
 
-    def set_logging_active(self, active):
-        """ Updates if the logging is active. """
-        self.__logging = active
+    def set_option(self, name, value):
+        """ Updates an option value. """
+        self.__options[name] = value
 
     def update(self):
         """ Updates the engine information. """
         self.__data.update(self.__info)
-        if self.__logging is True:
+        if self.__options["Logging"] == True:
             self.__data_log.append(copy.copy(self.__data))
+
         for component in self.__components:
             ac.glColor4f(*Colors.white)
             component.update(self.__data)

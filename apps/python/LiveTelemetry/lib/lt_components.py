@@ -75,6 +75,10 @@ class BoxComponent(object):
         self._back = Background()
         self._box = Box(p_x, p_y, width, height)
         self._font = font
+    
+    def clear(self):
+        """Clear labels to not draw anything on screen."""
+        pass
 
     def _draw(self, texture_id=None):
         """ Draws the component on the screen. """
@@ -172,10 +176,13 @@ class Height(BoxComponent):
             Height.texture_id = ac.newTexture(
                 "apps/python/LiveTelemetry/img/height.png")
 
-        self.__lb = ac.addLabel(window_id, "- mm")
+        self.__lb = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb, "center")
 
         self.resize(resolution)
+
+    def clear(self):
+        ac.setText(self.__lb, "")
 
     def draw(self, data):
         self._draw(Height.texture_id)
@@ -233,10 +240,13 @@ class Pressure(BoxComponent):
             Pressure.texture_id = ac.newTexture(
                 "apps/python/LiveTelemetry/img/pressure.png")
 
-        self.__lb = ac.addLabel(window_id, "- psi")
+        self.__lb = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb, "center")
 
         self.resize(resolution)
+    
+    def clear(self):
+        ac.setText(self.__lb, "")
 
     def draw(self, data):
         psi = data.tire_p
@@ -310,9 +320,9 @@ class Suspension(BoxComponent):
 
     def draw(self, data):
         travel = data.susp_t / data.susp_m_t
-        if travel > 0.98 or travel < 0.02:
+        if travel > 0.95 or travel < 0.05:
             self._back.color = Colors.red
-        elif travel > 0.95 or travel < 0.05:
+        elif travel > 0.90 or travel < 0.1:
             self._back.color = Colors.yellow
         else:
             self._back.color = Colors.white
@@ -324,7 +334,9 @@ class Suspension(BoxComponent):
         rect[1] += 44 * self.__mult
         rect[2] -= 20 * self.__mult
         rect[3] -= 88 * self.__mult # 100%
-        rect[3] -= (rect[3] - rect[1]) * travel
+
+        # Why there is negative and above maximum numbers, KUNOS???
+        rect[3] = min(rect[3], max(0.0, rect[3] * (1.0 - travel)))
 
         ac.glColor4f(*self._back.color)
         ac.glQuad(*rect)

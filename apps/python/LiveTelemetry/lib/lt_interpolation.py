@@ -109,7 +109,7 @@ class TirePsi(object):
 class TireTemp(Curve):
     """ Handles tire temperature interpolations. """
 
-    def __init__(self, content=""):
+    def __init__(self, content: str = "") -> None:
         super(TireTemp, self).__init__(content)
 
     def interpolate_color(self, temp, interpolated):

@@ -63,6 +63,14 @@ For olders versions, its recommended to delete the plugins files from the foder 
 
 ## Changelog
 
+1.5.0
+   - All infos are now toggleble
+   - Changed back suspension colors to 95% and 90%
+   - Fix ghosts labels when window is inactive but the plugin thinks it's active
+   - New info available by `Please Stop This`
+   - Suspension now works properly with the rigth data
+   - Trying to work with the suspension, AC gives me negative and above maximum travel as well...
+
 1.4.1
    - Changed suspension colors to 95% and 98%
    - Fixed: _ctypes.pyd loading errors
@@ -115,3 +123,5 @@ All the issues can be found on the issues page of the github repository: [Live T
 ## Big Thanks
 
 My newest best friend [aluigi@zenhax.com](http://zenhax.com/viewtopic.php?f=9&t=90) who helped me to understand how to open .acd files!
+
+`Please Stop This` from RaceDepartment who helped me with some code and others to work this app out.

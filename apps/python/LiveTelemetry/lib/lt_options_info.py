@@ -6,6 +6,8 @@ Module to view and change app options.
 @author: albertowd
 """
 
+from math import floor
+
 import ac
 
 from lib.lt_components import BoxComponent
@@ -16,86 +18,67 @@ from lib.lt_config import Config
 class OptionsInfo(object):
     """ Options info to change app options while in game. """
 
-    def __init__(self, configs):
+    def __init__(self, configs: Config):
         """ Default constructor. """
-        self.__load = False
-        self.__logging = False
+        self.__buttons = {}
+        self.__options = {
+            "Camber": configs.get_bool_option("Camber"),
+            "Dirt": configs.get_bool_option("Dirt"),
+            "Height": configs.get_bool_option("Height"),
+            "Load": configs.get_bool_option("Load"),
+            "Logging": configs.get_bool_option("Logging"),
+            "Pressure": configs.get_bool_option("Pressure"),
+            "RPMPower": configs.get_bool_option("RPMPower"),
+            "Size": configs.get_option("Size"),
+            "Suspension": configs.get_bool_option("Suspension"),
+            "Temps": configs.get_bool_option("Temps"),
+            "Tire": configs.get_bool_option("Tire"),
+            "Wear": configs.get_bool_option("Wear")
+        }
 
         self.__window_id = ac.newApp("Live Telemetry")
         ac.setIconPosition(self.__window_id, 0, -10000)
-        ac.setTitle(self.__window_id, "Live Telemetry {}".format(
-            configs.get_version()))
+        title = "Live Telemetry {}".format(configs.get_version())
+        ac.setTitle(self.__window_id, title)
 
-        pos_x = configs.get_options_x()
-        pos_y = configs.get_options_y()
-        ac.setPosition(self.__window_id, pos_x, pos_y)
+        position = configs.get_window_position("OP")
+        ac.setPosition(self.__window_id, *position)
 
-        resolution = configs.get_resolution()
-        ac.setSize(self.__window_id, 200, 150)
+        ac.setSize(self.__window_id, 395, 160)
 
-        self.__bt_load = ac.addButton(self.__window_id, "Load (N)")
-        ac.setPosition(self.__bt_load, 60, 30)
-        ac.setSize(self.__bt_load, 80, 30)
-        ac.setFontAlignment(self.__bt_load, "center")
+        for index, name in enumerate(sorted(self.__options.keys())):
+            text = str(name) if name != "Size" else self.__options[name]
+            self.__buttons[name] = ac.addButton(self.__window_id, text)
+            x = 30 + (floor(index / 3) * 85)
+            y = 30 + (floor(index % 3) * 35)
+            ac.setPosition(self.__buttons[name], x, y)
+            ac.setSize(self.__buttons[name], 80, 30)
+            ac.setFontAlignment(self.__buttons[name], "center")
+            self.set_option(name, self.__options[name])
 
-        self.__bt_logging = ac.addButton(self.__window_id, "Logging")
-        ac.setPosition(self.__bt_logging, 60, 70)
-        ac.setSize(self.__bt_logging, 80, 30)
-        ac.setFontAlignment(self.__bt_logging, "center")
+    def get_button_id(self, name):
+        """ Returns a button id. """
+        return self.__buttons[name]
 
-        self.__bt_resolution = ac.addButton(self.__window_id, resolution)
-        ac.setPosition(self.__bt_resolution, 60, 110)
-        ac.setSize(self.__bt_resolution, 80, 30)
-        ac.setFontAlignment(self.__bt_resolution, "center")
-
-        self.set_load_active(configs.is_load_active())
-        self.set_logging_active(configs.is_logging_active())
-        self.resize(configs.get_resolution())
-
-    def get_load_button_id(self):
-        """ Returns the load button id. """
-        return self.__bt_load
-
-    def get_logging_button_id(self):
-        """ Returns the logging button id. """
-        return self.__bt_logging
+    def get_option(self, name):
+        """ Returns an option value. """
+        return self.__options[name]
 
     def get_position(self):
         """ Returns the window position. """
         return ac.getPosition(self.__window_id)
 
-    def get_resolution(self):
-        """ Returns the resolution of the window. """
-        return ac.getText(self.__bt_resolution)
-
-    def get_resolution_button_id(self):
-        """ Returns the resolution button id. """
-        return self.__bt_resolution
-
     def get_window_id(self):
         """ Returns the window id. """
         return self.__window_id
 
-    def is_load_active(self):
-        """ Returns if the load feature is active. """
-        return self.__load
-
-    def is_logging_active(self):
-        """ Returns if the logging is active. """
-        return self.__logging
-
-    def resize(self, resolution):
+    def resize(self, size):
         """ Resizes the window. """
-        ac.setText(self.__bt_resolution, resolution)
+        ac.setText(self.__buttons["Size"], size)
 
-    def set_load_active(self, active):
-        """ Updates if the load feature is active. """
-        self.__load = active
-        ac.setFontColor(self.__bt_load, *
-                        (Colors.red if self.__load else Colors.white))
-
-    def set_logging_active(self, active):
-        """ Updates if the logging is active. """
-        self.__logging = active
-        ac.setFontColor(self.__bt_logging, *
-                        (Colors.red if self.__logging else Colors.white))
+    def set_option(self, name, value):
+        """ Updates an option value. """
+        self.__options[name] = value
+        if name != "Size":
+            color = Colors.red if value else Colors.white
+            ac.setFontColor(self.__buttons[name], *color)
