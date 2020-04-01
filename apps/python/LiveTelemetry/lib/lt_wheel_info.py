@@ -10,8 +10,10 @@ import sys
 
 import ac
 
+from lib.lt_acd import ACD
 from lib.lt_colors import Colors
 from lib.lt_components import BoxComponent, Camber, Dirt, Height, Load, Pressure, Temps, Suspension, Tire, Wear
+from lib.lt_config import Config
 from lib.lt_util import WheelPos
 from lib.sim_info import info
 
@@ -68,7 +70,7 @@ class Data(object):
 class WheelInfo(object):
     """ Wheel info to draw and update each wheel. """
 
-    def __init__(self, acd, configs, wheel_index):
+    def __init__(self, acd: ACD, configs: Config, wheel_index: int) -> None:
         """ Default constructor receive the index of the wheel it will draw info. """
         self.__wheel = WheelPos(wheel_index)
         self.__active = False
@@ -122,31 +124,31 @@ class WheelInfo(object):
         """ Returns the saved data from the session. """
         return self.__data_log
 
-    def get_id(self):
+    def get_id(self) -> str:
         """ Returns the wheel id. """
         return self.__wheel.name()
 
-    def get_option(self, name):
+    def get_option(self, name: str):
         """ Returns an option value. """
         return self.__options[name]
 
-    def get_position(self):
+    def get_position(self) -> [float]:
         """ Returns the window position. """
         return ac.getPosition(self.__window_id)
 
-    def get_window_id(self):
+    def get_window_id(self) -> int:
         """ Returns the window id. """
         return self.__window_id
 
-    def has_data_logged(self):
+    def has_data_logged(self) -> bool:
         """Returns if the info has data logged."""
         return len(self.__data_log) > 0
 
-    def is_active(self):
+    def is_active(self) -> bool:
         """ Returns window status. """
         return self.__active
 
-    def draw(self):
+    def draw(self) -> None:
         """ Draws all info on screen. """
         ac.setBackgroundOpacity(self.__window_id, 0.0)
         for component in self.__components:
@@ -157,22 +159,22 @@ class WheelInfo(object):
                 component.clear()
         ac.glColor4f(*Colors.white)
 
-    def resize(self, resolution):
+    def resize(self, size: str) -> None:
         """ Resizes the window. """
-        mult = BoxComponent.resolution_map[resolution]
+        mult = BoxComponent.resolution_map[size]
         ac.setSize(self.__window_id, 512 * mult, 271 * mult)
         for component in self.__components:
-            component.resize(resolution)
+            component.resize(size)
 
-    def set_active(self, active):
+    def set_active(self, active: bool) -> None:
         """ Toggles the window status. """
         self.__active = active
 
-    def set_option(self, name, value):
+    def set_option(self, name: str, value) -> None:
         """ Updates an option value. """
         self.__options[name] = value
 
-    def update(self):
+    def update(self) -> None:
         """ Updates the wheel information. """
         self.__data.update(self.__wheel, self.__info)
         if self.__options["Logging"] == True:
