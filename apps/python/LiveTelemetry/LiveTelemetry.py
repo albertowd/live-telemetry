@@ -2,31 +2,29 @@
 # -*- coding: utf-8 -*-
 """
 Live Telemetry App for Assetto Corsa
-v 1.4.0
+v 1.4.1
 https://github.com/albertowd/Wheellive-telemetry
 @author: albertowd
 """
-from lib.lt_util import clear_logs, export_saved_log, log, update_acd
-from lib.lt_wheel_info import WheelInfo
-from lib.lt_options_info import OptionsInfo
-from lib.lt_engine_info import EngineInfo
-from lib.lt_config import Config
-from lib.lt_components import BoxComponent
-import os
-import platform
-import sys
+
+
+import a_ctypes_aux
 
 import ac
 
-if platform.architecture()[0] == "64bit":
-    sys.path.append("apps/python/LiveTelemetry/stdlib64")
-else:
-    sys.path.append("apps/python/LiveTelemetry/stdlib")
-os.environ["PATH"] = os.environ["PATH"] + ";."
+from lib.lt_acd import ACD
+from lib.lt_components import BoxComponent
+from lib.lt_config import Config
+from lib.lt_engine_info import EngineInfo
+from lib.lt_options_info import OptionsInfo
+from lib.lt_wheel_info import WheelInfo
+from lib.lt_util import clear_logs, export_saved_log, log
 
+# Loaded car files
+ACD_OBJ = None
 
 # VERSION
-LT_VERSION = '1.4.0'
+LT_VERSION = "1.4.1"
 
 # Each window
 ENGINE_INFO = None
@@ -36,16 +34,22 @@ WHEEL_INFOS = {}
 
 def acMain(ac_version):
     """ Initiates the program. """
-    configs = Config()
-
+    global ACD_OBJ
     global LT_VERSION
+
     log("Starting Live Telemetry {} on AC Python API version {}...".format(
         LT_VERSION, ac_version))
 
-    update_acd("content/cars/{}".format(ac.getCarName(0)))
+    log("Loading configs...")
+    configs = Config(LT_VERSION)
 
+    log("Loading {} info...".format(ac.getCarName(0)))
+    ACD_OBJ = ACD("content/cars/{}".format(ac.getCarName(0)))
+    log("Loaded correctly")
+
+    log("Loading options window...")
     global OPTIONS_INFO
-    OPTIONS_INFO = OptionsInfo(configs, LT_VERSION)
+    OPTIONS_INFO = OptionsInfo(configs)
     ac.addOnClickedListener(
         OPTIONS_INFO.get_load_button_id(), on_click_load)
     ac.addOnClickedListener(
@@ -53,16 +57,18 @@ def acMain(ac_version):
     ac.addOnClickedListener(
         OPTIONS_INFO.get_resolution_button_id(), on_click_resolution)
 
+    log("Loading engine window...")
     global ENGINE_INFO
-    ENGINE_INFO = EngineInfo(configs)
+    ENGINE_INFO = EngineInfo(ACD_OBJ, configs)
     window_id = ENGINE_INFO.get_window_id()
     ac.addOnAppActivatedListener(window_id, on_activation)
     ac.addOnAppDismissedListener(window_id, on_dismiss)
     ac.addRenderCallback(ENGINE_INFO.get_window_id(), on_render_engine)
 
+    log("Loading wheel windows...")
     global WHEEL_INFOS
     for index in range(4):
-        info = WheelInfo(configs, index)
+        info = WheelInfo(ACD_OBJ, configs, index)
         window_id = info.get_window_id()
         ac.addOnAppActivatedListener(window_id, on_activation)
         ac.addOnAppDismissedListener(window_id, on_dismiss)
@@ -80,14 +86,16 @@ def acMain(ac_version):
 
 def acShutdown():
     """ Called when the session ends (or restarts). """
+    global LT_VERSION
+
     log("Ending down Live Telemetry...")
 
-    configs = Config()
+    configs = Config(LT_VERSION)
     global ENGINE_INFO
     global OPTIONS_INFO
     global WHEEL_INFOS
 
-    if OPTIONS_INFO.is_logging_active():
+    if ENGINE_INFO.has_data_logged() or WHEEL_INFOS["FL"].has_data_logged() or WHEEL_INFOS["FL"].has_data_logged() or WHEEL_INFOS["RL"].has_data_logged() or WHEEL_INFOS["RR"].has_data_logged():
         log("Saving csv data...")
         for wheel_id in WHEEL_INFOS:
             info = WHEEL_INFOS[wheel_id]

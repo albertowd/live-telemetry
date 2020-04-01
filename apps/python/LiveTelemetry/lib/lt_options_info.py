@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 Module to view and change app options.
+
+@author: albertowd
 """
 
 import ac
@@ -14,14 +16,15 @@ from lib.lt_config import Config
 class OptionsInfo(object):
     """ Options info to change app options while in game. """
 
-    def __init__(self, configs, lt_version):
+    def __init__(self, configs):
         """ Default constructor. """
         self.__load = False
         self.__logging = False
 
         self.__window_id = ac.newApp("Live Telemetry")
         ac.setIconPosition(self.__window_id, 0, -10000)
-        ac.setTitle(self.__window_id, "Live Telemetry {}".format(lt_version))
+        ac.setTitle(self.__window_id, "Live Telemetry {}".format(
+            configs.get_version()))
 
         pos_x = configs.get_options_x()
         pos_y = configs.get_options_y()
@@ -72,11 +75,11 @@ class OptionsInfo(object):
     def get_window_id(self):
         """ Returns the window id. """
         return self.__window_id
-    
+
     def is_load_active(self):
         """ Returns if the load feature is active. """
         return self.__load
-    
+
     def is_logging_active(self):
         """ Returns if the logging is active. """
         return self.__logging
@@ -84,7 +87,7 @@ class OptionsInfo(object):
     def resize(self, resolution):
         """ Resizes the window. """
         ac.setText(self.__bt_resolution, resolution)
-    
+
     def set_load_active(self, active):
         """ Updates if the load feature is active. """
         self.__load = active

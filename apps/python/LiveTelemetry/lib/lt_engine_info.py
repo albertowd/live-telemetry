@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 """
 Module to update one engine infos from car and draw on screen.
+
+@author: albertowd
 """
 import copy
+
 import ac
 
 from lib.lt_colors import Colors
@@ -31,7 +34,7 @@ class Data(object):
 class EngineInfo(object):
     """ Engine info to draw and update. """
 
-    def __init__(self, configs):
+    def __init__(self, acd, configs):
         """ Default constructor. """
         self.__active = False
         self.__data = Data()
@@ -53,7 +56,7 @@ class EngineInfo(object):
         ac.setSize(self.__window_id, 512 * mult, 85 * mult)
 
         self.__components = []
-        self.__components.append(RPMPower(resolution, self.__window_id))
+        self.__components.append(RPMPower(acd, resolution, self.__window_id))
 
         self.set_active(configs.is_engine_active())
 
@@ -68,6 +71,10 @@ class EngineInfo(object):
     def get_window_id(self):
         """ Returns the window id. """
         return self.__window_id
+
+    def has_data_logged(self):
+        """Returns if the info has data logged."""
+        return len(self.__data_log) > 0
 
     def is_active(self):
         """ Returns window status. """

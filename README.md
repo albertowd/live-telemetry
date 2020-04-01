@@ -1,4 +1,4 @@
-# Live Telemetry 1.4.0
+# Live Telemetry 1.4.1
 
 An Assetto Corsa app to view real time telemetry
 
@@ -8,25 +8,25 @@ The app show on screen real time telemetry of engine, each tire and suspension i
 
 The app uses the mod file directly or the encrypted Kunos files to calculate it's limits, does not need configuration.
 
-[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/screenshot.jpg)](https://www.youtube.com/watch?v=i7jyqPhZp4Y)
+[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/screenshot.jpg)](https://www.youtube.com/watch?v=KI4pK0c7n1Q)
 
 ### Telemetry Info
 
    - Engine Ideal RPM/Power
    - Suspension height (mm)
-   - Suspension travel (%): gets warning yellow above 80% and danger red above 90% of the maximum and minimum values
+   - Suspension travel (%): gets warning yellow above 95% and danger red above 98% of the maximum and minimum values
    - Tire pressure (psi)
    - Tire core, inner, middle and outer temperatures (ºC)
    - Tire load (N)
    - Tire wear: bar gets warning yellow below 98% and danger red below 96%
    - Wheel camber (rad)
 
-### Logs
+### CSV Log
 
-All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs`. It can be toggled in the options window (default is not to log).
+All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs` within CSV files. It can be toggled in the `Logging` button on options window (default is off).
 
-   - LiveTelemetry_EN.log - session engine data.
-   - LiveTelemetry_[FL|FR|RL|RR].log - session wheels data.
+   - LiveTelemetry_EN.csv - session engine data.
+   - LiveTelemetry_[FL|FR|RL|RR].csv - session wheels data.
 
 ### Resolutions
 
@@ -41,6 +41,8 @@ Each component have a button designed to scale all the components to best fit ea
 
 ### App Install
 
+#### New Installation
+
 First unzip the release content direct on your Assetto Corsa main folder (C:/Program Files (x86)/steam/steamapps/common/assettocorsa) and load the game. Select the option menu and the general sub menu. In the UI Module section will be listed this app to be checked.
 
 ![Launcher Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/launcher-menu.jpg)
@@ -53,7 +55,21 @@ Each windows will apear separately on screen.
 
 ![Options Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-options.jpg) ![Engine Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-engine.jpg) ![Wheel Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-wheel.jpg)
 
+#### Update Insatllation
+
+For 1.4.1+ versions, just extract the .zip file on the AC folder.
+
+For olders versions, its recommended to delete the plugins files from the foder `apps/python/LiveTelemetry` before extracting the new content.
+
 ## Changelog
+
+1.4.1
+   - Changed suspension colors to 95% and 98%
+   - Fixed: _ctypes.pyd loading errors
+   - Fixed: data not being saved on session end
+   - Fixed: suspension travel above maximum draw
+   - Config error handling
+   - Auto delete old version config files
 
 1.4.0
    - Fixed: not showing 480p scale
@@ -65,7 +81,7 @@ Each windows will apear separately on screen.
 
 1.3.1
    - Changed sim_info.py path to work on all installations
-   - Save engin data in a csv file after the session
+   - Save engine data in a csv file after the session
 
 1.3
    - Unpacked car support (for debugging unfinished mods)

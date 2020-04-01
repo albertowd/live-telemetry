@@ -6,9 +6,10 @@ Module to load and save app options.
 @author: albertowd
 """
 
-import ctypes.wintypes
 import configparser
 import os
+
+from lib.lt_util import get_docs_path, log
 
 
 class Config(object):
@@ -16,28 +17,39 @@ class Config(object):
 
     __configs = configparser.ConfigParser()
 
-    def __init__(self):
+    def __init__(self, lt_version):
         """ Loads or creates the app configuration file. """
         if os.path.isfile("apps/python/LiveTelemetry/cfg.ini"):
             Config.__configs.read("apps/python/LiveTelemetry/cfg.ini")
-        else:
-            video = configparser.ConfigParser()
+
+        # If the config does not have it's version or is invalid, create a new one.
+        try:
+            config_version = self.get_version()
+            if config_version != lt_version:
+                log("Old config file. Could make things crash!")
+                raise Exception("Old config file.")
+        except:
+            log("Creating new config file.")
+
+            Config.__configs = configparser.ConfigParser()
+            Config.__configs["About"] = {"Version": lt_version}
             Config.__configs["Options"] = {
                 "Load": "True", "Logging": "False", "Size": "FHD"}
             Config.__configs["Positions"] = {}
             Config.__configs["Windows"] = {
                 "Engine": "False", "FL": "False", "FR": "False", "RL": "False", "RR": "False"}
 
-            # Try to use video.ini settings to recalculate window positions.
-            CSIDL_PERSONAL = 5  # My Documents
-            SHGFP_TYPE_CURRENT = 0  # Get current, not default value
-            buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-            ctypes.windll.shell32.SHGetFolderPathW(
-                None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+            h = 720
+            w = 1280
+            try:
+                video = configparser.ConfigParser()
+                video.read(
+                    "{}/Assetto Corsa/cfg/video.ini".format(get_docs_path()))
+                h = int(video.get("VIDEO", "HEIGHT"))
+                w = int(video.get("VIDEO", "WIDTH"))
+            except:
+                log("Could not get 'cfg/video.ini' video options, using default 1280x720 resolution.")
 
-            video.read("{}/Assetto Corsa/cfg/video.ini".format(buf.value))
-            h = int(video.get("VIDEO", "HEIGHT"))
-            w = int(video.get("VIDEO", "WIDTH"))
             self.set_engine_position((w - 360) / 2, h - 51 - 160)
             self.set_options_position(w - 200 - 50, (h - 110) / 2)
             self.set_position("FL", 10, 80)
@@ -69,6 +81,10 @@ class Config(object):
     def get_str(self, section, option):
         """ Returns an option. """
         return Config.__configs.get(section, option)
+
+    def get_version(self):
+        """ Returns the config file version. """
+        return self.get_str("About", "version")
 
     def get_x(self, wheel_id):
         """ Returns the x position of window. """
@@ -117,7 +133,7 @@ class Config(object):
         """ Updates engine window position. """
         self.set_str("Positions", "Engine_x", str(pos_x))
         self.set_str("Positions", "Engine_y", str(pos_y))
-    
+
     def set_load_active(self, enabled):
         """ Updates logging status. """
         self.set_str("Options", "Load", str(enabled))
