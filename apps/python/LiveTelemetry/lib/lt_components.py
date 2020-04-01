@@ -75,6 +75,10 @@ class BoxComponent(object):
         self._back = Background()
         self._box = Box(p_x, p_y, width, height)
         self._font = font
+    
+    def clear(self):
+        """Clear labels to not draw anything on screen."""
+        pass
 
     def _draw(self, texture_id=None):
         """ Draws the component on the screen. """
@@ -172,10 +176,13 @@ class Height(BoxComponent):
             Height.texture_id = ac.newTexture(
                 "apps/python/LiveTelemetry/img/height.png")
 
-        self.__lb = ac.addLabel(window_id, "- mm")
+        self.__lb = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb, "center")
 
         self.resize(resolution)
+
+    def clear(self):
+        ac.setText(self.__lb, "")
 
     def draw(self, data):
         self._draw(Height.texture_id)
@@ -233,10 +240,19 @@ class Pressure(BoxComponent):
             Pressure.texture_id = ac.newTexture(
                 "apps/python/LiveTelemetry/img/pressure.png")
 
-        self.__lb = ac.addLabel(window_id, "- psi")
+        self.__lb = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb, "center")
 
         self.resize(resolution)
+    
+    def clear(self):
+        try:
+            ac.setText(self.__lb, "")
+        except:
+            ac.log(sys.exc_info()[0])
+            ac.log(sys.exc_info()[1])
+            ac.log(sys.exc_info()[2])
+            ac.log(sys.exc_info()[3])
 
     def draw(self, data):
         psi = data.tire_p

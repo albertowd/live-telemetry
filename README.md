@@ -63,6 +63,10 @@ For olders versions, its recommended to delete the plugins files from the foder 
 
 ## Changelog
 
+1.5.0
+   - All infos are now toggleble
+   - Fix ghosts labels when window is inactive but the plugin thinks it's active
+
 1.4.1
    - Changed suspension colors to 95% and 98%
    - Fixed: _ctypes.pyd loading errors
