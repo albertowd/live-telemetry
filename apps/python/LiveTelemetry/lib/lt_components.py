@@ -246,13 +246,7 @@ class Pressure(BoxComponent):
         self.resize(resolution)
     
     def clear(self):
-        try:
-            ac.setText(self.__lb, "")
-        except:
-            ac.log(sys.exc_info()[0])
-            ac.log(sys.exc_info()[1])
-            ac.log(sys.exc_info()[2])
-            ac.log(sys.exc_info()[3])
+        ac.setText(self.__lb, "")
 
     def draw(self, data):
         psi = data.tire_p
