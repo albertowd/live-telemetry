@@ -8,10 +8,10 @@ Module to keep some utility functions.
 from datetime import datetime
 import ctypes.wintypes
 import os
+import platform
+import sys
 
 import ac
-
-ACD_FILE = None
 
 
 class WheelPos(object):
@@ -44,23 +44,17 @@ class WheelPos(object):
 
 def clear_logs():
     """ Clears saved CSV data files. """
-    # Load the My Documents folder.
-    CSIDL_PERSONAL = 5  # My Documents
-    SHGFP_TYPE_CURRENT = 0  # Get current, not default value
-    buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-    ctypes.windll.shell32.SHGetFolderPathW(
-        None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
-
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_EN.log".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_EN.log".format(buf.value))
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FL.log".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FL.log".format(buf.value))
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FR.log".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FR.log".format(buf.value))
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RL.log".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RL.log".format(buf.value))
-    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RR.log".format(buf.value)):
-        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RR.log".format(buf.value))
+    my_docs = get_docs_path()
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_EN.csv".format(my_docs)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_EN.csv".format(my_docs))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FL.csv".format(my_docs)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FL.csv".format(my_docs))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_FR.csv".format(my_docs)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_FR.csv".format(my_docs))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RL.csv".format(my_docs)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RL.csv".format(my_docs))
+    if os.path.isfile("{}/Assetto Corsa/logs/LiveTelemetry_RR.csv".format(my_docs)):
+        os.unlink("{}/Assetto Corsa/logs/LiveTelemetry_RR.csv".format(my_docs))
 
 
 def color_interpolate(c_1, c_2, perc):
@@ -72,10 +66,20 @@ def color_interpolate(c_1, c_2, perc):
     return [c_r, c_g, c_b, c_a]
 
 
-def get_acd():
-    """ Returns the global ACD file. """
-    global ACD_FILE
-    return ACD_FILE
+def get_docs_path():
+    """Load the My Documents folder path."""
+    try:
+        CSIDL_PERSONAL = 5  # My Documents
+        SHGFP_TYPE_CURRENT = 0  # Get current, not default value
+        buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+        ctypes.windll.shell32.SHGetFolderPathW(
+            None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+        return buf.value
+    except:
+        log("Could not load My Documents folder")
+        for index in range(len(sys.exc_info())):
+            log(sys.exc_info()[index])
+        return ""
 
 
 def log(message, console=True, app_log=True):
@@ -97,7 +101,7 @@ def export_saved_log(data_log, csv_name):
     # Verifies the log length.
     if(len(data_log) > 0):
         # Create the header row
-        keys = data_log[0].__dict__.keys()
+        keys = sorted(data_log[0].__dict__.keys())
         csv.append(";".join(keys))
 
         # Create the each data row.
@@ -109,20 +113,11 @@ def export_saved_log(data_log, csv_name):
             csv.append(";".join(row))
 
     # Load the My Documents folder.
-    CSIDL_PERSONAL = 5  # My Documents
-    SHGFP_TYPE_CURRENT = 0  # Get current, not default value
-    buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-    ctypes.windll.shell32.SHGetFolderPathW(
-        None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+    docs_path = get_docs_path()
 
-    with open("{}/Assetto Corsa/logs/LiveTelemetry_{}.log".format(buf.value, csv_name), "w") as w:
-        w.write("\n".join(csv))
-
-
-def update_acd(path):
-    """ Updates the ACD car information. """
-    log("Loading {} info...".format(ac.getCarName(0)))
-    from lib.lt_acd import ACD
-    global ACD_FILE
-    ACD_FILE = ACD(path)
-    log("Loaded correctly")
+    if len(docs_path) > 0:
+        with open("{}/Assetto Corsa/logs/LiveTelemetry_{}.csv".format(docs_path, csv_name), "w") as w:
+            w.write("\n".join(csv))
+    else:
+        with open("LiveTelemetry_{}.csv".format(csv_name), "w") as w:
+            w.write("\n".join(csv))
