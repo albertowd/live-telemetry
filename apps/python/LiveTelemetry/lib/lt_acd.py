@@ -93,7 +93,7 @@ class ACD(object):
             file_path = "{}/{}".format(path, file_name)
             if os.path.isfile(file_path):
                 log(file_name)
-                with open(file_path, 'r') as r:
+                with open(file_path, "r") as r:
                     self.set_file(r.read(), file_name)
 
     def __str__(self):
@@ -115,7 +115,7 @@ class ACD(object):
     def get_ideal_pressure(self, compound, wheel):
         """ Returns the compound ideal pressure. """
         config = configparser.ConfigParser(
-            empty_lines_in_values=False, inline_comment_prefixes=(';',))
+            empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("tyres.ini"))
 
         name = get_tire_name(compound, config, wheel)
@@ -124,7 +124,7 @@ class ACD(object):
     def get_power_curve(self):
         """ Returns the rpm x power curve. """
         config = configparser.ConfigParser(
-            empty_lines_in_values=False, inline_comment_prefixes=(';',))
+            empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("engine.ini"))
 
         return self.get_file(config["HEADER"]["POWER_CURVE"])
@@ -132,7 +132,7 @@ class ACD(object):
     def get_temp_curve(self, compound, wheel):
         """ Returns the compound temperature grip curve. """
         config = configparser.ConfigParser(
-            empty_lines_in_values=False, inline_comment_prefixes=(';',))
+            empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("tyres.ini"))
 
         name = "THERMAL_{}".format(get_tire_name(compound, config, wheel))
@@ -141,7 +141,7 @@ class ACD(object):
     def get_wear_curve(self, compound, wheel):
         """ Returns the compound wear curve. """
         config = configparser.ConfigParser(
-            empty_lines_in_values=False, inline_comment_prefixes=(';',))
+            empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("tyres.ini"))
 
         name = get_tire_name(compound, config, wheel)

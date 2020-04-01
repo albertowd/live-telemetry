@@ -77,10 +77,9 @@ def get_docs_path():
         return buf.value
     except:
         log("Could not load My Documents folder")
-        log(sys.exc_info()[0])
-        log(sys.exc_info()[1])
-        log(sys.exc_info()[2])
-        raise Exception("Could not load My Documents folder")
+        for index in range(len(sys.exc_info())):
+            log(sys.exc_info()[index])
+        return ""
 
 
 def log(message, console=True, app_log=True):
@@ -102,7 +101,7 @@ def export_saved_log(data_log, csv_name):
     # Verifies the log length.
     if(len(data_log) > 0):
         # Create the header row
-        keys = data_log[0].__dict__.keys()
+        keys = sorted(data_log[0].__dict__.keys())
         csv.append(";".join(keys))
 
         # Create the each data row.
@@ -114,11 +113,11 @@ def export_saved_log(data_log, csv_name):
             csv.append(";".join(row))
 
     # Load the My Documents folder.
-    CSIDL_PERSONAL = 5  # My Documents
-    SHGFP_TYPE_CURRENT = 0  # Get current, not default value
-    buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-    ctypes.windll.shell32.SHGetFolderPathW(
-        None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+    docs_path = get_docs_path()
 
-    with open("{}/Assetto Corsa/logs/LiveTelemetry_{}.csv".format(buf.value, csv_name), "w") as w:
-        w.write("\n".join(csv))
+    if len(docs_path) > 0:
+        with open("{}/Assetto Corsa/logs/LiveTelemetry_{}.csv".format(docs_path, csv_name), "w") as w:
+            w.write("\n".join(csv))
+    else:
+        with open("LiveTelemetry_{}.csv".format(csv_name), "w") as w:
+            w.write("\n".join(csv))

@@ -57,15 +57,16 @@ class Config(object):
 
             h = 720
             w = 1280
-            try:
-                video = ConfigParser()
-                ini_path = "{}/Assetto Corsa/cfg/video.ini".format(
-                    get_docs_path())
-                video.read(ini_path)
-                h = int(video.get("VIDEO", "HEIGHT"))
-                w = int(video.get("VIDEO", "WIDTH"))
-            except:
-                log("Could not get 'cfg/video.ini' video options, using default 1280x720 resolution.")
+            docs_path = get_docs_path()
+
+            if len(docs_path) > 0:
+                try:
+                    video = ConfigParser()
+                    video.read("{}/Assetto Corsa/cfg/video.ini".format(docs_path))
+                    h = int(video.get("VIDEO", "HEIGHT"))
+                    w = int(video.get("VIDEO", "WIDTH"))
+                except:
+                    log("Could not get 'cfg/video.ini' video options, using default 1280x720 resolution.")
 
             self.set_window_position(
                 "EN", [floor((w - 360) / 2), h - 51 - 160])
@@ -110,7 +111,7 @@ class Config(object):
 
     def save_config(self) -> None:
         """ Writes the actual options on the configuration file. """
-        cfg_file = open("apps/python/LiveTelemetry/cfg.ini", 'w')
+        cfg_file = open("apps/python/LiveTelemetry/cfg.ini", "w")
         self.__configs.write(cfg_file)
         cfg_file.close()
 
