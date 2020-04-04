@@ -1,4 +1,4 @@
-# Live Telemetry 1.5.0
+# Live Telemetry 1.5.1
 
 An Assetto Corsa app to view real time telemetry
 
@@ -62,6 +62,11 @@ For 1.4.1+ versions, just extract the .zip file on the AC folder.
 For olders versions, its recommended to delete the plugins files from the foder `apps/python/LiveTelemetry` before extracting the new content.
 
 ## Changelog
+
+1.5.1
+   - Better ACD file load handling.
+   - Sim_info.py syntax fix.
+   - Works with proTyres as well.
 
 1.5.0
    - All infos are now toggleble
