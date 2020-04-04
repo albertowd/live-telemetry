@@ -9,6 +9,7 @@ Module to load and save app options.
 from configparser import ConfigParser
 from math import floor
 from os import path
+from sys import exc_info
 
 from lib.lt_util import get_docs_path, log
 
@@ -62,11 +63,14 @@ class Config(object):
             if len(docs_path) > 0:
                 try:
                     video = ConfigParser()
-                    video.read("{}/Assetto Corsa/cfg/video.ini".format(docs_path))
-                    h = int(video.get("VIDEO", "HEIGHT"))
-                    w = int(video.get("VIDEO", "WIDTH"))
+                    video.read(
+                        "{}/Assetto Corsa/cfg/video.ini".format(docs_path))
+                    h = int(video.get("VIDEO", "HEIGHT")) if video.has_option("VIDEO", "HEIGHT") else 720
+                    w = int(video.get("VIDEO", "WIDTH")) if video.has_option("VIDEO", "WIDTH") else 1280
                 except:
-                    log("Could not get 'cfg/video.ini' video options, using default 1280x720 resolution.")
+                    log("Could not get 'cfg/video.ini' video options, using default 1280x720 resolution:")
+                    for info in exc_info():
+                        log(info)
 
             self.set_window_position(
                 "EN", [floor((w - 360) / 2), h - 51 - 160])
