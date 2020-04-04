@@ -5,11 +5,11 @@ Module to keep some utility functions.
 
 @author: albertowd
 """
+
 from datetime import datetime
+from sys import exc_info
 import ctypes.wintypes
 import os
-import platform
-import sys
 
 import ac
 
@@ -76,9 +76,9 @@ def get_docs_path():
             None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
         return buf.value
     except:
-        log("Could not load My Documents folder")
-        for index in range(len(sys.exc_info())):
-            log(sys.exc_info()[index])
+        log("Could not load My Documents folder:")
+        for info in exc_info():
+            log(info)
         return ""
 
 
