@@ -130,3 +130,5 @@ All the issues can be found on the issues page of the github repository: [Live T
 My newest best friend [aluigi@zenhax.com](http://zenhax.com/viewtopic.php?f=9&t=90) who helped me to understand how to open .acd files!
 
 `Please Stop This` from RaceDepartment who helped me with some code and others to work this app out.
+
+`Jens Roos` from proTyres to fix some issues.
