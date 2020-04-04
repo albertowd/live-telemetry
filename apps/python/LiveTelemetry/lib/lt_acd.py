@@ -6,10 +6,12 @@ Big thanks for aluigi@ZenHaxs.com that have the patience to help me to open the 
 
 @author: albertowd
 """
+
 from collections import OrderedDict
-import configparser
-import os
+from configparser import ConfigParser
 from struct import unpack
+from sys import exc_info
+import os
 
 from lib.lt_util import log
 
@@ -24,6 +26,7 @@ class ACD(object):
         # Initiate the class fields.
         self.__car = path_v[-1]
         self.__content = bytearray()
+        self.__content_size = len(self.__content)
         self.__files = OrderedDict()
         self.__key = generate_key(self.__car)
 
@@ -41,63 +44,73 @@ class ACD(object):
         """ Loads the car information by the data.acd encrypted file. """
 
         # Read all the file into memory.
-        with open(path, "rb") as rb:
-            self.__content = bytearray(rb.read())
-            self.__content_size = len(self.__content)
+        try:
+            with open(path, "rb") as rb:
+                self.__content = bytearray(rb.read())
+                self.__content_size = len(self.__content)
+        except:
+            log("Failed to open file {}:".format(path))
+            for info in exc_info():
+                log(info)
 
-        # Verify the "version" of the file.
-        offset = 0
-        dummy = unpack("l", self.__content[offset:offset + 4])[0]
-        offset += 4
-        if dummy < 0:
-            # New cars, just pass the first 8 bytes.
-            dummy = unpack("L", self.__content[offset:offset + 4])[0]
-            offset += 4
-        else:
-            # Old cars don't have any version.
+        if self.__content_size > 8:
+            # Verify the "version" of the file.
             offset = 0
-
-        # Parse each inner file.
-        while offset < self.__content_size:
-            # Size of the file name.
-            name_size = unpack("L", self.__content[offset:offset + 4])[0]
+            dummy = unpack("l", self.__content[offset:offset + 4])[0]
             offset += 4
+            if dummy < 0:
+                # New cars, just pass the first 8 bytes.
+                dummy = unpack("L", self.__content[offset:offset + 4])[0]
+                offset += 4
+            else:
+                # Old cars don't have any version.
+                offset = 0
 
-            # File name.
-            file_name = self.__content[offset:offset +
-                                       name_size].decode("utf8")
-            offset += name_size
-            log(file_name)
+            # Parse each inner file.
+            while offset < self.__content_size:
+                # Size of the file name.
+                name_size = unpack("L", self.__content[offset:offset + 4])[0]
+                offset += 4
 
-            # File size.
-            file_size = unpack("L", self.__content[offset:offset + 4])[0]
-            offset += 4
+                # File name.
+                file_name = self.__content[offset:offset +
+                                           name_size].decode("utf8")
+                offset += name_size
+                log(file_name)
 
-            # Get the content and slices each 4 bytes.
-            packed_content = self.__content[offset:offset + file_size * 4][::4]
-            offset += file_size * 4
+                # File size.
+                file_size = unpack("L", self.__content[offset:offset + 4])[0]
+                offset += 4
 
-            # Decrypt the content of the file.
-            decrypted_content = ""
-            key_size = len(self.__key)
-            for i in range(file_size):
-                code = packed_content[i] - ord(self.__key[i % key_size])
-                decrypted_content += chr(code)
+                # Get the content and slices each 4 bytes.
+                packed_content = self.__content[offset:offset +
+                                                file_size * 4][::4]
+                offset += file_size * 4
 
-            # Save the decrypted file.
-            self.set_file(decrypted_content, file_name)
+                # Decrypt the content of the file.
+                decrypted_content = ""
+                key_size = len(self.__key)
+                for i in range(file_size):
+                    code = packed_content[i] - ord(self.__key[i % key_size])
+                    decrypted_content += chr(code)
+
+                # Save the decrypted file.
+                self.set_file(decrypted_content, file_name)
+        elif self.__content_size > 0:
+            log("File too small to decrypt: {} bytes.".format(self.__content_size))
 
     def __load_from_folder(self, path):
         """ Loads the car information by the data folder. """
         for file_name in os.listdir(path):
             file_path = "{}/{}".format(path, file_name)
             if os.path.isfile(file_path):
-                log(file_name)
                 try:
                     with open(file_path, "r") as r:
                         self.set_file(r.read(), file_name)
                 except:
-                    log("Failed to open file {}!".format(file_name))
+                    log("Failed to open file {}:".format(file_name))
+                    for info in exc_info():
+                        log(info)
 
     def __str__(self):
         """ Just print some useful information. """
@@ -117,72 +130,114 @@ class ACD(object):
 
     def get_ideal_pressure(self, compound, wheel):
         """ Returns the compound ideal pressure. """
-        config = configparser.ConfigParser(
+        config = ConfigParser(
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("tyres.ini"))
 
-        name = get_tire_name(compound, config, wheel)
-        return float(config[name]["PRESSURE_IDEAL"])
+        try:
+            name = get_tire_name(compound, config, wheel)
+            return float(config[name]["PRESSURE_IDEAL"])
+        except:
+            log("Failed to get tire ideal pressure:")
+            for info in exc_info():
+                log(info)
+            raise
 
     def get_power_curve(self):
         """ Returns the rpm x power curve. """
-        config = configparser.ConfigParser(
+        config = ConfigParser(
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("engine.ini"))
 
-        return self.get_file(config["HEADER"]["POWER_CURVE"])
+        try:
+            return self.get_file(config["HEADER"]["POWER_CURVE"])
+        except:
+            log("Failed to get rpm power curve:")
+            for info in exc_info():
+                log(info)
+            raise
 
     def get_rpm_downshift(self):
-        config = configparser.ConfigParser(
+        config = ConfigParser(
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("drivetrain.ini"))
-        #'AUTO_SHIFTER', 'UP'
-        #'AUTO_SHIFTER', 'DOWN'
-        return float(config["AUTO_SHIFTER"]["DOWN"])
+        try:
+            return float(config["AUTO_SHIFTER"]["DOWN"])
+        except:
+            log("Failed to get rpm downshift value:")
+            for info in exc_info():
+                log(info)
+            raise
 
     def get_rpm_damage(self):
-        config = configparser.ConfigParser(
+        config = ConfigParser(
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("engine.ini"))
-        #'DAMAGE', 'RPM_THRESHOLD'
-        if config.has_option("DAMAGE", "RPM_THRESHOLD"):
-            res = config["DAMAGE"]["RPM_THRESHOLD"]
-        else:
-            res = self.get_rpm_limiter() + 100
-        return float(res)
+        try:
+            if config.has_option("DAMAGE", "RPM_THRESHOLD"):
+                res = config["DAMAGE"]["RPM_THRESHOLD"]
+            else:
+                res = self.get_rpm_limiter() + 100
+            return float(res)
+        except:
+            log("Failed to get rpm damage value:")
+            for info in exc_info():
+                log(info)
+            raise
 
     def get_rpm_limiter(self):
-        config = configparser.ConfigParser(
+        config = ConfigParser(
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("engine.ini"))
-        #'ENGINE_DATA', 'LIMITER'
-        return float(config["ENGINE_DATA"]["LIMITER"])
+        try:
+            return float(config["ENGINE_DATA"]["LIMITER"])
+        except:
+            log("Failed to get rpm limiter value:")
+            for info in exc_info():
+                log(info)
+            raise
 
     def get_rpm_upshift(self):
-        config = configparser.ConfigParser(
+        config = ConfigParser(
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("drivetrain.ini"))
-        #'AUTO_SHIFTER', 'UP'
-        #'AUTO_SHIFTER', 'DOWN'
-        return float(config["AUTO_SHIFTER"]["UP"])
+        try:
+            return float(config["AUTO_SHIFTER"]["UP"])
+        except:
+            log("Failed to get rpm upshit value:")
+            for info in exc_info():
+                log(info)
+            raise
 
     def get_temp_curve(self, compound, wheel):
         """ Returns the compound temperature grip curve. """
-        config = configparser.ConfigParser(
+        config = ConfigParser(
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("tyres.ini"))
 
-        name = "THERMAL_{}".format(get_tire_name(compound, config, wheel))
-        return self.get_file(config[name]["PERFORMANCE_CURVE"])
+        try:
+            name = "THERMAL_{}".format(get_tire_name(compound, config, wheel))
+            return self.get_file(config[name]["PERFORMANCE_CURVE"])
+        except:
+            log("Failed to get tire temperature curve {}:".format(compound))
+            for info in exc_info():
+                log(info)
+            raise
 
     def get_wear_curve(self, compound, wheel):
         """ Returns the compound wear curve. """
-        config = configparser.ConfigParser(
+        config = ConfigParser(
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("tyres.ini"))
 
-        name = get_tire_name(compound, config, wheel)
-        return self.get_file(config[name]["WEAR_CURVE"])
+        try:
+            name = get_tire_name(compound, config, wheel)
+            return self.get_file(config[name]["WEAR_CURVE"])
+        except:
+            log("Failed to get tire wear curve {}:".format(compound))
+            for info in exc_info():
+                log(info)
+            raise
 
     def set_file(self, content, name):
         """ Sets a new content to an inner file. """
@@ -268,5 +323,11 @@ def get_tire_name(compound, config, wheel):
         if config.has_option(name, "SHORT_NAME") and config[name]["SHORT_NAME"] == compound:
             return name
 
-    i = int(config["COMPOUND_DEFAULT"]["INDEX"])
-    return prefix.format("" if i == 0 else "_{}".format(i))
+    try:
+        i = int(config["COMPOUND_DEFAULT"]["INDEX"])
+        return prefix.format("" if i == 0 else "_{}".format(i))
+    except:
+        log("Failed to get tire name {}:".format(compound))
+        for info in exc_info():
+            log(info)
+        raise
