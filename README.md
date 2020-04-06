@@ -1,4 +1,4 @@
-# Live Telemetry 1.5.1
+# Live Telemetry 1.5.2
 
 An Assetto Corsa app to view real time telemetry
 
@@ -31,7 +31,10 @@ All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/log
 ### Resolutions
 
 Each component have a button designed to scale all the components to best fit each default resolution. Choose be free to choose the best scale for your taste. ;)
-   - 480p:  854x480
+   - 240p: 352x240
+   - 360p: 480x360
+   - 480p:  640x480
+   - 576p: 768x576
    - HD:  1280x720
    - FH:  1920x1080
    - 1440p:  2560x1440
@@ -62,6 +65,9 @@ For 1.4.1+ versions, just extract the .zip file on the AC folder.
 For olders versions, its recommended to delete the plugins files from the foder `apps/python/LiveTelemetry` before extracting the new content.
 
 ## Changelog
+
+1.5.2
+   - Newer and smaller resolutions.
 
 1.5.1
    - Better ACD file load handling.
