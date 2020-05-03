@@ -75,7 +75,7 @@ class Power(Curve):
             if rpm < self._max[0]:
                 if perc < 0.985:
                     return Colors.white
-                elif perc < 0.995:
+                else:
                     return Colors.blue
             else:
                 return Colors.red
