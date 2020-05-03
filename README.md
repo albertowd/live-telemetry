@@ -67,6 +67,7 @@ For olders versions, its recommended to delete the plugins files from the foder 
 ## Changelog
 
 1.5.2
+   - Limit the revbar to 100%.
    - Newer and smaller resolutions.
 
 1.5.1

@@ -282,7 +282,7 @@ class RPMPower(BoxComponent):
         self._draw()
 
         rpm = data.rpm
-        ratio = data.rpm / data.max_rpm
+        ratio = max(data.rpm / data.max_rpm, 1.0)
 
         bar = copy.copy(self._box.rect)
         bar[2] *= ratio
