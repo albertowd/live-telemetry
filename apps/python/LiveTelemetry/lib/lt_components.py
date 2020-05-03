@@ -65,9 +65,9 @@ class Box(object):
 class BoxComponent(object):
     """ Class to handle position and resize of a component. """
 
-    resolutions = ["480p", "HD", "FHD", "1440p", "UHD", "4K", "8K", "480p"]
-    resolution_map = {"480p": 0.25, "HD": 0.5, "FHD": 0.75,
-                      "1440p": 1.0, "UHD": 1.5, "4K": 1.6, "8K": 3.0}
+    resolutions = ["240p", "360p", "480p", "576p", "HD", "FHD", "1440p", "UHD", "4K", "8K", "480p"]
+    resolution_map = {"240p": 0.16, "360p": 0.25, "480p": 0.33, "576p": 0.4, "HD": 0.5,
+                      "FHD": 0.75, "1440p": 1.0, "UHD": 1.5, "4K": 1.6, "8K": 3.0}
 
     def __init__(self, p_x=0.0, p_y=0.0, width=100.0, height=100.0, font=24.0):
         self.__ini_font = font
@@ -282,7 +282,7 @@ class RPMPower(BoxComponent):
         self._draw()
 
         rpm = data.rpm
-        ratio = data.rpm / data.max_rpm
+        ratio = max(data.rpm / data.max_rpm, 1.0)
 
         bar = copy.copy(self._box.rect)
         bar[2] *= ratio

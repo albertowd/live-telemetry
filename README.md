@@ -1,6 +1,6 @@
-# Live Telemetry 1.5.1
+# Live Telemetry 1.5.2
 
-An Assetto Corsa app to view real time telemetry
+An Assetto Corsa app to view real time telemetry.
 
 ## App
 
@@ -12,32 +12,110 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
 
 ### Telemetry Info
 
-   - Engine Ideal RPM/Power
-   - Suspension height (mm)
-   - Suspension travel (%): gets warning yellow above 95% and danger red above 98% of the maximum and minimum values
-   - Tire pressure (psi)
-   - Tire core, inner, middle and outer temperatures (ºC)
-   - Tire load (N)
-   - Tire wear: bar gets warning yellow below 98% and danger red below 96%
-   - Wheel camber (rad)
+* Engine RPM/Power.
+* Suspension height (mm).
+* Suspension travel (%).
+* Tire pressure (psi).
+* Tire core, inner, middle and outer temperatures (ºC).
+* Tire load (N).
+* Tire wear (%).
+* Wheel camber (rad).
+
+### Options Window
+
+![Options Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-options.jpg)
+
+The options window should give you the ability to toggle every information drew by the other windows on screen. You can switch the app scale and if the app is logging the information (it will save on files only the information that was drew on screen, not the entire session).
+
+### Engine Window
+
+![Engine Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-engine.jpg)
+
+The engine window will display the actual RPM with some color variation. The color is based on the percentage of power produced by the current RPM by the last peak RPM power.
+
+* <span style="color:white">white</span>: current power below 98.5% (increasing curve).
+* <span style="color:blue">blue</span>: current power between 98.5% and 99.5% (increasing curve).
+* <span style="color:red">red</span>: below 99.5% but over the peak RPM power (decreasing curve).
+* <span style="color:green">green</span>: power above 99.5% (you should shift here, but some times not...).
+
+The power curve is a complex thing to calculate because it depends the actual RPM power combined with the next gear RPM power that will be shifted. But I don't know how much RPM will decrease over the shift action so I cannot predict the next gear RPM power. So the app calculates the best gear shift over the 99.5% RPM power and bellow the max RPM power on the engine power curve (`.lut` file defined in the `engine.ini` as `POWER CURVE`).
+
+### Wheel Window
+
+![Wheel Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-wheel.jpg)
+
+Each wheel window will display a lot of information:
+
+* Suspension height (mm).
+  
+  Suspension height from the floor is the same on the two sides because the AC only tells the front and rear ride height.
+
+* Suspension travel (%).
+  
+  The suspension bar shows the actual travel. It uses the shared memory field to calculate, if the mod does not have suspension travel, it will show fixed in the middle (aka Kunos Alfa 155). It changes color warn about the percentage level:
+
+  * <span style="color:white">white</span>: between 90% and 10%.</span>
+  * <span style="color:yellow">yellow</span>: between 95% and 90% and between 10% and 5%.</span>
+  * <span style="color:red">red</span>: above 95% and below 5%.
+  
+* Tire dirt level (as an uprising brown bar).
+* Tire pressure (psi).
+  
+  It interpolates its colors based on the the `PRESSURE_IDEAL` in the `tyres.ini` file:
+
+  * <span style="color:blue">blue</span>: below 95%.
+  * <span style="color:blue">blue</span> - <span style="color:green">green</span>: 95% to 100%.
+  * <span style="color:green">green</span> - <span style="color:red">red</span>: 100% to 105%.
+  * <span style="color:red">red</span>: above 105%.
+  
+* Tire temps (ºC).
+  
+  Displays the core, three outer temperatures (inner, middle and outer from the suspension point of view) and the tire average (as the border color).
+
+  * <span style="color:blue">blue</span>: below 98%.
+  * <span style="color:blue">blue</span> - <span style="color:green">green</span>: between 98% and 100%.
+  * <span style="color:green">green</span> - <span style="color:red">red</span>: between 100% and 102%.
+  * <span style="color:red">red</span>: above 102%.
+  
+  The tire border color is determined with 75% of the core and the 25% of the average of of each outer temperatures.
+
+* Tire wear (%).
+  
+  Represented by the vertical bar. It changes its color by wear percentage:
+
+  * <span style="color:green">green</span>: above 98%.
+  * <span style="color:yellow">yellow</span>: between 98% and 96%.
+  * <span style="color:red">red</span>: below 96%.
+
+* Wheel camber (Rad).
+  
+  Represented by the surface inclination below the wheel.
+
+* Wheel load (N).
+  
+  Represented as the white circle that increases its sized based on the wheel load.
 
 ### CSV Log
 
 All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs` within CSV files. It can be toggled in the `Logging` button on options window (default is off).
 
-   - LiveTelemetry_EN.csv - session engine data.
-   - LiveTelemetry_[FL|FR|RL|RR].csv - session wheels data.
+* LiveTelemetry_EN.csv - session engine data.
+* LiveTelemetry_[FL|FR|RL|RR].csv - session wheels data.
 
 ### Resolutions
 
 Each component have a button designed to scale all the components to best fit each default resolution. Choose be free to choose the best scale for your taste. ;)
-   - 480p:  854x480
-   - HD:  1280x720
-   - FH:  1920x1080
-   - 1440p:  2560x1440
-   - UHD: 3840x2160
-   - 4K:  4096x2304
-   - 8K:  7680x4320
+
+* 240p: 352x240
+* 360p: 480x360
+* 480p:  640x480
+* 576p: 768x576
+* HD:  1280x720
+* FH:  1920x1080
+* 1440p:  2560x1440
+* UHD: 3840x2160
+* 4K:  4096x2304
+* 8K:  7680x4320
 
 ### App Install
 
@@ -47,13 +125,9 @@ First unzip the release content direct on your Assetto Corsa main folder (C:/Pro
 
 ![Launcher Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/launcher-menu.jpg)
 
-Last step is to enter any session (online, practice, race) and select it on the right app bar to see it on screen.
+Last step is to enter any session (online, practice, race) and select the desired app window on the right app bar to see it on screen.
 
 ![Session Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/session-menu.jpg)
-
-Each windows will apear separately on screen.
-
-![Options Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-options.jpg) ![Engine Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-engine.jpg) ![Wheel Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-wheel.jpg)
 
 #### Update Insatllation
 
@@ -62,6 +136,11 @@ For 1.4.1+ versions, just extract the .zip file on the AC folder.
 For olders versions, its recommended to delete the plugins files from the foder `apps/python/LiveTelemetry` before extracting the new content.
 
 ## Changelog
+
+1.5.2
+   - Limit the revbar to 100%.
+   - New documentation.
+   - Newer and smaller resolutions.
 
 1.5.1
    - Better ACD file load handling.
@@ -130,3 +209,5 @@ All the issues can be found on the issues page of the github repository: [Live T
 My newest best friend [aluigi@zenhax.com](http://zenhax.com/viewtopic.php?f=9&t=90) who helped me to understand how to open .acd files!
 
 `Please Stop This` from RaceDepartment who helped me with some code and others to work this app out.
+
+`Jens Roos` from proTyres to fix some issues.
