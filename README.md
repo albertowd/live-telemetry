@@ -25,9 +25,7 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
 
 ![Options Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-options.jpg)
 
-The options window should give you the aability to toggle every information drawed by the other windows on sceen. You can switch the app scale and if the app is logging the informations (it will save on files only the information that was drawed on screen, not the entire session).
-
-When the button text is red, the feature is enabled. The only option that is not togglable is the app scale.
+The options window should give you the ability to toggle every information drew by the other windows on screen. You can switch the app scale and if the app is logging the information (it will save on files only the information that was drew on screen, not the entire session).
 
 ### Engine Window
 
@@ -36,7 +34,7 @@ When the button text is red, the feature is enabled. The only option that is not
 The engine window will display the actual RPM with some color variation. The color is based on the percentage of power produced by the current RPM by the last peak RPM power.
 
 * <span style="color:white">white</span>: current power below 98.5% (increasing curve).
-* <span style="color:blue">blue</span>: current power between 98.5% abd 99.5% (increasing curve).
+* <span style="color:blue">blue</span>: current power between 98.5% and 99.5% (increasing curve).
 * <span style="color:red">red</span>: below 99.5% but over the peak RPM power (decreasing curve).
 * <span style="color:green">green</span>: power above 99.5% (you should shift here, but some times not...).
 
@@ -95,7 +93,7 @@ Each wheel window will display a lot of information:
 
 * Wheel load (N).
   
-  Represented as the white circle that increses its sized based on the wheel load.
+  Represented as the white circle that increases its sized based on the wheel load.
 
 ### CSV Log
 
