@@ -310,6 +310,7 @@ class Suspension(BoxComponent):
         super(Suspension, self).__init__(
             346.0 if wheel.is_left() else 102.0, 0.0, 64.0, 256.0)
         self._back.color = Colors.white
+        self.__last_values = []
         self.__mult = BoxComponent.resolution_map[resolution]
 
         if Suspension.texture_id == 0:
@@ -319,10 +320,19 @@ class Suspension(BoxComponent):
         self.resize(resolution)
 
     def draw(self, data):
+        # Calculates the current suspension travel in percentage.
         travel = (data.susp_t / data.susp_m_t) if data.susp_m_t > 0.0 else 0.5
-        if travel > 0.95 or travel < 0.05:
+
+        # Keeps only the last 60 values.
+        self.__last_values.append(travel)
+        self.__last_values = self.__last_values[-60:]
+
+        # Use the last 60 values to check if the suspension was maxed/'mined' out.
+        maxed = max(self.__last_values)
+        mined = min(self.__last_values)
+        if maxed > 0.95 or mined < 0.05:
             self._back.color = Colors.red
-        elif travel > 0.90 or travel < 0.1:
+        elif maxed > 0.90 or mined < 0.1:
             self._back.color = Colors.yellow
         else:
             self._back.color = Colors.blue if data.susp_v else Colors.white
