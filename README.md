@@ -52,9 +52,10 @@ Each wheel window will display a lot of information:
 
 * Suspension travel (%).
   
-  The suspension bar shows the actual travel. It uses the shared memory field to calculate, if the mod does not have suspension travel, it will show fixed in the middle (aka Kunos Alfa 155). It changes color warn about the percentage level:
+  The suspension bar shows the actual travel. Now it uses the Python API to fetch correct values. But if the mod does not have max suspension travel, it will dynamically change the max value based on each data current travel value and change its normal color to blue (aka Kunos Alfa 155). It changes color warn about the percentage level:
 
   * <span style="color:white">white</span>: between 90% and 10%.</span>
+  * <span style="color:blue">blue</span>: between 90% and 10% if the suspension is using dynamic values.</span>
   * <span style="color:yellow">yellow</span>: between 95% and 90% and between 10% and 5%.</span>
   * <span style="color:red">red</span>: above 95% and below 5%.
   
@@ -138,7 +139,9 @@ For olders versions, its recommended to delete the plugins files from the foder 
 ## Changelog
 
 1.6.0
+   - Cars with no max suspension travel now use dynamic value based on travel itself.
    - Fixed wrong suspension travel data from Shared Memory to the Python API call.
+   - New suspension color for dynamic max travel.
 
 1.5.2
    - Limit the revbar to 100%.

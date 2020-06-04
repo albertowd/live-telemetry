@@ -319,13 +319,13 @@ class Suspension(BoxComponent):
         self.resize(resolution)
 
     def draw(self, data):
-        travel = data.susp_t / data.susp_m_t
+        travel = (data.susp_t / data.susp_m_t) if data.susp_m_t > 0.0 else 0.5
         if travel > 0.95 or travel < 0.05:
             self._back.color = Colors.red
         elif travel > 0.90 or travel < 0.1:
             self._back.color = Colors.yellow
         else:
-            self._back.color = Colors.white
+            self._back.color = Colors.blue if data.susp_v else Colors.white
         self._draw(Suspension.texture_id)
 
         # Initial padding is 10x44
