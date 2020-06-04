@@ -26,6 +26,7 @@ class OptionsInfo(object):
             "Dirt": configs.get_bool_option("Dirt"),
             "Height": configs.get_bool_option("Height"),
             "Load": configs.get_bool_option("Load"),
+            "Lock": configs.get_bool_option("Lock"),
             "Logging": configs.get_bool_option("Logging"),
             "Pressure": configs.get_bool_option("Pressure"),
             "RPMPower": configs.get_bool_option("RPMPower"),
@@ -44,13 +45,13 @@ class OptionsInfo(object):
         position = configs.get_window_position("OP")
         ac.setPosition(self.__window_id, *position)
 
-        ac.setSize(self.__window_id, 395, 160)
+        ac.setSize(self.__window_id, 395, 195)
 
         for index, name in enumerate(sorted(self.__options.keys())):
             text = str(name) if name != "Size" else self.__options[name]
             self.__buttons[name] = ac.addButton(self.__window_id, text)
-            x = 30 + (floor(index / 3) * 85)
-            y = 30 + (floor(index % 3) * 35)
+            x = 30 + (floor(index / 4) * 85)
+            y = 30 + (floor(index % 4) * 35)
             ac.setPosition(self.__buttons[name], x, y)
             ac.setSize(self.__buttons[name], 80, 30)
             ac.setFontAlignment(self.__buttons[name], "center")

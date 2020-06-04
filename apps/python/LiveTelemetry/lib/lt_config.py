@@ -41,6 +41,7 @@ class Config(object):
             self.set_option("Dirt", True)
             self.set_option("Height", True)
             self.set_option("Load", True)
+            self.set_option("Lock", True)
             self.set_option("Logging", False)
             self.set_option("Pressure", True)
             self.set_option("RPMPower", True)
@@ -65,8 +66,10 @@ class Config(object):
                     video = ConfigParser()
                     video.read(
                         "{}/Assetto Corsa/cfg/video.ini".format(docs_path))
-                    h = int(video.get("VIDEO", "HEIGHT")) if video.has_option("VIDEO", "HEIGHT") else 720
-                    w = int(video.get("VIDEO", "WIDTH")) if video.has_option("VIDEO", "WIDTH") else 1280
+                    h = int(video.get("VIDEO", "HEIGHT")) if video.has_option(
+                        "VIDEO", "HEIGHT") else 720
+                    w = int(video.get("VIDEO", "WIDTH")) if video.has_option(
+                        "VIDEO", "WIDTH") else 1280
                 except:
                     log("Could not get 'cfg/video.ini' video options, using default 1280x720 resolution:")
                     for info in exc_info():
@@ -77,7 +80,7 @@ class Config(object):
             self.set_window_position("FL", [10, 80])
             self.set_window_position("FR", [w - 360 - 10, 80])
             self.set_window_position(
-                "OP", [w - 395 - 50, floor((h - 160) / 2)])
+                "OP", [w - 395 - 50, floor((h - 195) / 2)])
             self.set_window_position("RL", [10, h - 163 - 80])
             self.set_window_position("RR", [w - 360 - 10, h - 163 - 80])
             self.save_config()

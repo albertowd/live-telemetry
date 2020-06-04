@@ -65,7 +65,8 @@ class Box(object):
 class BoxComponent(object):
     """ Class to handle position and resize of a component. """
 
-    resolutions = ["240p", "360p", "480p", "576p", "HD", "FHD", "1440p", "UHD", "4K", "8K", "480p"]
+    resolutions = ["240p", "360p", "480p", "576p",
+                   "HD", "FHD", "1440p", "UHD", "4K", "8K", "480p"]
     resolution_map = {"240p": 0.16, "360p": 0.25, "480p": 0.33, "576p": 0.4, "HD": 0.5,
                       "FHD": 0.75, "1440p": 1.0, "UHD": 1.5, "4K": 1.6, "8K": 3.0}
 
@@ -75,7 +76,7 @@ class BoxComponent(object):
         self._back = Background()
         self._box = Box(p_x, p_y, width, height)
         self._font = font
-    
+
     def clear(self):
         """Clear labels to not draw anything on screen."""
         pass
@@ -103,10 +104,6 @@ class BoxComponent(object):
         """ Resize all the ac components with text. Must be overrided. """
         pass
 
-    def update(self, data):
-        """ Update the component contents. """
-        pass
-
 
 class Camber(BoxComponent):
     """ Class to handle tire camber draw. """
@@ -114,8 +111,6 @@ class Camber(BoxComponent):
     def __init__(self, resolution):
         # Initial size is 160x10
         super(Camber, self).__init__(170.0, 256.0, 172.0, 15.0)
-        self.__mult = BoxComponent.resolution_map[resolution]
-
         self.resize(resolution)
 
     def draw(self, data):
@@ -133,9 +128,6 @@ class Camber(BoxComponent):
         ac.glVertex2f(rect[0] + rect[2], rect[1] + tan_right)
         ac.glEnd()
 
-    def resize_fonts(self, resolution):
-        self.__mult = BoxComponent.resolution_map[resolution]
-
 
 class Dirt(BoxComponent):
     """ Class to handle tire dirt draw. """
@@ -144,7 +136,6 @@ class Dirt(BoxComponent):
         # Initial size is 136x116
         super(Dirt, self).__init__(188.0, 128.0, 136.0, 116.0)
         self.__mult = BoxComponent.resolution_map[resolution]
-
         self.resize(resolution)
 
     def draw(self, data):
@@ -222,6 +213,30 @@ class Load(BoxComponent):
         self.__mult = BoxComponent.resolution_map[resolution]
 
 
+class Lock(BoxComponent):
+    """ Class to handle tire lock draw. """
+
+    def __init__(self, resolution):
+        super(Lock, self).__init__(176.0, 96.0, 160.0, 64.0, 16.0)
+        self._back.color = Colors.white
+        self.__last_values = []
+
+        self.resize(resolution)
+
+    def draw(self, data):
+        lock = data.lock
+
+        self.__last_values.append(lock)
+        self.__last_values = self.__last_values[-30:]
+
+        hasLocked = False
+        for locked in self.__last_values:
+            hasLocked = hasLocked or locked
+
+        if hasLocked:
+            self._draw()
+
+
 class Pressure(BoxComponent):
     """ Class to handle tire pressure draw. """
 
@@ -244,7 +259,7 @@ class Pressure(BoxComponent):
         ac.setFontAlignment(self.__lb, "center")
 
         self.resize(resolution)
-    
+
     def clear(self):
         ac.setText(self.__lb, "")
 
@@ -343,7 +358,7 @@ class Suspension(BoxComponent):
         rect[0] += 10 * self.__mult
         rect[1] += 44 * self.__mult
         rect[2] -= 20 * self.__mult
-        rect[3] -= 88 * self.__mult # 100%
+        rect[3] -= 88 * self.__mult  # 100%
 
         # Why there is negative and above maximum numbers, KUNOS???
         rect[3] = min(rect[3], max(0.0, rect[3] * (1.0 - travel)))
@@ -448,7 +463,6 @@ class Wear(BoxComponent):
         self._back.color = Colors.black
         self._back.border = Colors.white
         self._back.size = 2.0
-        self.__mult = BoxComponent.resolution_map[resolution]
 
         self.resize(resolution)
 
@@ -469,6 +483,3 @@ class Wear(BoxComponent):
         rect[1] += (1.0 - wear) * rect[3]
         rect[3] *= wear
         ac.glQuad(*rect)
-
-    def resize_fonts(self, resolution):
-        self.__mult = BoxComponent.resolution_map[resolution]

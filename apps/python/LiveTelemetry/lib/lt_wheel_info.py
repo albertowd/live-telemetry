@@ -13,7 +13,7 @@ import acsys
 
 from lib.lt_acd import ACD
 from lib.lt_colors import Colors
-from lib.lt_components import BoxComponent, Camber, Dirt, Height, Load, Pressure, Temps, Suspension, Tire, Wear
+from lib.lt_components import BoxComponent, Camber, Dirt, Height, Load, Lock, Pressure, Temps, Suspension, Tire, Wear
 from lib.lt_config import Config
 from lib.lt_util import WheelPos
 from lib.sim_info import info
@@ -24,6 +24,7 @@ class Data(object):
     def __init__(self):
         self.camber = 0.0
         self.height = 0.0
+        self.lock = False
         self.susp_m_t = 0.0
         self.susp_t = 0.0
         self.susp_v = False
@@ -39,6 +40,7 @@ class Data(object):
     def update(self, wheel, info):
         index = wheel.index()
         self.camber = info.physics.camberRAD[index]
+        self.lock = info.physics.wheelAngularSpeed[index] == 0.0
 
         """
         Some cars the suspension travel from the shared memory is broken.
@@ -54,7 +56,8 @@ class Data(object):
 
         # If there's no max travel, keep it updating for max values.
         max_travel = info.static.suspensionMaxTravel[index]
-        self.susp_m_t = max_travel if max_travel > 0.0 else max(self.susp_t, self.susp_m_t)
+        self.susp_m_t = max_travel if max_travel > 0.0 else max(
+            self.susp_t, self.susp_m_t)
         self.susp_v = max_travel == 0.0
 
         # um to mm
@@ -96,6 +99,7 @@ class WheelInfo(object):
             "Dirt": configs.get_bool_option("Dirt"),
             "Height": configs.get_bool_option("Height"),
             "Load": configs.get_bool_option("Load"),
+            "Lock": configs.get_bool_option("Lock"),
             "Logging": configs.get_bool_option("Logging"),
             "Pressure": configs.get_bool_option("Pressure"),
             "Suspension": configs.get_bool_option("Suspension"),
@@ -120,6 +124,7 @@ class WheelInfo(object):
         self.__components = []
         self.__components.append(Temps(acd, size, self.__wheel))
         self.__components.append(Dirt(size))
+        self.__components.append(Lock(size))
         self.__components.append(Tire(acd, size, self.__wheel))
 
         self.__components.append(Camber(size))
@@ -193,7 +198,3 @@ class WheelInfo(object):
         self.__data.update(self.__wheel, self.__info)
         if self.__options["Logging"] == True:
             self.__data_log.append(copy.copy(self.__data))
-
-        for component in self.__components:
-            ac.glColor4f(*Colors.white)
-            component.update(self.__data)

@@ -96,6 +96,10 @@ Each wheel window will display a lot of information:
   
   Represented as the white circle that increases its sized based on the wheel load.
 
+* Wheel lock.
+  
+  Will show a white rectangle in the middle of the wheel for about 30 frames, just to indicate the angular velocity of the wheel is stationary.
+
 ### CSV Log
 
 All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs` within CSV files. It can be toggled in the `Logging` button on options window (default is off).
@@ -142,6 +146,7 @@ For olders versions, its recommended to delete the plugins files from the foder 
    - Cars with no max suspension travel now use dynamic value based on travel itself.
    - Fixed wrong suspension travel data from Shared Memory to the Python API call.
    - New suspension color for dynamic max travel.
+   - New wheel lock white indicator.
    - Suspension now uses the worst of the last 60 values to change color.
 
 1.5.2

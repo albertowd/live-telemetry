@@ -54,16 +54,24 @@ def acMain(ac_version: str) -> None:
     log("Loading options window...")
     global OPTIONS_INFO
     OPTIONS_INFO = OptionsInfo(CONFIGS)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Camber"), on_click_camber)
+    ac.addOnClickedListener(
+        OPTIONS_INFO.get_button_id("Camber"), on_click_camber)
     ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Dirt"), on_click_dirt)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Height"), on_click_height)
+    ac.addOnClickedListener(
+        OPTIONS_INFO.get_button_id("Height"), on_click_height)
     ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Load"), on_click_load)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Logging"), on_click_logging)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Pressure"), on_click_pressure)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("RPMPower"), on_click_rpm)
+    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Lock"), on_click_lock)
+    ac.addOnClickedListener(
+        OPTIONS_INFO.get_button_id("Logging"), on_click_logging)
+    ac.addOnClickedListener(OPTIONS_INFO.get_button_id(
+        "Pressure"), on_click_pressure)
+    ac.addOnClickedListener(
+        OPTIONS_INFO.get_button_id("RPMPower"), on_click_rpm)
     ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Size"), on_click_size)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Suspension"), on_click_suspension)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Temps"), on_click_temps)
+    ac.addOnClickedListener(OPTIONS_INFO.get_button_id(
+        "Suspension"), on_click_suspension)
+    ac.addOnClickedListener(
+        OPTIONS_INFO.get_button_id("Temps"), on_click_temps)
     ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Tire"), on_click_tire)
     ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Wear"), on_click_wear)
 
@@ -108,6 +116,7 @@ def acShutdown() -> None:
     CONFIGS.set_option("Dirt", OPTIONS_INFO.get_option("Dirt"))
     CONFIGS.set_option("Height", OPTIONS_INFO.get_option("Height"))
     CONFIGS.set_option("Load", OPTIONS_INFO.get_option("Load"))
+    CONFIGS.set_option("Lock", OPTIONS_INFO.get_option("Lock"))
     CONFIGS.set_option("Logging", OPTIONS_INFO.get_option("Logging"))
     CONFIGS.set_option("Pressure", OPTIONS_INFO.get_option("Pressure"))
     CONFIGS.set_option("RPMPower", OPTIONS_INFO.get_option("RPMPower"))
@@ -167,33 +176,46 @@ def on_activation(window_id: int) -> None:
         if info.get_window_id() is window_id:
             info.set_active(True)
 
+
 def on_click_camber(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options camber button. """
     toggle_option("Camber")
+
 
 def on_click_dirt(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options dirt button. """
     toggle_option("Dirt")
 
+
 def on_click_height(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options height button. """
     toggle_option("Height")
+
 
 def on_click_load(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options load button. """
     toggle_option("Load")
 
+
+def on_click_lock(pos_x: int, pos_y: int) -> None:
+    """ Handles the click in one of the options load button. """
+    toggle_option("Lock")
+
+
 def on_click_logging(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options logging button. """
     toggle_option("Logging")
+
 
 def on_click_pressure(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options pressure button. """
     toggle_option("Pressure")
 
+
 def on_click_rpm(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options rpm button. """
     toggle_option("RPMPower")
+
 
 def on_click_size(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options size button. """
@@ -214,17 +236,21 @@ def on_click_size(pos_x: int, pos_y: int) -> None:
 
     OPTIONS_INFO.set_option("Size", new_resolution)
 
+
 def on_click_suspension(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options suspension button. """
     toggle_option("Suspension")
+
 
 def on_click_temps(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options temps button. """
     toggle_option("Temps")
 
+
 def on_click_tire(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options tire button. """
     toggle_option("Tire")
+
 
 def on_click_wear(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options wear button. """
@@ -281,6 +307,7 @@ def on_render_rr(delta_t: float) -> None:
     info = WHEEL_INFOS["RR"]
     if info.is_active():
         info.draw()
+
 
 def toggle_option(name: str) -> None:
     global ENGINE_INFO
