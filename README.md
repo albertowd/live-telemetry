@@ -137,6 +137,9 @@ For olders versions, its recommended to delete the plugins files from the foder 
 
 ## Changelog
 
+1.6.0
+   - Fixed wrong suspension travel data from Shared Memory to the Python API call.
+
 1.5.2
    - Limit the revbar to 100%.
    - New documentation.
@@ -211,3 +214,5 @@ My newest best friend [aluigi@zenhax.com](http://zenhax.com/viewtopic.php?f=9&t=
 `Please Stop This` from RaceDepartment who helped me with some code and others to work this app out.
 
 `Jens Roos` from proTyres to fix some issues.
+
+`giodelmare` for helping me test the suspension issues while my PC was dead.

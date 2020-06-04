@@ -9,6 +9,7 @@ import copy
 import sys
 
 import ac
+import acsys
 
 from lib.lt_acd import ACD
 from lib.lt_colors import Colors
@@ -38,8 +39,19 @@ class Data(object):
         index = wheel.index()
         self.camber = info.physics.camberRAD[index]
 
+        # Some cars the suspension travel from the shared memory is broken.
+        #
+        # Example:
+        # Max travel (shared memory): 0.15000000596046448mm:
+        # Python travel: 0.08263124525547028mm => 0.5508749464799981%
+        # Shared Memory Travel: 0.15007904171943665mm => 1.0005269050388772%
+        #
+        # self.susp_t = info.physics.suspensionTravel[index]
+        python_travel = ac.getCarState(0, acsys.CS.SuspensionTravel)
+        self.susp_t = python_travel[index]
+
         # If there's no max travel, keep it 50%.
-        self.susp_t = info.physics.suspensionTravel[index]
+        # Fix this to make it a dynamic value.
         max_travel = info.static.suspensionMaxTravel[index]
         self.susp_m_t = max_travel if max_travel > 0.0 else (self.susp_t * 2.0)
 
