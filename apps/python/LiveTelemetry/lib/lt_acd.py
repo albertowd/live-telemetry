@@ -92,7 +92,10 @@ class ACD(object):
                 key_size = len(self.__key)
                 for i in range(file_size):
                     code = packed_content[i] - ord(self.__key[i % key_size])
-                    decrypted_content += chr(code)
+                    if code < 0:
+                        log("Invalid unicode code '{}' in file: {} @ byte {}".format(code, file_name, i))
+                        log("Using '33' (!) to continue parsing file.")
+                    decrypted_content += chr(33 if code < 0 else code)
 
                 # Save the decrypted file.
                 self.set_file(decrypted_content, file_name)
