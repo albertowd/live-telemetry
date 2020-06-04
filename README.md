@@ -145,6 +145,7 @@ For olders versions, its recommended to delete the plugins files from the foder 
 1.6.0
    - Cars with no max suspension travel now use dynamic value based on travel itself.
    - Fixed wrong suspension travel data from Shared Memory to the Python API call.
+   - Fixed some mods using invalid unicodes characters (ex. @) on internal files now being replaced with !.
    - New suspension color for dynamic max travel.
    - New wheel lock white indicator.
    - Suspension now uses the worst of the last 60 values to change color.
