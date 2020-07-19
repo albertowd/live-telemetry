@@ -13,6 +13,10 @@ import acsys
 
 from lib.lt_colors import Colors
 from lib.lt_interpolation import Power, TirePsi, TireTemp
+from lib.lt_util import log
+
+
+WARNING_TIME_S = 0.5
 
 
 class Background(object):
@@ -85,7 +89,7 @@ class BoxComponent(object):
         """ Draws the component on the screen. """
         self._back.draw(self._box.rect, texture_id)
 
-    def draw(self, data):
+    def draw(self, data, delta_t: float):
         """ Draw the component contents after the base. """
         pass
 
@@ -113,7 +117,7 @@ class Camber(BoxComponent):
         super(Camber, self).__init__(170.0, 256.0, 172.0, 15.0)
         self.resize(resolution)
 
-    def draw(self, data):
+    def draw(self, data, delta_t: float):
         rect = self._box.rect
         camber = data.camber
         tan = math.tan(camber) * rect[2]
@@ -138,7 +142,7 @@ class Dirt(BoxComponent):
         self.__mult = BoxComponent.resolution_map[resolution]
         self.resize(resolution)
 
-    def draw(self, data):
+    def draw(self, data, delta_t: float):
         dirt = data.tire_d * self.__mult
 
         rect = copy.copy(self._box.rect)
@@ -175,7 +179,7 @@ class Height(BoxComponent):
     def clear(self):
         ac.setText(self.__lb, "")
 
-    def draw(self, data):
+    def draw(self, data, delta_t: float):
         self._draw(Height.texture_id)
         ac.setText(self.__lb, "{:03.1f} mm".format(data.height))
 
@@ -201,7 +205,7 @@ class Load(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, data):
+    def draw(self, data, delta_t: float):
         load = data.tire_l * self.__mult
         load_2 = load / 2.0
         self._box.set_position(
@@ -216,25 +220,30 @@ class Load(BoxComponent):
 class Lock(BoxComponent):
     """ Class to handle tire lock draw. """
 
-    def __init__(self, resolution):
-        super(Lock, self).__init__(176.0, 96.0, 160.0, 64.0, 16.0)
+    texture_id = 0
+
+    # Initial size is 85x85
+    def __init__(self, resolution, wheel):
+        super(Lock, self).__init__(
+            70.0 if wheel.is_left() else 382.0, 0.0, 60.0, 60.0)
         self._back.color = Colors.white
-        self.__last_values = []
+        self.__lock_time = 0.0
+
+        if Lock.texture_id == 0:
+            Lock.texture_id = ac.newTexture(
+                "apps/python/LiveTelemetry/img/brake.png")
 
         self.resize(resolution)
 
-    def draw(self, data):
+    def draw(self, data, delta_t: float):
         lock = data.lock
+        if lock is True:
+            self.__lock_time = WARNING_TIME_S
 
-        self.__last_values.append(lock)
-        self.__last_values = self.__last_values[-30:]
-
-        hasLocked = False
-        for locked in self.__last_values:
-            hasLocked = hasLocked or locked
-
-        if hasLocked:
-            self._draw()
+        if self.__lock_time > 0.0:
+            self.__lock_time -= delta_t
+            self._back.color = Colors.red
+            self._draw(Lock.texture_id)
 
 
 class Pressure(BoxComponent):
@@ -248,7 +257,7 @@ class Pressure(BoxComponent):
 
         # Initial size is 85x85
         super(Pressure, self).__init__(
-            70.0 if wheel.is_left() else 382.0, 95.0, 60.0, 60.0)
+            70.0 if wheel.is_left() else 382.0, 171.0, 60.0, 60.0)
         self._back.color = Colors.white
 
         if Pressure.texture_id == 0:
@@ -263,7 +272,7 @@ class Pressure(BoxComponent):
     def clear(self):
         ac.setText(self.__lb, "")
 
-    def draw(self, data):
+    def draw(self, data, delta_t: float):
         psi = data.tire_p
         ac.setText(self.__lb, "{:3.1f} psi".format(psi))
 
@@ -293,7 +302,7 @@ class RPMPower(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, data):
+    def draw(self, data, delta_t: float):
         self._draw()
 
         rpm = data.rpm
@@ -325,7 +334,6 @@ class Suspension(BoxComponent):
         super(Suspension, self).__init__(
             346.0 if wheel.is_left() else 102.0, 0.0, 64.0, 256.0)
         self._back.color = Colors.white
-        self.__last_values = []
         self.__mult = BoxComponent.resolution_map[resolution]
 
         if Suspension.texture_id == 0:
@@ -334,20 +342,16 @@ class Suspension(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, data):
+    def draw(self, data, delta_t: float):
         # Calculates the current suspension travel in percentage.
         travel = (data.susp_t / data.susp_m_t) if data.susp_m_t > 0.0 else 0.5
 
-        # Keeps only the last 60 values.
-        self.__last_values.append(travel)
-        self.__last_values = self.__last_values[-60:]
-
-        # Use the last 60 values to check if the suspension was maxed/'mined' out.
-        maxed = max(self.__last_values)
-        mined = min(self.__last_values)
-        if maxed > 0.95 or mined < 0.05:
+        # Checks the correct color.
+        if travel > 0.95 or travel < 0.05:
             self._back.color = Colors.red
-        elif maxed > 0.90 or mined < 0.1:
+            self.__warning_time -= delta_t
+            log(self.__warning_time)
+        elif travel > 0.90 or travel < 0.1:
             self._back.color = Colors.yellow
         else:
             self._back.color = Colors.blue if data.susp_v else Colors.white
@@ -381,7 +385,7 @@ class Temps(BoxComponent):
         super(Temps, self).__init__(176.0, 0.0, 160.0, 256.0, 16.0)
         self.resize(resolution)
 
-    def draw(self, data):
+    def draw(self, data, delta_t: float):
         # Initial padding is 12x12
         pad = 12 * self.__mult
         pad2 = 2.0 * pad
@@ -444,7 +448,7 @@ class Tire(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, data):
+    def draw(self, data, delta_t: float):
         """ Draws the tire. """
         temp = data.tire_t_c * 0.75 + \
             ((data.tire_t_i + data.tire_t_m + data.tire_t_o) / 3.0) * 0.25
@@ -466,7 +470,7 @@ class Wear(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, data):
+    def draw(self, data, delta_t: float):
         """ Draws the wear. """
         self._draw()
         wear = data.tire_w

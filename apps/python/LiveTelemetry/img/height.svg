@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="1536" viewBox="0 0 2048 1536">
+  <defs>
+    <style>
+      .height {
+        fill: #fff;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="height" class="height" d="M0,0H2048V160H0V0ZM0,1376H2048v160H0V1376ZM832,352l192-192,192,192H832Zm192,1024L832,1184h384Z"/>
+</svg>

@@ -155,13 +155,13 @@ def acUpdate(delta_t: float) -> None:
     """ Called every physics update. """
     global ENGINE_INFO
     if ENGINE_INFO.is_active():
-        ENGINE_INFO.update()
+        ENGINE_INFO.update(delta_t)
 
     global WHEEL_INFOS
     for wheel_id in WHEEL_INFOS:
         info = WHEEL_INFOS[wheel_id]
         if info.is_active():
-            info.update()
+            info.update(delta_t)
 
 
 def on_activation(window_id: int) -> None:
@@ -274,7 +274,7 @@ def on_render_engine(delta_t: float) -> None:
     """ Called every frame. """
     global ENGINE_INFO
     if ENGINE_INFO.is_active():
-        ENGINE_INFO.draw()
+        ENGINE_INFO.draw(delta_t)
 
 
 def on_render_fl(delta_t: float) -> None:
@@ -282,7 +282,7 @@ def on_render_fl(delta_t: float) -> None:
     global WHEEL_INFOS
     info = WHEEL_INFOS["FL"]
     if info.is_active():
-        info.draw()
+        info.draw(delta_t)
 
 
 def on_render_fr(delta_t: float) -> None:
@@ -290,7 +290,7 @@ def on_render_fr(delta_t: float) -> None:
     global WHEEL_INFOS
     info = WHEEL_INFOS["FR"]
     if info.is_active():
-        info.draw()
+        info.draw(delta_t)
 
 
 def on_render_rl(delta_t: float) -> None:
@@ -298,7 +298,7 @@ def on_render_rl(delta_t: float) -> None:
     global WHEEL_INFOS
     info = WHEEL_INFOS["RL"]
     if info.is_active():
-        info.draw()
+        info.draw(delta_t)
 
 
 def on_render_rr(delta_t: float) -> None:
@@ -306,7 +306,7 @@ def on_render_rr(delta_t: float) -> None:
     global WHEEL_INFOS
     info = WHEEL_INFOS["RR"]
     if info.is_active():
-        info.draw()
+        info.draw(delta_t)
 
 
 def toggle_option(name: str) -> None:

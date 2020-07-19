@@ -87,7 +87,7 @@ class EngineInfo(object):
         """ Returns window status. """
         return self.__active
 
-    def draw(self):
+    def draw(self, delta_t: float):
         """ Draws all info on screen. """
         ac.setBackgroundOpacity(self.__window_id, 0.0)
         for component in self.__components:
@@ -111,7 +111,7 @@ class EngineInfo(object):
         """ Updates an option value. """
         self.__options[name] = value
 
-    def update(self):
+    def update(self, delta_t: float):
         """ Updates the engine information. """
         self.__data.update(self.__info)
         if self.__options["Logging"] == True:

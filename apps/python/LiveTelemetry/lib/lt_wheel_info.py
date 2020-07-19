@@ -39,8 +39,9 @@ class Data(object):
 
     def update(self, wheel, info):
         index = wheel.index()
+        self.abs = info.physics.abs
         self.camber = info.physics.camberRAD[index]
-        self.lock = info.physics.wheelAngularSpeed[index] == 0.0
+        self.lock = info.physics.brake > 0.0 and info.physics.wheelSlip[index] > 0.0 and info.physics.wheelAngularSpeed[index] == 0.0
 
         """
         Some cars the suspension travel from the shared memory is broken.
@@ -124,7 +125,7 @@ class WheelInfo(object):
         self.__components = []
         self.__components.append(Temps(acd, size, self.__wheel))
         self.__components.append(Dirt(size))
-        self.__components.append(Lock(size))
+        self.__components.append(Lock(size, self.__wheel))
         self.__components.append(Tire(acd, size, self.__wheel))
 
         self.__components.append(Camber(size))
@@ -167,13 +168,13 @@ class WheelInfo(object):
         """ Returns window status. """
         return self.__active
 
-    def draw(self) -> None:
+    def draw(self, delta_t: float) -> None:
         """ Draws all info on screen. """
         ac.setBackgroundOpacity(self.__window_id, 0.0)
         for component in self.__components:
             if self.__options[type(component).__name__] == True:
                 ac.glColor4f(*Colors.white)
-                component.draw(self.__data)
+                component.draw(self.__data, delta_t)
             else:
                 component.clear()
         ac.glColor4f(*Colors.white)
@@ -193,7 +194,7 @@ class WheelInfo(object):
         """ Updates an option value. """
         self.__options[name] = value
 
-    def update(self) -> None:
+    def update(self, delta_t: float) -> None:
         """ Updates the wheel information. """
         self.__data.update(self.__wheel, self.__info)
         if self.__options["Logging"] == True:

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="2048" viewBox="0 0 512 2048">
+  <defs>
+    <style>
+      .suspension {
+        fill: #fff;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <path id="suspension" class="suspension" d="M0,272H512V1776H0V272Zm80,80H432V1696H80V352Z"/>
+  <path id="packers" class="suspension" d="M256,0A176,176,0,1,1,80,176,176,176,0,0,1,256,0Zm0,1696A176,176,0,1,1,80,1872,176,176,0,0,1,256,1696ZM256,96a80,80,0,1,1-80,80A80,80,0,0,1,256,96Zm0,1696a80,80,0,1,1-80,80A80,80,0,0,1,256,1792Z"/>
+</svg>
