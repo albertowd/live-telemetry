@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Live Telemetry App for Assetto Corsa
-v 1.6.0
+v 1.7.0-beta
 https://github.com/albertowd/Wheellive-telemetry
 @author: albertowd
 """
@@ -21,7 +21,7 @@ from lib.lt_wheel_info import WheelInfo
 from lib.lt_util import clear_logs, export_saved_log, log
 
 # APP VERSION
-LT_VERSION = "1.6.0"
+LT_VERSION = "1.7.0-beta"
 
 # Loaded car files
 ACD_OBJ = None
