@@ -116,7 +116,3 @@ class EngineInfo(object):
         self.__data.update(self.__info)
         if self.__options["Logging"] == True:
             self.__data_log.append(copy.copy(self.__data))
-
-        for component in self.__components:
-            ac.glColor4f(*Colors.white)
-            component.update(self.__data)
