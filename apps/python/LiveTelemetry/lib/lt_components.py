@@ -238,8 +238,8 @@ class Lock(BoxComponent):
         self.__abs_cycle = (1.0 / abs_hz) if abs_hz > 0.0 else 3600.0
         self.__abs_timeout_s = 0.0 if abs_hz > 0.0 else 3600.0
 
-        log(self.__abs_cycle)
-        log(self.__abs_timeout_s)
+        #log(self.__abs_cycle)
+        #log(self.__abs_timeout_s)
 
         # Initial size is 85x85
         super(Lock, self).__init__(
@@ -342,7 +342,7 @@ class RPMPower(BoxComponent):
         self._draw()
 
         rpm = data.rpm
-        ratio = max(data.rpm / data.max_rpm, 1.0)
+        ratio = max(min(rpm / data.max_rpm, 1.0), 1.0)
 
         bar = copy.copy(self._box.rect)
         bar[2] *= ratio

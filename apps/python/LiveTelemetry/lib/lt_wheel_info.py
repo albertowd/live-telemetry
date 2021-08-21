@@ -15,7 +15,7 @@ from lib.lt_acd import ACD
 from lib.lt_colors import Colors
 from lib.lt_components import BoxComponent, Camber, Dirt, Height, Load, Lock, Pressure, Temps, Suspension, Tire, Wear
 from lib.lt_config import Config
-from lib.lt_util import log, WheelPos
+from lib.lt_util import WheelPos
 from lib.sim_info import info
 
 
