@@ -20,9 +20,10 @@ class Config(object):
     def __init__(self, lt_version: str) -> None:
         """ Loads or creates the app configuration file. """
 
+        docs_path = get_docs_path()
         self.__configs = ConfigParser()
-        if path.isfile("apps/python/LiveTelemetry/cfg.ini"):
-            self.__configs.read("apps/python/LiveTelemetry/cfg.ini")
+        if path.isfile("{}/Assetto Corsa/cfg/LiveTelemetry.ini".format(docs_path)):
+            self.__configs.read("{}/Assetto Corsa/cfg/LiveTelemetry.ini".format(docs_path))
 
         # If the config does not have it's version or is invalid, create a new one.
         try:
@@ -59,7 +60,6 @@ class Config(object):
 
             h = 720
             w = 1280
-            docs_path = get_docs_path()
 
             if len(docs_path) > 0:
                 try:
@@ -118,7 +118,8 @@ class Config(object):
 
     def save_config(self) -> None:
         """ Writes the actual options on the configuration file. """
-        cfg_file = open("apps/python/LiveTelemetry/cfg.ini", "w")
+        docs_path = get_docs_path()
+        cfg_file = open("{}/Assetto Corsa/cfg/LiveTelemetry.ini".format(docs_path), "w")
         self.__configs.write(cfg_file)
         cfg_file.close()
 
