@@ -20,6 +20,8 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
 * Tire load (N).
 * Tire wear (%).
 * Wheel camber (rad).
+* Wheel load (N).
+* Wheel lock / ABS.
 
 ### Options Window
 
@@ -96,10 +98,13 @@ Each wheel window will display a lot of information:
   
   Represented as the white circle that increases its sized based on the wheel load.
 
-* Wheel lock.
+* Wheel lock / ABS.
   
-  Will show a white rectangle in the middle of the wheel for about 30 frames, just to indicate the angular velocity of the wheel is stationary.
+  A new brake indicator that turns red when the wheel has locked up and blue when the ABS is working (based on the angular velocity and slip coefficient).
 
+  * <span style="color:blue">blue</span>: ABS working.
+  * <span style="color:white">red</span>: wheel locked up (mostly cars with no ABS).
+  * <span style="color:white">white</span>: wheel being a regular wheel.
 ### CSV Log
 
 All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs` within CSV files. It can be toggled in the `Logging` button on options window (default is off).
