@@ -142,6 +142,12 @@ For olders versions, its recommended to delete the plugins files from the foder 
 
 ## Changelog
 
+1.6.1
+   - Config file now uses the `Document/Assetto Corsa/cfg folder`.
+   - Fixed 100% static revbar (Mazda Rx7, ...).
+   - Fixed crashes on RSS other mods with Copyright comments within `.lut` files.
+   - New ABS indicator (still in beta) can be enabled through the config LT window.
+
 1.6.0
    - Cars with no max suspension travel now use dynamic value based on travel itself.
    - Fixed wrong suspension travel data from Shared Memory to the Python API call.

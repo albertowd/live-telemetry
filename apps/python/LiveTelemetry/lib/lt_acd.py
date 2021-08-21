@@ -124,12 +124,33 @@ class ACD(object):
             info += "   {} - {}b\n".format(name, len(self.__files[name]))
         return info
 
-    def get_file(self, name):
-        """ Returns the content of an inner file. """
-        if name in self.__files:
-            return self.__files[name]
+    def filter_mod_file_content(self, file_content, prefixes=(";", "#")):
+        """ Filters the file content splitting it on lines and removing 
+        the ones that starts with the prefixes.
+        """
+        filtered_lines = []
+        lines = file_content.split("\n")
+        for line in lines:
+            if not line.startswith(prefixes) and not (len(line) < 2 and line.startswith("\r")):
+                filtered_lines.append(line)
+        return "\n".join(filtered_lines)
+
+    def get_abs_hz(self):
+        """ Returns the ABS active rate in Hz. """
+        config = ConfigParser(
+            empty_lines_in_values=False, inline_comment_prefixes=(";",))
+        config.read_string(self.get_file("electronics.ini"))
+
+        if config.has_option("ABS", "RATE_HZ"):
+            try:
+                return float(config.get("ABS", "RATE_HZ"))
+            except:
+                log("Failed to get ABS rate:")
+                for info in exc_info():
+                    log(info)
+                raise
         else:
-            return ""
+            return 0.0
 
     def get_abs_slip_ratio_list(self):
         """ Returns the abs slip ratio list. """
@@ -155,22 +176,12 @@ class ACD(object):
         else:
             return ""
 
-    def get_abs_hz(self):
-        """ Returns the ABS active rate in Hz. """
-        config = ConfigParser(
-            empty_lines_in_values=False, inline_comment_prefixes=(";",))
-        config.read_string(self.get_file("electronics.ini"))
-
-        if config.has_option("ABS", "RATE_HZ"):
-            try:
-                return float(config.get("ABS", "RATE_HZ"))
-            except:
-                log("Failed to get ABS rate:")
-                for info in exc_info():
-                    log(info)
-                raise
+    def get_file(self, name):
+        """ Returns the content of an inner file. """
+        if name in self.__files:
+            return self.__files[name]
         else:
-            return 0.0
+            return ""
 
     def get_ideal_pressure(self, compound, wheel):
         """ Returns the compound ideal pressure. """
@@ -194,7 +205,9 @@ class ACD(object):
         config.read_string(self.get_file("engine.ini"))
 
         try:
-            return self.get_file(config.get("HEADER", "POWER_CURVE"))
+            # Need to filter this file, thanks RSS
+            file_content = self.get_file(config.get("HEADER", "POWER_CURVE"))
+            return self.filter_mod_file_content(file_content)
         except:
             log("Failed to get rpm power curve:")
             for info in exc_info():
@@ -265,7 +278,9 @@ class ACD(object):
 
         try:
             name = "THERMAL_{}".format(get_tire_name(compound, config, wheel))
-            return self.get_file(config.get(name, "PERFORMANCE_CURVE"))
+            # Need to filter this file, thanks RSS
+            file_content = self.get_file(config.get(name, "PERFORMANCE_CURVE"))
+            return self.filter_mod_file_content(file_content)
         except:
             log("Failed to get tire temperature curve {}:".format(compound))
             for info in exc_info():
@@ -280,7 +295,9 @@ class ACD(object):
 
         try:
             name = get_tire_name(compound, config, wheel)
-            return self.get_file(config.get(name, "WEAR_CURVE"))
+            # Need to filter this file, thanks RSS
+            file_content = self.get_file(config.get(name, "WEAR_CURVE"))
+            return self.filter_mod_file_content(file_content)
         except:
             log("Failed to get tire wear curve {}:".format(compound))
             for info in exc_info():
