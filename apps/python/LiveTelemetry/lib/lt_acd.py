@@ -131,6 +131,47 @@ class ACD(object):
         else:
             return ""
 
+    def get_abs_slip_ratio_list(self):
+        """ Returns the abs slip ratio list. """
+        config = ConfigParser(
+            empty_lines_in_values=False, inline_comment_prefixes=(";",))
+        config.read_string(self.get_file("electronics.ini"))
+
+        if config.has_option("ABS", "SLIP_RATIO_LIMIT") or config.has_option("ABS", "SLIP_RATIO_LIMIT"):
+            try:
+                return self.get_file(config["ABS"]["CURVE"])
+            except:
+                log("Failed to get ABS slip ratio curve:")
+                for info in exc_info():
+                    log(info)
+                log("Trying to get ratio limit:")
+                try:
+                    return "0|{}".format(config["ABS"]["SLIP_RATIO_LIMIT"])
+                except:
+                    log("Failed to get ABS slip ratio limit:")
+                    for info in exc_info():
+                        log(info)
+                    return ""
+        else:
+            return ""
+
+    def get_abs_hz(self):
+        """ Returns the ABS active rate in Hz. """
+        config = ConfigParser(
+            empty_lines_in_values=False, inline_comment_prefixes=(";",))
+        config.read_string(self.get_file("electronics.ini"))
+
+        if config.has_option("ABS", "RATE_HZ"):
+            try:
+                return float(config.get("ABS", "RATE_HZ"))
+            except:
+                log("Failed to get ABS rate:")
+                for info in exc_info():
+                    log(info)
+                raise
+        else:
+            return 0.0
+
     def get_ideal_pressure(self, compound, wheel):
         """ Returns the compound ideal pressure. """
         config = ConfigParser(
@@ -139,7 +180,7 @@ class ACD(object):
 
         try:
             name = get_tire_name(compound, config, wheel)
-            return float(config[name]["PRESSURE_IDEAL"])
+            return float(config.get(name, "PRESSURE_IDEAL"))
         except:
             log("Failed to get tire ideal pressure:")
             for info in exc_info():
@@ -153,7 +194,7 @@ class ACD(object):
         config.read_string(self.get_file("engine.ini"))
 
         try:
-            return self.get_file(config["HEADER"]["POWER_CURVE"])
+            return self.get_file(config.get("HEADER", "POWER_CURVE"))
         except:
             log("Failed to get rpm power curve:")
             for info in exc_info():
@@ -164,8 +205,9 @@ class ACD(object):
         config = ConfigParser(
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("drivetrain.ini"))
+
         try:
-            return float(config["AUTO_SHIFTER"]["DOWN"])
+            return float(config.get("AUTO_SHIFTER", "DOWN"))
         except:
             log("Failed to get rpm downshift value:")
             for info in exc_info():
@@ -176,9 +218,10 @@ class ACD(object):
         config = ConfigParser(
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("engine.ini"))
+
         try:
             if config.has_option("DAMAGE", "RPM_THRESHOLD"):
-                res = config["DAMAGE"]["RPM_THRESHOLD"]
+                res = config.get("DAMAGE", "RPM_THRESHOLD")
             else:
                 res = self.get_rpm_limiter() + 100
             return float(res)
@@ -192,8 +235,9 @@ class ACD(object):
         config = ConfigParser(
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("engine.ini"))
+
         try:
-            return float(config["ENGINE_DATA"]["LIMITER"])
+            return float(config.get("ENGINE_DATA", "LIMITER"))
         except:
             log("Failed to get rpm limiter value:")
             for info in exc_info():
@@ -204,8 +248,9 @@ class ACD(object):
         config = ConfigParser(
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("drivetrain.ini"))
+
         try:
-            return float(config["AUTO_SHIFTER"]["UP"])
+            return float(config("AUTO_SHIFTER", "UP"))
         except:
             log("Failed to get rpm upshit value:")
             for info in exc_info():
@@ -220,7 +265,7 @@ class ACD(object):
 
         try:
             name = "THERMAL_{}".format(get_tire_name(compound, config, wheel))
-            return self.get_file(config[name]["PERFORMANCE_CURVE"])
+            return self.get_file(config.get(name, "PERFORMANCE_CURVE"))
         except:
             log("Failed to get tire temperature curve {}:".format(compound))
             for info in exc_info():
@@ -235,7 +280,7 @@ class ACD(object):
 
         try:
             name = get_tire_name(compound, config, wheel)
-            return self.get_file(config[name]["WEAR_CURVE"])
+            return self.get_file(config.get(name, "WEAR_CURVE"))
         except:
             log("Failed to get tire wear curve {}:".format(compound))
             for info in exc_info():
@@ -323,11 +368,11 @@ def get_tire_name(compound, config, wheel):
     for i in range(10):
         name = prefix.format("" if i == 0 else "_{}".format(i))
         # Check if the SHORT_NAME index exists for tire backward compatibility.
-        if config.has_option(name, "SHORT_NAME") and config[name]["SHORT_NAME"] == compound:
+        if config.has_option(name, "SHORT_NAME") and config.get(name, "SHORT_NAME") == compound:
             return name
 
     try:
-        i = int(config["COMPOUND_DEFAULT"]["INDEX"])
+        i = int(config.get("COMPOUND_DEFAULT", "INDEX"))
         return prefix.format("" if i == 0 else "_{}".format(i))
     except:
         log("Failed to get tire name {}:".format(compound))

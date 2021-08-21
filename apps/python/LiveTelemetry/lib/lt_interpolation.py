@@ -6,14 +6,35 @@ Handles wheel interpolations and colors.
 @author: albertowd
 """
 from lib.lt_colors import Colors
-from lib.lt_util import color_interpolate
+from lib.lt_util import color_interpolate, log
+
+
+class ABSSlipList(object):
+    """ Handles ABS slip curve/value. """
+
+    def __init__(self, content=""):
+        """ Default constructor receives an inner '.lut' ACD file content. """
+        self.__list = []
+
+        lines = content.split("\n")
+        for line in lines:
+            if len(line) > 0:
+                values = line.split("|")
+                self.__list.append((int(values[0]), float(values[0])))
+
+    def level_ratio(self, abs_level: int) -> float:
+        """ Returns the ABS level related ratio, a hundred if is invalid. """
+        if abs_level > 0 and abs_level <= len(self.__list):
+            return self.__list[abs_level - 1]
+        else:
+            return 100.0
 
 
 class Curve(object):
     """ Handles default curve interpolation. """
 
     def __init__(self, content="", normalize=False):
-        """ Default constructor receives a inner '.lut' ACD file content. """
+        """ Default constructor receives an inner '.lut' ACD file content. """
         self._curve = []
         self._max = (0.0, 0.0)
 
@@ -30,7 +51,7 @@ class Curve(object):
                 if values[1] > self._max[1]:
                     self._max = (values[0], values[1])
 
-    def interpolate(self, current):
+    def interpolate(self, current: float) -> float:
         """ Interpolates the current value in the curve. """
         for index in range(len(self._curve)):
             point = self._curve[index]
@@ -50,6 +71,7 @@ class Power(Curve):
     """ Handles power interpolations. """
 
     def __init__(self, content=""):
+        """ Default constructor receives an inner '.lut' ACD file content. """
         super(Power, self).__init__(content)
 
         new_curve = []
@@ -68,8 +90,8 @@ class Power(Curve):
 
         self._curve = new_curve
 
-    def interpolate_color(self, rpm):
-        """ Interpolates the power color. """
+    def interpolate_color(self, rpm: int) -> list:
+        """ Interpolates the power color thourgh the current RPM value. """
         perc = self.interpolate(rpm) / self._max[1]
         if perc < 0.995:
             if rpm < self._max[0]:
@@ -87,14 +109,15 @@ class TirePsi(object):
     """ Handles tire pressure interpolations. """
 
     def __init__(self, ref=26.0):
+        """ Default constructor receives a reference value. """
         self.__ref = ref
 
-    def interpolate(self, psi):
+    def interpolate(self, psi: float) -> float:
         """ Returns the normalized psi. """
         return psi / self.__ref
 
-    def interpolate_color(self, psi):
-        """ Interpolates the wear color. """
+    def interpolate_color(self, psi: float) -> list:
+        """ Interpolates the pressure color through the current value. """
         perc = self.interpolate(psi)
         if perc < 0.95:
             return Colors.blue
@@ -109,11 +132,12 @@ class TirePsi(object):
 class TireTemp(Curve):
     """ Handles tire temperature interpolations. """
 
-    def __init__(self, content: str = "") -> None:
+    def __init__(self, content="") -> None:
+        """ Default constructor receives an inner '.lut' ACD file content. """
         super(TireTemp, self).__init__(content)
 
-    def interpolate_color(self, temp, interpolated):
-        """ Interpolates the temp color. """
+    def interpolate_color(self, temp: float, interpolated: float) -> list:
+        """ Interpolates the temperature color through the interpolated value. """
         if temp < self._max[0]:
             return color_interpolate(Colors.blue, Colors.green, max(0.0, interpolated - 0.98) / 0.02)
         else:

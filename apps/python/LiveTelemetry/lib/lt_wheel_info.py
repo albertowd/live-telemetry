@@ -15,13 +15,15 @@ from lib.lt_acd import ACD
 from lib.lt_colors import Colors
 from lib.lt_components import BoxComponent, Camber, Dirt, Height, Load, Lock, Pressure, Temps, Suspension, Tire, Wear
 from lib.lt_config import Config
-from lib.lt_util import WheelPos
+from lib.lt_util import log, WheelPos
 from lib.sim_info import info
 
 
 class Data(object):
 
     def __init__(self):
+        self.abs_active = False
+        #self.abs_slip_ratio = 0.0
         self.camber = 0.0
         self.height = 0.0
         self.lock = False
@@ -36,10 +38,13 @@ class Data(object):
         self.tire_t_m = 0.0
         self.tire_t_o = 0.0
         self.tire_w = 0.0
+        #self.wheel_slip_ratio = 0.0
 
     def update(self, wheel, info):
         index = wheel.index()
-        self.abs = info.physics.abs
+        
+        #self.abs_slip_ratio = info.physics.abs
+        self.abs_active = info.physics.brake > 0.0 and info.physics.wheelSlip[index] > info.physics.abs
         self.camber = info.physics.camberRAD[index]
         self.lock = info.physics.brake > 0.0 and info.physics.wheelSlip[index] > 0.0 and info.physics.wheelAngularSpeed[index] == 0.0
 
@@ -84,6 +89,9 @@ class Data(object):
         # Normal to percent
         self.tire_w = info.physics.tyreWear[index] / 100.0
 
+        # Wheel slip ratio to calculat ABS timing.
+        #self.wheel_slip_ratio = info.physics.wheelSlip[index]
+
 
 class WheelInfo(object):
     """ Wheel info to draw and update each wheel. """
@@ -125,7 +133,7 @@ class WheelInfo(object):
         self.__components = []
         self.__components.append(Temps(acd, size, self.__wheel))
         self.__components.append(Dirt(size))
-        self.__components.append(Lock(size, self.__wheel))
+        self.__components.append(Lock(acd, size, self.__wheel))
         self.__components.append(Tire(acd, size, self.__wheel))
 
         self.__components.append(Camber(size))

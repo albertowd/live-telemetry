@@ -11,8 +11,9 @@ import math
 import ac
 import acsys
 
+from lib.lt_acd import ACD
 from lib.lt_colors import Colors
-from lib.lt_interpolation import Power, TirePsi, TireTemp
+from lib.lt_interpolation import ABSSlipList, Power, TirePsi, TireTemp
 from lib.lt_util import log
 
 
@@ -27,7 +28,7 @@ class Background(object):
         self.border = border
         self.size = size
 
-    def draw(self, rect, texture_id=None):
+    def draw(self, rect, texture_id=None) -> None:
         """ Draws the box background. """
         if self.size > 0.0 and self.border[3] > 0.0:
             twice = self.size * 2.0
@@ -50,17 +51,17 @@ class Box(object):
         self.rect = [p_x, p_y, width, height]
         self.recalc_center()
 
-    def recalc_center(self):
+    def recalc_center(self) -> None:
         """ Recalculate the box middle point. """
         self.center[0] = self.rect[0] + (self.rect[2] / 2.0)
         self.center[1] = self.rect[1] + (self.rect[3] / 2.0)
 
-    def set_position(self, pos_x, pos_y):
+    def set_position(self, pos_x, pos_y) -> None:
         """ Updates the box position. """
         self.rect[0] = pos_x
         self.rect[1] = pos_y
 
-    def set_size(self, width, height):
+    def set_size(self, width, height) -> None:
         """ Updates the box size. """
         self.rect[2] = width
         self.rect[3] = height
@@ -81,19 +82,19 @@ class BoxComponent(object):
         self._box = Box(p_x, p_y, width, height)
         self._font = font
 
-    def clear(self):
+    def clear(self) -> None:
         """Clear labels to not draw anything on screen."""
         pass
 
-    def _draw(self, texture_id=None):
+    def _draw(self, texture_id=None) -> None:
         """ Draws the component on the screen. """
         self._back.draw(self._box.rect, texture_id)
 
-    def draw(self, data, delta_t: float):
+    def draw(self, data, delta_t: float) -> None:
         """ Draw the component contents after the base. """
         pass
 
-    def resize(self, resolution="HD"):
+    def resize(self, resolution="HD") -> None:
         """ Resizes the component. """
         mult = BoxComponent.resolution_map[resolution]
         self._box.set_position(
@@ -104,7 +105,7 @@ class BoxComponent(object):
         self._font = self.__ini_font * mult
         self.resize_fonts(resolution)
 
-    def resize_fonts(self, resolution):
+    def resize_fonts(self, resolution: str) -> None:
         """ Resize all the ac components with text. Must be overrided. """
         pass
 
@@ -112,12 +113,12 @@ class BoxComponent(object):
 class Camber(BoxComponent):
     """ Class to handle tire camber draw. """
 
-    def __init__(self, resolution):
+    def __init__(self, resolution: str):
         # Initial size is 160x10
         super(Camber, self).__init__(170.0, 256.0, 172.0, 15.0)
         self.resize(resolution)
 
-    def draw(self, data, delta_t: float):
+    def draw(self, data, delta_t: float) -> None:
         rect = self._box.rect
         camber = data.camber
         tan = math.tan(camber) * rect[2]
@@ -136,13 +137,13 @@ class Camber(BoxComponent):
 class Dirt(BoxComponent):
     """ Class to handle tire dirt draw. """
 
-    def __init__(self, resolution):
+    def __init__(self, resolution: str):
         # Initial size is 136x116
         super(Dirt, self).__init__(188.0, 128.0, 136.0, 116.0)
         self.__mult = BoxComponent.resolution_map[resolution]
         self.resize(resolution)
 
-    def draw(self, data, delta_t: float):
+    def draw(self, data, delta_t: float) -> None:
         dirt = data.tire_d * self.__mult
 
         rect = copy.copy(self._box.rect)
@@ -152,7 +153,7 @@ class Dirt(BoxComponent):
         ac.glColor4f(*Colors.brown)
         ac.glQuad(*rect)
 
-    def resize_fonts(self, resolution):
+    def resize_fonts(self, resolution: str) -> None:
         self.__mult = BoxComponent.resolution_map[resolution]
 
 
@@ -161,11 +162,12 @@ class Height(BoxComponent):
 
     texture_id = 0
 
-    def __init__(self, resolution, wheel, window_id):
+    def __init__(self, resolution: str, wheel, window_id: int):
         # Initial size is 64x48
         super(Height, self).__init__(
             430.0 if wheel.is_left() else 18.0, 208.0, 64.0, 48.0)
         self._back.color = Colors.white
+        self.__warn_time = 0.0
 
         if Height.texture_id == 0:
             Height.texture_id = ac.newTexture(
@@ -176,14 +178,23 @@ class Height(BoxComponent):
 
         self.resize(resolution)
 
-    def clear(self):
+    def clear(self) -> None:
         ac.setText(self.__lb, "")
 
-    def draw(self, data, delta_t: float):
+    def draw(self, data, delta_t: float) -> None:
+        if data.height < 0.02:
+            self.__warn_time = WARNING_TIME_S
+
+        if self.__warn_time - delta_t > 0.0:
+            self._back.color = Colors.red
+            self.__warn_time -= delta_t
+        else:
+            self._back.color = Colors.white
+
         self._draw(Height.texture_id)
         ac.setText(self.__lb, "{:03.1f} mm".format(data.height))
 
-    def resize_fonts(self, resolution):
+    def resize_fonts(self, resolution: str) -> None:
         ac.setFontSize(self.__lb, self._font)
         ac.setPosition(
             self.__lb, self._box.center[0], self._box.center[1] - (self._font / 1.25))
@@ -194,7 +205,7 @@ class Load(BoxComponent):
 
     texture_id = 0
 
-    def __init__(self, resolution, wheel):
+    def __init__(self, resolution: str, wheel):
         super(Load, self).__init__(128.0, 0.0, 256.0, 256.0)
         self._back.color = Colors.white
         self.__mult = BoxComponent.resolution_map[resolution]
@@ -205,7 +216,7 @@ class Load(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, data, delta_t: float):
+    def draw(self, data, delta_t: float) -> None:
         load = data.tire_l * self.__mult
         load_2 = load / 2.0
         self._box.set_position(
@@ -213,7 +224,7 @@ class Load(BoxComponent):
         self._box.set_size(load, load)
         self._draw(Load.texture_id)
 
-    def resize_fonts(self, resolution):
+    def resize_fonts(self, resolution: str) -> None:
         self.__mult = BoxComponent.resolution_map[resolution]
 
 
@@ -222,8 +233,15 @@ class Lock(BoxComponent):
 
     texture_id = 0
 
-    # Initial size is 85x85
-    def __init__(self, resolution, wheel):
+    def __init__(self, acd: ACD, resolution: str, wheel):
+        abs_hz = acd.get_abs_hz()
+        self.__abs_cycle = (1.0 / abs_hz) if abs_hz > 0.0 else 3600.0
+        self.__abs_timeout_s = 0.0 if abs_hz > 0.0 else 3600.0
+
+        log(self.__abs_cycle)
+        log(self.__abs_timeout_s)
+
+        # Initial size is 85x85
         super(Lock, self).__init__(
             70.0 if wheel.is_left() else 382.0, 0.0, 60.0, 60.0)
         self._back.color = Colors.white
@@ -235,15 +253,33 @@ class Lock(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, data, delta_t: float):
+    def draw(self, data, delta_t: float) -> None:
+        self.__abs_timeout_s -= delta_t
+        self.__lock_time -= delta_t
+
+        abs_active = False
         lock = data.lock
+
         if lock is True:
             self.__lock_time = WARNING_TIME_S
 
-        if self.__lock_time > 0.0:
-            self.__lock_time -= delta_t
+        #log(data.brake)
+        # The brake and abs slip ratio must be valid to activate the ABS system.
+        #if data.brake > 0.0 and data.abs_slip_ratio > 0 and data.wheel_slip_ratio > data.abs_slip_ratio:
+        if data.abs_active:
+            # Only release the brake if the elapsed time matches the ABS timeout.
+            if self.__abs_timeout_s <= 0.0:
+                abs_active = True
+                self.__abs_timeout_s = self.__abs_cycle
+
+        if abs_active:
+            self._back.color = Colors.blue
+        elif self.__lock_time > 0.0:
             self._back.color = Colors.red
-            self._draw(Lock.texture_id)
+        else:
+            self._back.color = Colors.white
+
+        self._draw(Lock.texture_id)
 
 
 class Pressure(BoxComponent):
@@ -251,7 +287,7 @@ class Pressure(BoxComponent):
 
     texture_id = 0
 
-    def __init__(self, acd, resolution, wheel, window_id):
+    def __init__(self, acd: ACD, resolution: str, wheel, window_id: int):
         self.__calc = TirePsi(acd.get_ideal_pressure(
             ac.getCarTyreCompound(0), wheel))
 
@@ -269,10 +305,10 @@ class Pressure(BoxComponent):
 
         self.resize(resolution)
 
-    def clear(self):
+    def clear(self) -> None:
         ac.setText(self.__lb, "")
 
-    def draw(self, data, delta_t: float):
+    def draw(self, data, delta_t: float) -> None:
         psi = data.tire_p
         ac.setText(self.__lb, "{:3.1f} psi".format(psi))
 
@@ -281,7 +317,7 @@ class Pressure(BoxComponent):
         self._back.color = color
         self._draw(Pressure.texture_id)
 
-    def resize_fonts(self, resolution):
+    def resize_fonts(self, resolution: str) -> None:
         ac.setFontSize(self.__lb, self._font)
         ac.setPosition(
             self.__lb, self._box.center[0], self._box.rect[1] + self._box.rect[3])
@@ -290,7 +326,7 @@ class Pressure(BoxComponent):
 class RPMPower(BoxComponent):
     """ Class to handle best power change. """
 
-    def __init__(self, acd, resolution, window_id):
+    def __init__(self, acd: ACD, resolution: str, window_id: int):
         self.__calc = Power(acd.get_power_curve())
 
         # Initial size is 512x85
@@ -302,7 +338,7 @@ class RPMPower(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, data, delta_t: float):
+    def draw(self, data, delta_t: float) -> None:
         self._draw()
 
         rpm = data.rpm
@@ -318,7 +354,7 @@ class RPMPower(BoxComponent):
         ac.setFontColor(self.__lb, color[0], color[1], color[2], color[3])
         ac.setText(self.__lb, "{} RPM".format(rpm))
 
-    def resize_fonts(self, resolution):
+    def resize_fonts(self, resolution: str) -> None:
         ac.setFontSize(self.__lb, self._font)
         ac.setPosition(
             self.__lb, self._box.center[0], self._box.rect[1] + self._box.rect[3])
@@ -329,7 +365,7 @@ class Suspension(BoxComponent):
 
     texture_id = 0
 
-    def __init__(self, resolution, wheel):
+    def __init__(self, resolution: str, wheel):
         # Initial size is 64x256
         super(Suspension, self).__init__(
             346.0 if wheel.is_left() else 102.0, 0.0, 64.0, 256.0)
@@ -342,15 +378,13 @@ class Suspension(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, data, delta_t: float):
+    def draw(self, data, delta_t: float) -> None:
         # Calculates the current suspension travel in percentage.
         travel = (data.susp_t / data.susp_m_t) if data.susp_m_t > 0.0 else 0.5
 
         # Checks the correct color.
         if travel > 0.95 or travel < 0.05:
             self._back.color = Colors.red
-            self.__warning_time -= delta_t
-            log(self.__warning_time)
         elif travel > 0.90 or travel < 0.1:
             self._back.color = Colors.yellow
         else:
@@ -370,14 +404,14 @@ class Suspension(BoxComponent):
         ac.glColor4f(*self._back.color)
         ac.glQuad(*rect)
 
-    def resize_fonts(self, resolution):
+    def resize_fonts(self, resolution: str) -> None:
         self.__mult = BoxComponent.resolution_map[resolution]
 
 
 class Temps(BoxComponent):
     """ Class to handle tire temperatures draw. """
 
-    def __init__(self, acd, resolution, wheel):
+    def __init__(self, acd: ACD, resolution: str, wheel):
         self.__calc = TireTemp(acd.get_temp_curve(
             ac.getCarTyreCompound(0), wheel))
 
@@ -385,7 +419,7 @@ class Temps(BoxComponent):
         super(Temps, self).__init__(176.0, 0.0, 160.0, 256.0, 16.0)
         self.resize(resolution)
 
-    def draw(self, data, delta_t: float):
+    def draw(self, data, delta_t: float) -> None:
         # Initial padding is 12x12
         pad = 12 * self.__mult
         pad2 = 2.0 * pad
@@ -424,7 +458,7 @@ class Temps(BoxComponent):
         ac.glQuad(outer, height, part, quarter)
         ac.glQuad(outer, height + quarter * 7, part, quarter)
 
-    def resize_fonts(self, resolution):
+    def resize_fonts(self, resolution: str) -> None:
         # Initial padding is 12x12
         self.__mult = BoxComponent.resolution_map[resolution]
 
@@ -434,7 +468,7 @@ class Tire(BoxComponent):
 
     texture_id = 0
 
-    def __init__(self, acd, resolution, wheel):
+    def __init__(self, acd: ACD, resolution: str, wheel):
         self.__calc = TireTemp(acd.get_temp_curve(
             ac.getCarTyreCompound(0), wheel))
 
@@ -448,7 +482,7 @@ class Tire(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, data, delta_t: float):
+    def draw(self, data, delta_t: float) -> None:
         """ Draws the tire. """
         temp = data.tire_t_c * 0.75 + \
             ((data.tire_t_i + data.tire_t_m + data.tire_t_o) / 3.0) * 0.25
@@ -460,7 +494,7 @@ class Tire(BoxComponent):
 class Wear(BoxComponent):
     """ Class to handle tire wear draw. """
 
-    def __init__(self, resolution, wheel):
+    def __init__(self, resolution: str, wheel):
         # Initial size is 14x256 (with borders)
         super(Wear, self).__init__(
             154.0 if wheel.is_left() else 348.0, 2.0, 10.0, 252.0)
@@ -470,7 +504,7 @@ class Wear(BoxComponent):
 
         self.resize(resolution)
 
-    def draw(self, data, delta_t: float):
+    def draw(self, data, delta_t: float) -> None:
         """ Draws the wear. """
         self._draw()
         wear = data.tire_w
