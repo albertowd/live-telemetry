@@ -7,7 +7,7 @@ Module to keep an app color palette.
 """
 
 
-class Colors(object):
+class Colors:
     """ Colors used by the components. """
 
     black = [0.0, 0.0, 0.0, 1.0]

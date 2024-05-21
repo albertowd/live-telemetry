@@ -14,7 +14,7 @@ import os
 import ac
 
 
-class WheelPos(object):
+class WheelPos:
     """ Keep useful information about the wheel position. """
 
     def __init__(self, index):
@@ -69,11 +69,10 @@ def color_interpolate(c_1, c_2, perc):
 def get_docs_path():
     """Load the My Documents folder path."""
     try:
-        CSIDL_PERSONAL = 5  # My Documents
-        SHGFP_TYPE_CURRENT = 0  # Get current, not default value
+        csidl_personal = 5 # My Documents
+        shgfp_type_current = 0  # Get current, not default value
         buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-        ctypes.windll.shell32.SHGetFolderPathW(
-            None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf)
+        ctypes.windll.shell32.SHGetFolderPathW(None, csidl_personal, None, shgfp_type_current, buf)
         return buf.value
     except:
         log("Could not load My Documents folder:")
@@ -99,7 +98,7 @@ def export_saved_log(data_log, csv_name):
     csv = []
 
     # Verifies the log length.
-    if(len(data_log) > 0):
+    if len(data_log) > 0:
         # Create the header row
         keys = sorted(data_log[0].__dict__.keys())
         csv.append(";".join(keys))
@@ -116,8 +115,8 @@ def export_saved_log(data_log, csv_name):
     docs_path = get_docs_path()
 
     if len(docs_path) > 0:
-        with open("{}/Assetto Corsa/logs/LiveTelemetry_{}.csv".format(docs_path, csv_name), "w") as w:
+        with open("{}/Assetto Corsa/logs/LiveTelemetry_{}.csv".format(docs_path, csv_name), "w", encoding="utf-8") as w:
             w.write("\n".join(csv))
     else:
-        with open("LiveTelemetry_{}.csv".format(csv_name), "w") as w:
+        with open("LiveTelemetry_{}.csv".format(csv_name), "w", encoding="utf-8") as w:
             w.write("\n".join(csv))

@@ -14,7 +14,8 @@ from lib.lt_components import BoxComponent, RPMPower
 from lib.sim_info import info
 
 
-class Data(object):
+class Data:
+    """ Data object to keep values between updates. """
 
     def __init__(self):
         self.max_power = 0.0
@@ -23,15 +24,16 @@ class Data(object):
         self.rpm = 0.0
         self.timestamp = 0
 
-    def update(self, info):
-        self.max_power = info.static.maxPower
-        self.max_rpm = info.static.maxRpm
-        self.max_torque = info.static.maxTorque
-        self.rpm = info.physics.rpms
-        self.timestamp = info.graphics.iCurrentTime
+    def update(self, info_arg):
+        """ Update the default values from the car engine. """
+        self.max_power = info_arg.static.maxPower
+        self.max_rpm = info_arg.static.maxRpm
+        self.max_torque = info_arg.static.maxTorque
+        self.rpm = info_arg.physics.rpms
+        self.timestamp = info_arg.graphics.iCurrentTime
 
 
-class EngineInfo(object):
+class EngineInfo:
     """ Engine info to draw and update. """
 
     def __init__(self, acd, configs):
@@ -91,7 +93,7 @@ class EngineInfo(object):
         """ Draws all info on screen. """
         ac.setBackgroundOpacity(self.__window_id, 0.0)
         for component in self.__components:
-            if self.__options[type(component).__name__] == True:
+            if self.__options[type(component).__name__] is True:
                 ac.glColor4f(*Colors.white)
                 component.draw(self.__data, delta_t)
         ac.glColor4f(*Colors.white)
@@ -114,5 +116,5 @@ class EngineInfo(object):
     def update(self, delta_t: float):
         """ Updates the engine information. """
         self.__data.update(self.__info)
-        if self.__options["Logging"] == True:
+        if self.__options["Logging"] is True:
             self.__data_log.append(copy.copy(self.__data))

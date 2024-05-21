@@ -6,10 +6,10 @@ Handles wheel interpolations and colors.
 @author: albertowd
 """
 from lib.lt_colors import Colors
-from lib.lt_util import color_interpolate, log
+from lib.lt_util import color_interpolate
 
 
-class ABSSlipList(object):
+class ABSSlipList:
     """ Handles ABS slip curve/value. """
 
     def __init__(self, content=""):
@@ -24,13 +24,12 @@ class ABSSlipList(object):
 
     def level_ratio(self, abs_level: int) -> float:
         """ Returns the ABS level related ratio, a hundred if is invalid. """
-        if abs_level > 0 and abs_level <= len(self.__list):
+        if 0 < abs_level <= len(self.__list):
             return self.__list[abs_level - 1]
-        else:
-            return 100.0
+        return 100.0
 
 
-class Curve(object):
+class Curve:
     """ Handles default curve interpolation. """
 
     def __init__(self, content="", normalize=False):
@@ -53,17 +52,15 @@ class Curve(object):
 
     def interpolate(self, current: float) -> float:
         """ Interpolates the current value in the curve. """
-        for index in range(len(self._curve)):
-            point = self._curve[index]
+        for index, point in enumerate(self._curve):
             if current < point[0]:
                 if index == 0:
                     return point[1]
-                else:
-                    p_point = self._curve[index - 1]
-                    p_diff = point[0] - p_point[0]
-                    c_diff = (current - p_point[0]) / p_diff
-                    v_diff = point[1] - p_point[1]
-                    return p_point[1] + (v_diff * c_diff)
+                p_point = self._curve[index - 1]
+                p_diff = point[0] - p_point[0]
+                c_diff = (current - p_point[0]) / p_diff
+                v_diff = point[1] - p_point[1]
+                return p_point[1] + (v_diff * c_diff)
         return self._curve[-1][1] if len(self._curve) > 0 else 0.0
 
 
@@ -97,15 +94,12 @@ class Power(Curve):
             if rpm < self._max[0]:
                 if perc < 0.985:
                     return Colors.white
-                else:
-                    return Colors.blue
-            else:
-                return Colors.red
-        else:
-            return Colors.green
+                return Colors.blue
+            return Colors.red
+        return Colors.green
 
 
-class TirePsi(object):
+class TirePsi:
     """ Handles tire pressure interpolations. """
 
     def __init__(self, ref=26.0):
@@ -121,12 +115,11 @@ class TirePsi(object):
         perc = self.interpolate(psi)
         if perc < 0.95:
             return Colors.blue
-        elif perc < 1.00:
+        if perc < 1.00:
             return color_interpolate(Colors.blue, Colors.green, max(0.0, perc - 0.95) / 0.05)
-        elif perc < 1.05:
+        if perc < 1.05:
             return color_interpolate(Colors.green, Colors.red, max(0.0, perc - 1.00) / 0.05)
-        else:
-            return Colors.red
+        return Colors.red
 
 
 class TireTemp(Curve):
@@ -140,5 +133,4 @@ class TireTemp(Curve):
         """ Interpolates the temperature color through the interpolated value. """
         if temp < self._max[0]:
             return color_interpolate(Colors.blue, Colors.green, max(0.0, interpolated - 0.98) / 0.02)
-        else:
-            return color_interpolate(Colors.red, Colors.green, max(0.0, interpolated - 0.98) / 0.02)
+        return color_interpolate(Colors.red, Colors.green, max(0.0, interpolated - 0.98) / 0.02)

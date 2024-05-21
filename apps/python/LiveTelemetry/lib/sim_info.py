@@ -1,34 +1,40 @@
-#updated to AC 1.14.3
+"""
+Siminfo updated to AC 1.14.3
+"""
 
 import mmap
-import functools
 import ctypes
 from ctypes import c_int32, c_float, c_wchar
+import time
 
-AC_STATUS = c_int32
-AC_OFF = 0
-AC_REPLAY = 1
-AC_LIVE = 2
-AC_PAUSE = 3
-AC_SESSION_TYPE = c_int32
-AC_UNKNOWN = -1
-AC_PRACTICE = 0
-AC_QUALIFY = 1
-AC_RACE = 2
-AC_HOTLAP = 3
-AC_TIME_ATTACK = 4
-AC_DRIFT = 5
-AC_DRAG = 6
-AC_FLAG_TYPE = c_int32
-AC_NO_FLAG = 0
-AC_BLUE_FLAG = 1
-AC_YELLOW_FLAG = 2
-AC_BLACK_FLAG = 3
-AC_WHITE_FLAG = 4
-AC_CHECKERED_FLAG = 5
-AC_PENALTY_FLAG = 6
+class Def:
+    """ Class to store definitions. """
+
+    AC_STATUS = c_int32
+    AC_OFF = 0
+    AC_REPLAY = 1
+    AC_LIVE = 2
+    AC_PAUSE = 3
+    AC_SESSION_TYPE = c_int32
+    AC_UNKNOWN = -1
+    AC_PRACTICE = 0
+    AC_QUALIFY = 1
+    AC_RACE = 2
+    AC_HOTLAP = 3
+    AC_TIME_ATTACK = 4
+    AC_DRIFT = 5
+    AC_DRAG = 6
+    AC_FLAG_TYPE = c_int32
+    AC_NO_FLAG = 0
+    AC_BLUE_FLAG = 1
+    AC_YELLOW_FLAG = 2
+    AC_BLACK_FLAG = 3
+    AC_WHITE_FLAG = 4
+    AC_CHECKERED_FLAG = 5
+    AC_PENALTY_FLAG = 6
 
 class SPageFilePhysics(ctypes.Structure):
+    """ Car physics informations. """
     _pack_ = 4
     _fields_ = [
         ('packetId', c_int32),
@@ -94,11 +100,12 @@ class SPageFilePhysics(ctypes.Structure):
         ]
 
 class SPageFileGraphic(ctypes.Structure):
+    """ Dynamic car and session information. It changes over the session. """
     _pack_ = 4
     _fields_ = [
         ('packetId', c_int32),
-        ('status', AC_STATUS),
-        ('session', AC_SESSION_TYPE),
+        ('status', Def.AC_STATUS),
+        ('session', Def.AC_SESSION_TYPE),
         ('currentTime', c_wchar * 15),
         ('lastTime', c_wchar * 15),
         ('bestTime', c_wchar * 15),
@@ -119,7 +126,7 @@ class SPageFileGraphic(ctypes.Structure):
         ('normalizedCarPosition', c_float),
         ('carCoordinates', c_float * 3),
         ('penaltyTime', c_float),
-        ('flag', AC_FLAG_TYPE),
+        ('flag', Def.AC_FLAG_TYPE),
         ('idealLineOn', c_int32),
         ('isInPitLane', c_int32),
         ('surfaceGrip', c_float),
@@ -129,6 +136,7 @@ class SPageFileGraphic(ctypes.Structure):
         ]
 
 class SPageFileStatic(ctypes.Structure):
+    """ Static car and session informations. It do not changes over the session. """
     _pack_ = 4
     _fields_ = [
         ('_smVersion', c_wchar * 15),
@@ -175,7 +183,8 @@ class SPageFileStatic(ctypes.Structure):
         ('pitWindowEnd', c_int32)
         ]
 
-class SimInfo:
+class LTSimInfo:
+    """ Main Sim info class to import within the module. """
     def __init__(self):
         self._acpmf_physics = mmap.mmap(0, ctypes.sizeof(SPageFilePhysics), "acpmf_physics")
         self._acpmf_graphics = mmap.mmap(0, ctypes.sizeof(SPageFileGraphic), "acpmf_graphics")
@@ -185,6 +194,7 @@ class SimInfo:
         self.static = SPageFileStatic.from_buffer(self._acpmf_static)
 
     def close(self):
+        """ Closes the session shared memory. """
         self._acpmf_physics.close()
         self._acpmf_graphics.close()
         self._acpmf_static.close()
@@ -192,24 +202,24 @@ class SimInfo:
     def __del__(self):
         self.close()
 
-info = SimInfo()
+info = LTSimInfo()
 
 def demo():
-    import time
-
+    """ Just a demo of it working, if the game is running. """
     for _ in range(400):
         print(info.static.track, info.graphics.tyreCompound, info.graphics.currentTime,
               info.physics.rpms, info.graphics.currentTime, info.static.maxRpm, list(info.physics.tyreWear))
         time.sleep(0.1)
 
 def do_test():
+    """ Some simple tests, to ensure it will work. """
     for struct in info.static, info.graphics, info.physics:
         print(struct.__class__.__name__)
-        for field, type_spec in struct._fields_:
-            value = getattr(struct, field)
+        for field in struct._fields_: # pylint: disable=protected-access
+            value = getattr(struct, field[0])
             if not isinstance(value, (str, float, int)):
                 value = list(value)
-            print(" {} -> {} {}".format(field, type(value), value))
+            print(" {} -> {} {}".format(field[0], type(value), value))
 
 if __name__ == '__main__':
     do_test()
