@@ -14,7 +14,7 @@ from sys import exc_info
 from lib.lt_util import get_docs_path, log
 
 
-class Config(object):
+class Config:
     """ Singleton to handle configuration methods. """
 
     def __init__(self, lt_version: str) -> None:
@@ -22,8 +22,8 @@ class Config(object):
 
         docs_path = get_docs_path()
         self.__configs = ConfigParser()
-        if path.isfile("{}/Assetto Corsa/cfg/LiveTelemetry.ini".format(docs_path)):
-            self.__configs.read("{}/Assetto Corsa/cfg/LiveTelemetry.ini".format(docs_path))
+        if path.isfile("{}/Assetto Corsa/cfg/apps/LiveTelemetry.ini".format(docs_path)):
+            self.__configs.read("{}/Assetto Corsa/cfg/apps/LiveTelemetry.ini".format(docs_path))
 
         # If the config does not have it's version or is invalid, create a new one.
         try:
@@ -119,9 +119,8 @@ class Config(object):
     def save_config(self) -> None:
         """ Writes the actual options on the configuration file. """
         docs_path = get_docs_path()
-        cfg_file = open("{}/Assetto Corsa/cfg/LiveTelemetry.ini".format(docs_path), "w")
-        self.__configs.write(cfg_file)
-        cfg_file.close()
+        with open("{}/Assetto Corsa/cfg/apps/LiveTelemetry.ini".format(docs_path), "w", encoding="utf-8") as cfg_file:
+            self.__configs.write(cfg_file)
 
     def set_option(self, name: str, value) -> None:
         """ Updates an option value. """

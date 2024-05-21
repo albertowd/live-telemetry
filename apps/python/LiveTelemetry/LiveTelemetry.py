@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 """
 Live Telemetry App for Assetto Corsa
-v 1.6.1
+v 1.7.0
 https://github.com/albertowd/Wheellive-telemetry
 @author: albertowd
 """
 
 
-import a_ctypes_aux
+import a_ctypes_aux # pylint: disable=unused-import
 
 import ac
 
@@ -21,81 +21,79 @@ from lib.lt_wheel_info import WheelInfo
 from lib.lt_util import clear_logs, export_saved_log, log
 
 # APP VERSION
-LT_VERSION = "1.6.1"
+LT_VERSION = "1.7.0"
 
 # Loaded car files
-ACD_OBJ = None
+LT_ACD_OBJ = None
 
 # Global configurations
-CONFIGS = None
+LT_CONFIGS = None
 
 # Each window
-ENGINE_INFO = None
-OPTIONS_INFO = None
-WHEEL_INFOS = {}
+LT_ENGINE_INFO = None
+LT_OPTIONS_INFO = None
+LT_WHEEL_INFOS = {}
 
 
 def acMain(ac_version: str) -> None:
     """ Initiates the program. """
-    global ACD_OBJ
-    global CONFIGS
-    global LT_VERSION
+    global LT_ACD_OBJ
+    global LT_CONFIGS
+    global LT_ENGINE_INFO
+    global LT_OPTIONS_INFO
 
     log("Starting Live Telemetry {} on AC Python API version {}...".format(
         LT_VERSION, ac_version))
 
     log("Loading configs...")
-    CONFIGS = Config(LT_VERSION)
+    LT_CONFIGS = Config(LT_VERSION)
 
     log("Loading {} info...".format(ac.getCarName(0)))
-    ACD_OBJ = ACD("content/cars/{}".format(ac.getCarName(0)))
+    LT_ACD_OBJ = ACD("content/cars/{}".format(ac.getCarName(0)))
     log("Loaded correctly")
 
     log("Loading options window...")
-    global OPTIONS_INFO
-    OPTIONS_INFO = OptionsInfo(CONFIGS)
+    LT_OPTIONS_INFO = OptionsInfo(LT_CONFIGS)
     ac.addOnClickedListener(
-        OPTIONS_INFO.get_button_id("Camber"), on_click_camber)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Dirt"), on_click_dirt)
+        LT_OPTIONS_INFO.get_button_id("Camber"), on_click_camber)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Dirt"), on_click_dirt)
     ac.addOnClickedListener(
-        OPTIONS_INFO.get_button_id("Height"), on_click_height)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Load"), on_click_load)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Lock"), on_click_lock)
+        LT_OPTIONS_INFO.get_button_id("Height"), on_click_height)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Load"), on_click_load)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Lock"), on_click_lock)
     ac.addOnClickedListener(
-        OPTIONS_INFO.get_button_id("Logging"), on_click_logging)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id(
+        LT_OPTIONS_INFO.get_button_id("Logging"), on_click_logging)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id(
         "Pressure"), on_click_pressure)
     ac.addOnClickedListener(
-        OPTIONS_INFO.get_button_id("RPMPower"), on_click_rpm)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Size"), on_click_size)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id(
+        LT_OPTIONS_INFO.get_button_id("RPMPower"), on_click_rpm)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Size"), on_click_size)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id(
         "Suspension"), on_click_suspension)
     ac.addOnClickedListener(
-        OPTIONS_INFO.get_button_id("Temps"), on_click_temps)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Tire"), on_click_tire)
-    ac.addOnClickedListener(OPTIONS_INFO.get_button_id("Wear"), on_click_wear)
+        LT_OPTIONS_INFO.get_button_id("Temps"), on_click_temps)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Tire"), on_click_tire)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Wear"), on_click_wear)
 
     log("Loading engine window...")
-    global ENGINE_INFO
-    ENGINE_INFO = EngineInfo(ACD_OBJ, CONFIGS)
-    window_id = ENGINE_INFO.get_window_id()
+    LT_ENGINE_INFO = EngineInfo(LT_ACD_OBJ, LT_CONFIGS)
+    window_id = LT_ENGINE_INFO.get_window_id()
     ac.addOnAppActivatedListener(window_id, on_activation)
     ac.addOnAppDismissedListener(window_id, on_dismiss)
-    ac.addRenderCallback(ENGINE_INFO.get_window_id(), on_render_engine)
+    ac.addRenderCallback(LT_ENGINE_INFO.get_window_id(), on_render_engine)
 
     log("Loading wheel windows...")
-    global WHEEL_INFOS
     for index in range(4):
-        info = WheelInfo(ACD_OBJ, CONFIGS, index)
+        info = WheelInfo(LT_ACD_OBJ, LT_CONFIGS, index)
         window_id = info.get_window_id()
         ac.addOnAppActivatedListener(window_id, on_activation)
         ac.addOnAppDismissedListener(window_id, on_dismiss)
-        WHEEL_INFOS[info.get_id()] = info
+        LT_WHEEL_INFOS[info.get_id()] = info
 
-    ac.addRenderCallback(WHEEL_INFOS["FL"].get_window_id(), on_render_fl)
-    ac.addRenderCallback(WHEEL_INFOS["FR"].get_window_id(), on_render_fr)
-    ac.addRenderCallback(WHEEL_INFOS["RL"].get_window_id(), on_render_rl)
-    ac.addRenderCallback(WHEEL_INFOS["RR"].get_window_id(), on_render_rr)
+    ac.addRenderCallback(LT_WHEEL_INFOS["FL"].get_window_id(), on_render_fl)
+    ac.addRenderCallback(LT_WHEEL_INFOS["FR"].get_window_id(), on_render_fr)
+    ac.addRenderCallback(LT_WHEEL_INFOS["RL"].get_window_id(), on_render_rl)
+    ac.addRenderCallback(LT_WHEEL_INFOS["RR"].get_window_id(), on_render_rr)
 
     log("Live Telemetry started.")
 
@@ -106,73 +104,80 @@ def acShutdown() -> None:
     """ Called when the session ends (or restarts). """
     log("Shutting down Live Telemetry...")
 
-    global CONFIGS
-    global ENGINE_INFO
-    global OPTIONS_INFO
-    global WHEEL_INFOS
+    global LT_ACD_OBJ
+    global LT_CONFIGS
+    global LT_ENGINE_INFO
+    global LT_OPTIONS_INFO
+    global LT_WHEEL_INFOS
 
     log("Saving options configurations...")
-    CONFIGS.set_option("Camber", OPTIONS_INFO.get_option("Camber"))
-    CONFIGS.set_option("Dirt", OPTIONS_INFO.get_option("Dirt"))
-    CONFIGS.set_option("Height", OPTIONS_INFO.get_option("Height"))
-    CONFIGS.set_option("Load", OPTIONS_INFO.get_option("Load"))
-    CONFIGS.set_option("Lock", OPTIONS_INFO.get_option("Lock"))
-    CONFIGS.set_option("Logging", OPTIONS_INFO.get_option("Logging"))
-    CONFIGS.set_option("Pressure", OPTIONS_INFO.get_option("Pressure"))
-    CONFIGS.set_option("RPMPower", OPTIONS_INFO.get_option("RPMPower"))
-    CONFIGS.set_option("Size", OPTIONS_INFO.get_option("Size"))
-    CONFIGS.set_option("Suspension", OPTIONS_INFO.get_option("Suspension"))
-    CONFIGS.set_option("Temps", OPTIONS_INFO.get_option("Temps"))
-    CONFIGS.set_option("Tire", OPTIONS_INFO.get_option("Tire"))
-    CONFIGS.set_option("Wear", OPTIONS_INFO.get_option("Wear"))
+    LT_CONFIGS.set_option("Camber", LT_OPTIONS_INFO.get_option("Camber"))
+    LT_CONFIGS.set_option("Dirt", LT_OPTIONS_INFO.get_option("Dirt"))
+    LT_CONFIGS.set_option("Height", LT_OPTIONS_INFO.get_option("Height"))
+    LT_CONFIGS.set_option("Load", LT_OPTIONS_INFO.get_option("Load"))
+    LT_CONFIGS.set_option("Lock", LT_OPTIONS_INFO.get_option("Lock"))
+    LT_CONFIGS.set_option("Logging", LT_OPTIONS_INFO.get_option("Logging"))
+    LT_CONFIGS.set_option("Pressure", LT_OPTIONS_INFO.get_option("Pressure"))
+    LT_CONFIGS.set_option("RPMPower", LT_OPTIONS_INFO.get_option("RPMPower"))
+    LT_CONFIGS.set_option("Size", LT_OPTIONS_INFO.get_option("Size"))
+    LT_CONFIGS.set_option("Suspension", LT_OPTIONS_INFO.get_option("Suspension"))
+    LT_CONFIGS.set_option("Temps", LT_OPTIONS_INFO.get_option("Temps"))
+    LT_CONFIGS.set_option("Tire", LT_OPTIONS_INFO.get_option("Tire"))
+    LT_CONFIGS.set_option("Wear", LT_OPTIONS_INFO.get_option("Wear"))
 
     log("Saving windows configurations...")
-    CONFIGS.set_window_active("EN", ENGINE_INFO.is_active())
-    CONFIGS.set_window_position("EN", ENGINE_INFO.get_position())
-    ENGINE_INFO.set_active(False)
-    CONFIGS.set_window_position("OP", OPTIONS_INFO.get_position())
-    for wheel_id in WHEEL_INFOS:
-        info = WHEEL_INFOS[wheel_id]
-        CONFIGS.set_window_active(wheel_id, info.is_active())
-        CONFIGS.set_window_position(wheel_id, info.get_position())
+    LT_CONFIGS.set_window_active("EN", LT_ENGINE_INFO.is_active())
+    LT_CONFIGS.set_window_position("EN", LT_ENGINE_INFO.get_position())
+    LT_ENGINE_INFO.set_active(False)
+    LT_CONFIGS.set_window_position("OP", LT_OPTIONS_INFO.get_position())
+    for wheel_id in LT_WHEEL_INFOS:
+        info = LT_WHEEL_INFOS[wheel_id]
+        LT_CONFIGS.set_window_active(wheel_id, info.is_active())
+        LT_CONFIGS.set_window_position(wheel_id, info.get_position())
         info.set_active(False)
 
-    CONFIGS.save_config()
+    LT_CONFIGS.save_config()
 
-    if ENGINE_INFO.has_data_logged() or WHEEL_INFOS["FL"].has_data_logged() or WHEEL_INFOS["FL"].has_data_logged() or WHEEL_INFOS["RL"].has_data_logged() or WHEEL_INFOS["RR"].has_data_logged():
+    if (
+        LT_ENGINE_INFO.has_data_logged()
+        or LT_WHEEL_INFOS["FL"].has_data_logged() or LT_WHEEL_INFOS["FL"].has_data_logged()
+        or LT_WHEEL_INFOS["RL"].has_data_logged() or LT_WHEEL_INFOS["RR"].has_data_logged()
+    ):
         log("Saving csv data...")
-        for wheel_id in WHEEL_INFOS:
-            info = WHEEL_INFOS[wheel_id]
+        for wheel_id in LT_WHEEL_INFOS:
+            info = LT_WHEEL_INFOS[wheel_id]
             export_saved_log(info.get_data_log(), wheel_id)
-        export_saved_log(ENGINE_INFO.get_data_log(), "EN")
+        export_saved_log(LT_ENGINE_INFO.get_data_log(), "EN")
     else:
         log("Deleting old csv data...")
         clear_logs()
+
+    LT_ACD_OBJ = None
+    LT_CONFIGS = None
+    LT_ENGINE_INFO = None
+    LT_OPTIONS_INFO = None
+    LT_WHEEL_INFOS = {}
     log("Live Telemetry ended.")
 
 
 def acUpdate(delta_t: float) -> None:
     """ Called every physics update. """
-    global ENGINE_INFO
-    if ENGINE_INFO.is_active():
-        ENGINE_INFO.update(delta_t)
+    if LT_ENGINE_INFO.is_active():
+        LT_ENGINE_INFO.update(delta_t)
 
-    global WHEEL_INFOS
-    for wheel_id in WHEEL_INFOS:
-        info = WHEEL_INFOS[wheel_id]
+    for wheel_id in LT_WHEEL_INFOS:
+        info = LT_WHEEL_INFOS[wheel_id]
         if info.is_active():
             info.update(delta_t)
 
 
 def on_activation(window_id: int) -> None:
     """ Activates a window. """
-    global ENGINE_INFO
-    if ENGINE_INFO.get_window_id() is window_id:
-        ENGINE_INFO.set_active(True)
+    if LT_ENGINE_INFO.get_window_id() is window_id:
+        LT_ENGINE_INFO.set_active(True)
 
-    global WHEEL_INFOS
-    for wheel_id in WHEEL_INFOS:
-        info = WHEEL_INFOS[wheel_id]
+    for wheel_id in LT_WHEEL_INFOS:
+        info = LT_WHEEL_INFOS[wheel_id]
         if info.get_window_id() is window_id:
             info.set_active(True)
 
@@ -219,22 +224,19 @@ def on_click_rpm(pos_x: int, pos_y: int) -> None:
 
 def on_click_size(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options size button. """
-    global ENGINE_INFO
-    global OPTIONS_INFO
-    global WHEEL_INFOS
-
-    old_resolution = OPTIONS_INFO.get_option("Size")
+    old_resolution = LT_OPTIONS_INFO.get_option("Size")
     new_resolution = BoxComponent.resolutions[0]
     for index, resolution in enumerate(BoxComponent.resolutions):
         if resolution == old_resolution and index + 1 < len(BoxComponent.resolutions):
             new_resolution = BoxComponent.resolutions[index + 1]
 
-    ENGINE_INFO.resize(new_resolution)
-    OPTIONS_INFO.resize(new_resolution)
-    for wheel_id in WHEEL_INFOS:
-        WHEEL_INFOS[wheel_id].resize(new_resolution)
+    LT_ENGINE_INFO.resize(new_resolution)
+    LT_OPTIONS_INFO.resize(new_resolution)
+    for wheel_id in LT_WHEEL_INFOS:
+        info = LT_WHEEL_INFOS[wheel_id]
+        info.resize(new_resolution)
 
-    OPTIONS_INFO.set_option("Size", new_resolution)
+    LT_OPTIONS_INFO.set_option("Size", new_resolution)
 
 
 def on_click_suspension(pos_x: int, pos_y: int) -> None:
@@ -259,64 +261,57 @@ def on_click_wear(pos_x: int, pos_y: int) -> None:
 
 def on_dismiss(window_id: int) -> None:
     """ Deactivates a window. """
-    global ENGINE_INFO
-    if ENGINE_INFO.get_window_id() is window_id:
-        ENGINE_INFO.set_active(False)
+    if LT_ENGINE_INFO.get_window_id() is window_id:
+        LT_ENGINE_INFO.set_active(False)
 
-    global WHEEL_INFOS
-    for wheel_id in WHEEL_INFOS:
-        info = WHEEL_INFOS[wheel_id]
+    for wheel_id in LT_WHEEL_INFOS:
+        info = LT_WHEEL_INFOS[wheel_id]
         if info.get_window_id() is window_id:
             info.set_active(False)
 
 
 def on_render_engine(delta_t: float) -> None:
     """ Called every frame. """
-    global ENGINE_INFO
-    if ENGINE_INFO.is_active():
-        ENGINE_INFO.draw(delta_t)
+    log("Rendering engine")
+    if LT_ENGINE_INFO.is_active():
+        LT_ENGINE_INFO.draw(delta_t)
 
 
 def on_render_fl(delta_t: float) -> None:
     """ Called every frame. """
-    global WHEEL_INFOS
-    info = WHEEL_INFOS["FL"]
+    log("Rendering fl")
+    info = LT_WHEEL_INFOS["FL"]
     if info.is_active():
         info.draw(delta_t)
 
 
 def on_render_fr(delta_t: float) -> None:
     """ Called every frame. """
-    global WHEEL_INFOS
-    info = WHEEL_INFOS["FR"]
+    info = LT_WHEEL_INFOS["FR"]
     if info.is_active():
         info.draw(delta_t)
 
 
 def on_render_rl(delta_t: float) -> None:
     """ Called every frame. """
-    global WHEEL_INFOS
-    info = WHEEL_INFOS["RL"]
+    info = LT_WHEEL_INFOS["RL"]
     if info.is_active():
         info.draw(delta_t)
 
 
 def on_render_rr(delta_t: float) -> None:
     """ Called every frame. """
-    global WHEEL_INFOS
-    info = WHEEL_INFOS["RR"]
+    info = LT_WHEEL_INFOS["RR"]
     if info.is_active():
         info.draw(delta_t)
 
 
 def toggle_option(name: str) -> None:
-    global ENGINE_INFO
-    global OPTIONS_INFO
-    global WHEEL_INFOS
+    """ Called to toggle the option for a settings on all widgets. """
+    enabled = not LT_OPTIONS_INFO.get_option(name)
 
-    enabled = not OPTIONS_INFO.get_option(name)
-
-    ENGINE_INFO.set_option(name, enabled)
-    OPTIONS_INFO.set_option(name, enabled)
-    for wheel_id in WHEEL_INFOS:
-        WHEEL_INFOS[wheel_id].set_option(name, enabled)
+    LT_ENGINE_INFO.set_option(name, enabled)
+    LT_OPTIONS_INFO.set_option(name, enabled)
+    for wheel_id in LT_WHEEL_INFOS:
+        info = LT_WHEEL_INFOS[wheel_id]
+        info.set_option(name, enabled)

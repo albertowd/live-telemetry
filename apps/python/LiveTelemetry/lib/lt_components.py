@@ -13,14 +13,13 @@ import acsys
 
 from lib.lt_acd import ACD
 from lib.lt_colors import Colors
-from lib.lt_interpolation import ABSSlipList, Power, TirePsi, TireTemp
-from lib.lt_util import log
+from lib.lt_interpolation import Power, TirePsi, TireTemp
 
 
 WARNING_TIME_S = 0.5
 
 
-class Background(object):
+class Background:
     """ Class to draw a background in a box component. """
 
     def __init__(self, color=Colors.transparent, border=Colors.transparent, size=1.0):
@@ -43,7 +42,7 @@ class Background(object):
             ac.glQuadTextured(rect[0], rect[1], rect[2], rect[3], texture_id)
 
 
-class Box(object):
+class Box:
     """ Class to handle a box component with background. """
 
     def __init__(self, p_x=0.0, p_y=0.0, width=100.0, height=100.0):
@@ -67,7 +66,7 @@ class Box(object):
         self.rect[3] = height
 
 
-class BoxComponent(object):
+class BoxComponent:
     """ Class to handle position and resize of a component. """
 
     resolutions = ["240p", "360p", "480p", "576p",
@@ -84,7 +83,6 @@ class BoxComponent(object):
 
     def clear(self) -> None:
         """Clear labels to not draw anything on screen."""
-        pass
 
     def _draw(self, texture_id=None) -> None:
         """ Draws the component on the screen. """
@@ -92,7 +90,6 @@ class BoxComponent(object):
 
     def draw(self, data, delta_t: float) -> None:
         """ Draw the component contents after the base. """
-        pass
 
     def resize(self, resolution="HD") -> None:
         """ Resizes the component. """
@@ -107,7 +104,6 @@ class BoxComponent(object):
 
     def resize_fonts(self, resolution: str) -> None:
         """ Resize all the ac components with text. Must be overrided. """
-        pass
 
 
 class Camber(BoxComponent):
@@ -344,12 +340,12 @@ class RPMPower(BoxComponent):
         rpm = data.rpm
         ratio = min(rpm / data.max_rpm, 1.0)
 
-        bar = copy.copy(self._box.rect)
-        bar[2] *= ratio
+        p_bar = copy.copy(self._box.rect)
+        p_bar[2] *= ratio
 
         color = self.__calc.interpolate_color(rpm)
         ac.glColor4f(*color)
-        ac.glQuad(*bar)
+        ac.glQuad(*p_bar)
 
         ac.setFontColor(self.__lb, color[0], color[1], color[2], color[3])
         ac.setText(self.__lb, "{} RPM".format(rpm))
@@ -417,6 +413,7 @@ class Temps(BoxComponent):
 
         # Initial size is 160x256
         super(Temps, self).__init__(176.0, 0.0, 160.0, 256.0, 16.0)
+        self.__mult = 1.0
         self.resize(resolution)
 
     def draw(self, data, delta_t: float) -> None:

@@ -1,0 +1,9 @@
+[FORMAT]
+max-line-length=180
+
+[MESSAGES CONTROL]
+# Disable the message, report, category or checker with the given id(s). You
+# can either give multiple identifier separated by comma (,) or put this option
+# multiple time (only on the command line, not in the configuration file where
+# it should appear only once).
+disable=bare-except,broad-exception-raised,consider-using-f-string,consider-using-dict-items,global-statement,import-error,invalid-name,super-with-arguments,too-few-public-methods,too-many-arguments,too-many-instance-attributes,too-many-statements,unused-argument
