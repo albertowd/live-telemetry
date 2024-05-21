@@ -23,14 +23,17 @@ class Data:
         self.max_torque = 0.0
         self.rpm = 0.0
         self.timestamp = 0
+        self.turbo_boost = 0.0
 
     def update(self, info_arg):
         """ Update the default values from the car engine. """
+        #log(info_arg.physics.turboBoost)
         self.max_power = info_arg.static.maxPower
         self.max_rpm = info_arg.static.maxRpm
         self.max_torque = info_arg.static.maxTorque
         self.rpm = info_arg.physics.rpms
         self.timestamp = info_arg.graphics.iCurrentTime
+        self.turbo_boost = info_arg.physics.turboBoost
 
 
 class EngineInfo:

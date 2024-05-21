@@ -329,8 +329,11 @@ class RPMPower(BoxComponent):
         super(RPMPower, self).__init__(0.0, 0.0, 512.0, 50.0)
         self._back.color = Colors.black
 
-        self.__lb = ac.addLabel(window_id, "- RPM")
-        ac.setFontAlignment(self.__lb, "center")
+        self.__lb_hp = ac.addLabel(window_id, "- HP")
+        ac.setFontAlignment(self.__lb_hp, "left")
+
+        self.__lb_rpm = ac.addLabel(window_id, "- RPM")
+        ac.setFontAlignment(self.__lb_rpm, "right")
 
         self.resize(resolution)
 
@@ -339,6 +342,8 @@ class RPMPower(BoxComponent):
 
         rpm = data.rpm
         ratio = min(rpm / data.max_rpm, 1.0)
+        torque = self.__calc.interpolate(rpm)
+        hp = int(torque * ( 1.0 + data.turbo_boost))
 
         p_bar = copy.copy(self._box.rect)
         p_bar[2] *= ratio
@@ -347,13 +352,18 @@ class RPMPower(BoxComponent):
         ac.glColor4f(*color)
         ac.glQuad(*p_bar)
 
-        ac.setFontColor(self.__lb, color[0], color[1], color[2], color[3])
-        ac.setText(self.__lb, "{} RPM".format(rpm))
+        ac.setFontColor(self.__lb_hp, color[0], color[1], color[2], color[3])
+        ac.setText(self.__lb_hp, "{} HP".format(hp))
+        ac.setFontColor(self.__lb_rpm, color[0], color[1], color[2], color[3])
+        ac.setText(self.__lb_rpm, "{} RPM".format(rpm))
 
     def resize_fonts(self, resolution: str) -> None:
-        ac.setFontSize(self.__lb, self._font)
+        ac.setFontSize(self.__lb_hp, self._font)
         ac.setPosition(
-            self.__lb, self._box.center[0], self._box.rect[1] + self._box.rect[3])
+            self.__lb_hp, self._box.rect[0], self._box.rect[1] + self._box.rect[3])
+        ac.setFontSize(self.__lb_rpm, self._font)
+        ac.setPosition(
+            self.__lb_rpm, self._box.rect[0] + self._box.rect[2], self._box.rect[1] + self._box.rect[3])
 
 
 class Suspension(BoxComponent):
