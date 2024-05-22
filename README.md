@@ -1,4 +1,4 @@
-# Live Telemetry 1.6.1
+# Live Telemetry 1.7.0
 
 An Assetto Corsa app to view real time telemetry.
 
@@ -8,10 +8,11 @@ The app show on screen real time telemetry of engine, each tire and suspension i
 
 The app uses the mod file directly or the encrypted Kunos files to calculate it's limits, does not need configuration.
 
-[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/screenshot.jpg)](https://www.youtube.com/watch?v=KI4pK0c7n1Q)
+[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/screenshot.jpg)](https://www.youtube.com/watch?v=TQ6D9RuJS1g)
 
 ### Telemetry Info
 
+* Engine RPM/Torque (HP).
 * Engine RPM/Power.
 * Suspension height (mm).
 * Suspension travel (%).
@@ -40,7 +41,11 @@ The engine window will display the actual RPM with some color variation. The col
 * <span style="color:red">red</span>: below 99.5% but over the peak RPM power (decreasing curve).
 * <span style="color:green">green</span>: power above 99.5% (you should shift here, but some times not...).
 
-The power curve is a complex thing to calculate because it depends the actual RPM power combined with the next gear RPM power that will be shifted. But I don't know how much RPM will decrease over the shift action so I cannot predict the next gear RPM power. So the app calculates the best gear shift over the 99.5% RPM power and bellow the max RPM power on the engine power curve (`.lut` file defined in the `engine.ini` as `POWER CURVE`).
+The power curve is a complex thing to calculate because it depends the actual RPM power combined with the next gear RPM power that will be shifted. But I don't know how much RPM will decrease over the shift action so I cannot predict the next gear RPM power. So the app calculates the best gear shift over the 99.5% RPM power and bellow the max RPM power on the engine power curve (`.lut` file defined in the `engine.ini` as `POWER CURVE`). Also, the HP displaed together is the current power or torque from the power cure mupltiplied by the current boost pressure `hp = power * ( 1 + boost )`.
+
+Also, it displays the current boost bar pression:
+* <span style="color:white">white</span>: current power below 90%.
+* <span style="color:green">green</span>: current boost pressure above 90%.
 
 ### Wheel Window
 
@@ -56,9 +61,9 @@ Each wheel window will display a lot of information:
   
   The suspension bar shows the actual travel. Now it uses the Python API to fetch correct values. But if the mod does not have max suspension travel, it will dynamically change the max value based on each data current travel value and change its normal color to blue (aka Kunos Alfa 155). Also, the drawed color is the worst of the last 60 frames to not change it so fast (the log will still logs each frame data). It changes color warn about the percentage level:
 
-  * <span style="color:white">white</span>: between 90% and 10%.</span>
-  * <span style="color:blue">blue</span>: between 90% and 10% if the suspension is using dynamic values.</span>
-  * <span style="color:yellow">yellow</span>: between 95% and 90% and between 10% and 5%.</span>
+  * <span style="color:white">white</span>: between 90% and 10%.
+  * <span style="color:blue">blue</span>: between 90% and 10% if the suspension is using dynamic values.
+  * <span style="color:yellow">yellow</span>: between 95% and 90% and between 10% and 5%.
   * <span style="color:red">red</span>: above 95% and below 5%.
   
 * Tire dirt level (as an uprising brown bar).
@@ -105,6 +110,7 @@ Each wheel window will display a lot of information:
   * <span style="color:blue">blue</span>: ABS working.
   * <span style="color:white">red</span>: wheel locked up (mostly cars with no ABS).
   * <span style="color:white">white</span>: wheel being a regular wheel.
+
 ### CSV Log
 
 All engine and wheels logs are stored in the folder `Documents/Assetto Corsa/logs` within CSV files. It can be toggled in the `Logging` button on options window (default is off).
@@ -129,7 +135,15 @@ Each component have a button designed to scale all the components to best fit ea
 
 ### App Install
 
-#### New Installation
+#### Content Manager Installation and Update
+
+Just drag the compressed folder to the Content Manager windows and accept the installation/update prompt.
+
+After the first initialization, it detects the default configurations of the app and it can be modified via Content Manager Settings page, as bellow:
+
+![Live Telemetry Settings on Content Manager](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/content-manager-app-settings.jpg)
+
+#### New Manual Installation
 
 First unzip the release content direct on your Assetto Corsa main folder (C:/Program Files (x86)/steam/steamapps/common/assettocorsa) and load the game. Select the option menu and the general sub menu. In the UI Module section will be listed this app to be checked.
 
@@ -139,7 +153,7 @@ Last step is to enter any session (online, practice, race) and select the desire
 
 ![Session Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/session-menu.jpg)
 
-#### Update Insatllation
+#### Update Manual Insatllation
 
 For 1.4.1+ versions, just extract the .zip file on the AC folder.
 
@@ -147,8 +161,16 @@ For olders versions, its recommended to delete the plugins files from the foder 
 
 ## Changelog
 
+1.7.0
+   - Added Turbo boost bar.
+   - Added HP value on RPM bar.
+   - Config file now uses the `<install folder>/cfg` folder.
+   - Fixed more compatibility issues due to missmoduling by name.
+   - Fixed texts still drawing on screen on engine hide.
+   - Now it supports AC Manager configuration.
+
 1.6.1
-   - Config file now uses the `Document/Assetto Corsa/cfg folder`.
+   - Config file now uses the `Document/Assetto Corsa/cfg` folder.
    - Fixed 100% static revbar (Mazda Rx7, ...).
    - Fixed crashes on RSS other mods with Copyright comments within `.lut` files.
    - New ABS indicator (still in beta) can be enabled through the config LT window.

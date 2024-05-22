@@ -6,7 +6,6 @@ Module to update one wheel infos from car and draw on screen.
 @author: albertowd
 """
 import copy
-import sys
 
 import ac
 import acsys
@@ -19,7 +18,8 @@ from lib.lt_util import WheelPos
 from lib.sim_info import info
 
 
-class Data(object):
+class Data:
+    """ Data object to keep values between updates. """
 
     def __init__(self):
         self.abs_active = False
@@ -32,6 +32,7 @@ class Data(object):
         self.susp_v = False
         self.timestamp = 0
         self.tire_d = 0.0
+        self.tire_l = 0.0
         self.tire_p = 0.0
         self.tire_t_c = 0.0
         self.tire_t_i = 0.0
@@ -40,22 +41,20 @@ class Data(object):
         self.tire_w = 0.0
         #self.wheel_slip_ratio = 0.0
 
-    def update(self, wheel, info):
+    def update(self, wheel, info_arg):
+        """ Update the default values from the car engine. """
         index = wheel.index()
-        
+
         #self.abs_slip_ratio = info.physics.abs
         self.abs_active = info.physics.brake > 0.0 and info.physics.wheelSlip[index] > info.physics.abs
         self.camber = info.physics.camberRAD[index]
         self.lock = info.physics.brake > 0.0 and info.physics.wheelSlip[index] > 0.0 and info.physics.wheelAngularSpeed[index] == 0.0
 
-        """
-        Some cars the suspension travel from the shared memory is broken.
-
-        Example:
-        Shared Memory Max travel: 0.15000000596046448mm
-        Python travel: 0.08263124525547028mm => 0.5508749464799981%
-        Shared Memory Travel: 0.15007904171943665mm => 1.0005269050388772%
-        """
+        #Some cars the suspension travel from the shared memory is broken.
+        #Example:
+        #Shared Memory Max travel: 0.15000000596046448mm
+        #Python travel: 0.08263124525547028mm => 0.5508749464799981%
+        #Shared Memory Travel: 0.15007904171943665mm => 1.0005269050388772%
         # self.susp_t = info.physics.suspensionTravel[index]
         python_travel = ac.getCarState(0, acsys.CS.SuspensionTravel)
         self.susp_t = python_travel[index]
@@ -93,7 +92,7 @@ class Data(object):
         #self.wheel_slip_ratio = info.physics.wheelSlip[index]
 
 
-class WheelInfo(object):
+class WheelInfo:
     """ Wheel info to draw and update each wheel. """
 
     def __init__(self, acd: ACD, configs: Config, wheel_index: int) -> None:
@@ -180,7 +179,7 @@ class WheelInfo(object):
         """ Draws all info on screen. """
         ac.setBackgroundOpacity(self.__window_id, 0.0)
         for component in self.__components:
-            if self.__options[type(component).__name__] == True:
+            if self.__options[type(component).__name__] is True:
                 ac.glColor4f(*Colors.white)
                 component.draw(self.__data, delta_t)
             else:
@@ -205,5 +204,5 @@ class WheelInfo(object):
     def update(self, delta_t: float) -> None:
         """ Updates the wheel information. """
         self.__data.update(self.__wheel, self.__info)
-        if self.__options["Logging"] == True:
+        if self.__options["Logging"] is True:
             self.__data_log.append(copy.copy(self.__data))

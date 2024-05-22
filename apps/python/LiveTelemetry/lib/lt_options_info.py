@@ -10,18 +10,18 @@ from math import floor
 
 import ac
 
-from lib.lt_components import BoxComponent
 from lib.lt_colors import Colors
 from lib.lt_config import Config
 
 
-class OptionsInfo(object):
+class OptionsInfo:
     """ Options info to change app options while in game. """
 
     def __init__(self, configs: Config):
         """ Default constructor. """
         self.__buttons = {}
         self.__options = {
+            "BoostBar": configs.get_bool_option("BoostBar"),
             "Camber": configs.get_bool_option("Camber"),
             "Dirt": configs.get_bool_option("Dirt"),
             "Height": configs.get_bool_option("Height"),

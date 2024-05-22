@@ -10,28 +10,33 @@ import copy
 import ac
 
 from lib.lt_colors import Colors
-from lib.lt_components import BoxComponent, RPMPower
+from lib.lt_components import BoostBar, BoxComponent, RPMPower
 from lib.sim_info import info
 
 
-class Data(object):
+class Data:
+    """ Data object to keep values between updates. """
 
     def __init__(self):
         self.max_power = 0.0
         self.max_rpm = 0.0
-        self.max_torque = 0.0
+        self.max_turbo_boost = 0.0
         self.rpm = 0.0
         self.timestamp = 0
+        self.turbo_boost = 0.0
 
-    def update(self, info):
-        self.max_power = info.static.maxPower
-        self.max_rpm = info.static.maxRpm
-        self.max_torque = info.static.maxTorque
-        self.rpm = info.physics.rpms
-        self.timestamp = info.graphics.iCurrentTime
+    def update(self, info_arg):
+        """ Update the default values from the car engine. """
+        self.max_power = info_arg.static.maxPower
+        self.max_rpm = info_arg.static.maxRpm
+        #self.max_turbo_boost = info_arg.static.maxTurboBoost
+        self.rpm = info_arg.physics.rpms
+        self.timestamp = info_arg.graphics.iCurrentTime
+        self.turbo_boost = info_arg.physics.turboBoost
+        self.max_turbo_boost = max(self.max_turbo_boost, self.turbo_boost)
 
 
-class EngineInfo(object):
+class EngineInfo:
     """ Engine info to draw and update. """
 
     def __init__(self, acd, configs):
@@ -41,6 +46,7 @@ class EngineInfo(object):
         self.__data_log = []
         self.__info = info
         self.__options = {
+            "BoostBar": configs.get_bool_option("BoostBar"),
             "Logging": configs.get_bool_option("Logging"),
             "RPMPower": configs.get_bool_option("RPMPower")
         }
@@ -58,6 +64,7 @@ class EngineInfo(object):
         ac.setSize(self.__window_id, 512 * mult, 85 * mult)
 
         self.__components = []
+        self.__components.append(BoostBar(acd, size, self.__window_id))
         self.__components.append(RPMPower(acd, size, self.__window_id))
 
         # Only starts to draw after the setup.
@@ -91,9 +98,11 @@ class EngineInfo(object):
         """ Draws all info on screen. """
         ac.setBackgroundOpacity(self.__window_id, 0.0)
         for component in self.__components:
-            if self.__options[type(component).__name__] == True:
+            if self.__options[type(component).__name__] is True:
                 ac.glColor4f(*Colors.white)
                 component.draw(self.__data, delta_t)
+            else:
+                component.clear()
         ac.glColor4f(*Colors.white)
 
     def resize(self, resolution):
@@ -114,5 +123,5 @@ class EngineInfo(object):
     def update(self, delta_t: float):
         """ Updates the engine information. """
         self.__data.update(self.__info)
-        if self.__options["Logging"] == True:
+        if self.__options["Logging"] is True:
             self.__data_log.append(copy.copy(self.__data))

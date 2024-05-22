@@ -11,8 +11,7 @@ from sys import path
 import os
 
 # Using the right platform ctypes.
-path.append(os.path.join(os.path.dirname(
-    __file__), "stdlib64" if architecture()[0] == "64bit" else "stdlib"))
+path.append(os.path.join(os.path.dirname(__file__), "stdlib64" if architecture()[0] == "64bit" else "stdlib"))
 
 # Using app path to set root folder.
 os.environ["PATH"] = "{};.".format(os.environ["PATH"])

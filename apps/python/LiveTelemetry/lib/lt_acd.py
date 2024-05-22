@@ -16,7 +16,7 @@ import os
 from lib.lt_util import log
 
 
-class ACD(object):
+class ACD:
     """ Stores the ACD file contents. """
 
     def __init__(self, path):
@@ -108,7 +108,7 @@ class ACD(object):
             file_path = "{}/{}".format(path, file_name)
             if os.path.isfile(file_path):
                 try:
-                    with open(file_path, "r") as r:
+                    with open(file_path, "r") as r: # pylint: disable=unspecified-encoding
                         self.set_file(r.read(), file_name)
                 except:
                     log("Failed to open file {}:".format(file_name))
@@ -180,8 +180,7 @@ class ACD(object):
         """ Returns the content of an inner file. """
         if name in self.__files:
             return self.__files[name]
-        else:
-            return ""
+        return ""
 
     def get_ideal_pressure(self, compound, wheel):
         """ Returns the compound ideal pressure. """
@@ -210,62 +209,6 @@ class ACD(object):
             return self.filter_mod_file_content(file_content)
         except:
             log("Failed to get rpm power curve:")
-            for info in exc_info():
-                log(info)
-            raise
-
-    def get_rpm_downshift(self):
-        config = ConfigParser(
-            empty_lines_in_values=False, inline_comment_prefixes=(";",))
-        config.read_string(self.get_file("drivetrain.ini"))
-
-        try:
-            return float(config.get("AUTO_SHIFTER", "DOWN"))
-        except:
-            log("Failed to get rpm downshift value:")
-            for info in exc_info():
-                log(info)
-            raise
-
-    def get_rpm_damage(self):
-        config = ConfigParser(
-            empty_lines_in_values=False, inline_comment_prefixes=(";",))
-        config.read_string(self.get_file("engine.ini"))
-
-        try:
-            if config.has_option("DAMAGE", "RPM_THRESHOLD"):
-                res = config.get("DAMAGE", "RPM_THRESHOLD")
-            else:
-                res = self.get_rpm_limiter() + 100
-            return float(res)
-        except:
-            log("Failed to get rpm damage value:")
-            for info in exc_info():
-                log(info)
-            raise
-
-    def get_rpm_limiter(self):
-        config = ConfigParser(
-            empty_lines_in_values=False, inline_comment_prefixes=(";",))
-        config.read_string(self.get_file("engine.ini"))
-
-        try:
-            return float(config.get("ENGINE_DATA", "LIMITER"))
-        except:
-            log("Failed to get rpm limiter value:")
-            for info in exc_info():
-                log(info)
-            raise
-
-    def get_rpm_upshift(self):
-        config = ConfigParser(
-            empty_lines_in_values=False, inline_comment_prefixes=(";",))
-        config.read_string(self.get_file("drivetrain.ini"))
-
-        try:
-            return float(config("AUTO_SHIFTER", "UP"))
-        except:
-            log("Failed to get rpm upshit value:")
             for info in exc_info():
                 log(info)
             raise
