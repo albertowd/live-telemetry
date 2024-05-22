@@ -29,10 +29,11 @@ class Data:
         """ Update the default values from the car engine. """
         self.max_power = info_arg.static.maxPower
         self.max_rpm = info_arg.static.maxRpm
-        self.max_turbo_boost = info_arg.static.maxTurboBoost
+        #self.max_turbo_boost = info_arg.static.maxTurboBoost
         self.rpm = info_arg.physics.rpms
         self.timestamp = info_arg.graphics.iCurrentTime
         self.turbo_boost = info_arg.physics.turboBoost
+        self.max_turbo_boost = max(self.max_turbo_boost, self.turbo_boost)
 
 
 class EngineInfo:
