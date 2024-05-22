@@ -54,24 +54,18 @@ def acMain(ac_version: str) -> None:
 
     log("Loading options window...")
     LT_OPTIONS_INFO = OptionsInfo(LT_CONFIGS)
-    ac.addOnClickedListener(
-        LT_OPTIONS_INFO.get_button_id("Camber"), on_click_camber)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("BoostBar"), on_click_boost)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Camber"), on_click_camber)
     ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Dirt"), on_click_dirt)
-    ac.addOnClickedListener(
-        LT_OPTIONS_INFO.get_button_id("Height"), on_click_height)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Height"), on_click_height)
     ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Load"), on_click_load)
     ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Lock"), on_click_lock)
-    ac.addOnClickedListener(
-        LT_OPTIONS_INFO.get_button_id("Logging"), on_click_logging)
-    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id(
-        "Pressure"), on_click_pressure)
-    ac.addOnClickedListener(
-        LT_OPTIONS_INFO.get_button_id("RPMPower"), on_click_rpm)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Logging"), on_click_logging)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Pressure"), on_click_pressure)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("RPMPower"), on_click_rpm)
     ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Size"), on_click_size)
-    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id(
-        "Suspension"), on_click_suspension)
-    ac.addOnClickedListener(
-        LT_OPTIONS_INFO.get_button_id("Temps"), on_click_temps)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Suspension"), on_click_suspension)
+    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Temps"), on_click_temps)
     ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Tire"), on_click_tire)
     ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Wear"), on_click_wear)
 
@@ -182,6 +176,11 @@ def on_activation(window_id: int) -> None:
             info.set_active(True)
 
 
+def on_click_boost(pos_x: int, pos_y: int) -> None:
+    """ Handles the click in one of the options boost bar button. """
+    toggle_option("BoostBar")
+
+
 def on_click_camber(pos_x: int, pos_y: int) -> None:
     """ Handles the click in one of the options camber button. """
     toggle_option("Camber")
@@ -272,14 +271,12 @@ def on_dismiss(window_id: int) -> None:
 
 def on_render_engine(delta_t: float) -> None:
     """ Called every frame. """
-    log("Rendering engine")
     if LT_ENGINE_INFO.is_active():
         LT_ENGINE_INFO.draw(delta_t)
 
 
 def on_render_fl(delta_t: float) -> None:
     """ Called every frame. """
-    log("Rendering fl")
     info = LT_WHEEL_INFOS["FL"]
     if info.is_active():
         info.draw(delta_t)

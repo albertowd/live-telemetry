@@ -20,16 +20,20 @@ class Config:
     def __init__(self, lt_version: str) -> None:
         """ Loads or creates the app configuration file. """
 
-        docs_path = get_docs_path()
-        self.__configs = ConfigParser()
-        if path.isfile("{}/Assetto Corsa/cfg/apps/LiveTelemetry.ini".format(docs_path)):
-            self.__configs.read("{}/Assetto Corsa/cfg/apps/LiveTelemetry.ini".format(docs_path))
+        self.__base_path = path.join(path.dirname(path.realpath(__file__)), "..", "cfg")
+        settings_path = path.join(self.__base_path, "conf.ini")
+
+        self.__configs = ConfigParser(allow_no_value=True, comment_prefixes=(";","#","/","_"), empty_lines_in_values=False, inline_comment_prefixes=(";","#","/","_"), strict=False)
+        if path.isfile(settings_path):
+            self.__configs.read(settings_path)
+        else:
+            log("Settings file not found. Using default values instead!")
 
         # If the config does not have it's version or is invalid, create a new one.
         try:
             config_version = self.get_version()
             if config_version != lt_version:
-                log("Old config file. Could make things crash!")
+                log("Version missmatch. Using default values instead!")
                 raise Exception("Old config file.")
         except:
             log("Creating new config file.")
@@ -38,6 +42,7 @@ class Config:
             self.__configs["Windows"] = {}
             self.__configs["Windows Positions"] = {}
 
+            self.set_option("BoostBar", True)
             self.set_option("Camber", True)
             self.set_option("Dirt", True)
             self.set_option("Height", True)
@@ -58,18 +63,19 @@ class Config:
             self.set_window_active("RL", False)
             self.set_window_active("RR", False)
 
-            h = 720
-            w = 1280
+            h = 1080
+            w = 1920
 
+            docs_path = get_docs_path()
             if len(docs_path) > 0:
                 try:
                     video = ConfigParser()
                     video.read(
                         "{}/Assetto Corsa/cfg/video.ini".format(docs_path))
                     h = int(video.get("VIDEO", "HEIGHT")) if video.has_option(
-                        "VIDEO", "HEIGHT") else 720
+                        "VIDEO", "HEIGHT") else h
                     w = int(video.get("VIDEO", "WIDTH")) if video.has_option(
-                        "VIDEO", "WIDTH") else 1280
+                        "VIDEO", "WIDTH") else w
                 except:
                     log("Could not get 'cfg/video.ini' video options, using default 1280x720 resolution:")
                     for info in exc_info():
@@ -118,8 +124,7 @@ class Config:
 
     def save_config(self) -> None:
         """ Writes the actual options on the configuration file. """
-        docs_path = get_docs_path()
-        with open("{}/Assetto Corsa/cfg/apps/LiveTelemetry.ini".format(docs_path), "w", encoding="utf-8") as cfg_file:
+        with open(path.join(self.__base_path, "conf.ini"), "w", encoding="utf-8") as cfg_file:
             self.__configs.write(cfg_file)
 
     def set_option(self, name: str, value) -> None:

@@ -10,7 +10,7 @@ import copy
 import ac
 
 from lib.lt_colors import Colors
-from lib.lt_components import BoxComponent, RPMPower
+from lib.lt_components import BoostBar, BoxComponent, RPMPower
 from lib.sim_info import info
 
 
@@ -20,17 +20,16 @@ class Data:
     def __init__(self):
         self.max_power = 0.0
         self.max_rpm = 0.0
-        self.max_torque = 0.0
+        self.max_turbo_boost = 0.0
         self.rpm = 0.0
         self.timestamp = 0
         self.turbo_boost = 0.0
 
     def update(self, info_arg):
         """ Update the default values from the car engine. """
-        #log(info_arg.physics.turboBoost)
         self.max_power = info_arg.static.maxPower
         self.max_rpm = info_arg.static.maxRpm
-        self.max_torque = info_arg.static.maxTorque
+        self.max_turbo_boost = info_arg.static.maxTurboBoost
         self.rpm = info_arg.physics.rpms
         self.timestamp = info_arg.graphics.iCurrentTime
         self.turbo_boost = info_arg.physics.turboBoost
@@ -64,6 +63,7 @@ class EngineInfo:
 
         self.__components = []
         self.__components.append(RPMPower(acd, size, self.__window_id))
+        self.__components.append(BoostBar(acd, size, self.__window_id))
 
         # Only starts to draw after the setup.
         self.set_active(configs.is_window_active("EN"))

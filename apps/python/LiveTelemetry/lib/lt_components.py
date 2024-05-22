@@ -69,10 +69,8 @@ class Box:
 class BoxComponent:
     """ Class to handle position and resize of a component. """
 
-    resolutions = ["240p", "360p", "480p", "576p",
-                   "HD", "FHD", "1440p", "UHD", "4K", "8K", "480p"]
-    resolution_map = {"240p": 0.16, "360p": 0.25, "480p": 0.33, "576p": 0.4, "HD": 0.5,
-                      "FHD": 0.75, "1440p": 1.0, "UHD": 1.5, "4K": 1.6, "8K": 3.0}
+    resolutions = ["240p", "360p", "480p", "576p","HD", "FHD", "1440p", "UHD", "4K", "8K"]
+    resolution_map = {"240p": 0.16, "360p": 0.25, "480p": 0.33, "576p": 0.4, "HD": 0.5, "FHD": 0.75, "1440p": 1.0, "UHD": 1.5, "4K": 1.6, "8K": 3.0}
 
     def __init__(self, p_x=0.0, p_y=0.0, width=100.0, height=100.0, font=24.0):
         self.__ini_font = font
@@ -104,6 +102,40 @@ class BoxComponent:
 
     def resize_fonts(self, resolution: str) -> None:
         """ Resize all the ac components with text. Must be overrided. """
+
+
+class BoostBar(BoxComponent):
+    """ Class to handle boost bar change. """
+
+    def __init__(self, acd: ACD, resolution: str, window_id: int):
+        # Initial size is 512x85
+        super(BoostBar, self).__init__(0.0, -24.0, 512.0, 24.0)
+        self._back.color = Colors.black
+
+        self.__lb = ac.addLabel(window_id, "- bar")
+        ac.setFontAlignment(self.__lb, "center")
+
+        self.resize(resolution)
+
+    def draw(self, data, delta_t: float) -> None:
+        self._draw()
+
+        turbo_boost = data.turbo_boost
+        ratio = max(0.0, turbo_boost / max(0.1, data.max_turbo_boost))
+
+        p_bar = copy.copy(self._box.rect)
+        p_bar[2] *= ratio
+
+        color = Colors.white if ratio < 0.9 else Colors.green
+        ac.glColor4f(*color)
+        ac.glQuad(*p_bar)
+
+        ac.setFontColor(self.__lb, color[0], color[1], color[2], color[3])
+        ac.setText(self.__lb, "{:.2f} bar".format(max(0.0, turbo_boost)))
+
+    def resize_fonts(self, resolution: str) -> None:
+        ac.setFontSize(self.__lb, self._font)
+        ac.setPosition(self.__lb, self._box.center[0], self._box.rect[1] - self._font - 8)
 
 
 class Camber(BoxComponent):

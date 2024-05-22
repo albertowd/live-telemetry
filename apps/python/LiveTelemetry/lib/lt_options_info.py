@@ -21,6 +21,7 @@ class OptionsInfo:
         """ Default constructor. """
         self.__buttons = {}
         self.__options = {
+            "BoostBar": configs.get_bool_option("BoostBar"),
             "Camber": configs.get_bool_option("Camber"),
             "Dirt": configs.get_bool_option("Dirt"),
             "Height": configs.get_bool_option("Height"),
