@@ -148,11 +148,11 @@ For olders versions, its recommended to delete the plugins files from the foder 
 ## Changelog
 
 1.7.0
-   - Added Content Manager config support.
    - Added Turbo boost bar.
    - Added HP value on RPM bar.
-   - Config file now uses the `Document/Assetto Corsa/cfg/app` folder.
+   - Config file now uses the `<install folder>/cfg` folder.
    - Fixed more compatibility issues due to missmoduling by name.
+   - Now it supports AC Manager configuration.
 
 1.6.1
    - Config file now uses the `Document/Assetto Corsa/cfg` folder.
