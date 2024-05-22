@@ -45,6 +45,7 @@ class EngineInfo:
         self.__data_log = []
         self.__info = info
         self.__options = {
+            "BoostBar": configs.get_bool_option("BoostBar"),
             "Logging": configs.get_bool_option("Logging"),
             "RPMPower": configs.get_bool_option("RPMPower")
         }
@@ -62,8 +63,8 @@ class EngineInfo:
         ac.setSize(self.__window_id, 512 * mult, 85 * mult)
 
         self.__components = []
-        self.__components.append(RPMPower(acd, size, self.__window_id))
         self.__components.append(BoostBar(acd, size, self.__window_id))
+        self.__components.append(RPMPower(acd, size, self.__window_id))
 
         # Only starts to draw after the setup.
         self.set_active(configs.is_window_active("EN"))
