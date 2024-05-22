@@ -12,8 +12,8 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
 
 ### Telemetry Info
 
-* Engine RPM/Torque (HP).
-* Engine RPM/Power.
+* Engine boost pressure (bar).
+* Engine RPM/HP.
 * Suspension height (mm).
 * Suspension travel (%).
 * Tire pressure (psi).
