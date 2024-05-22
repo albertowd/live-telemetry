@@ -100,6 +100,8 @@ class EngineInfo:
             if self.__options[type(component).__name__] is True:
                 ac.glColor4f(*Colors.white)
                 component.draw(self.__data, delta_t)
+            else:
+                component.clear()
         ac.glColor4f(*Colors.white)
 
     def resize(self, resolution):

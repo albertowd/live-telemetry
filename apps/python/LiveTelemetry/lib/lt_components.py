@@ -117,6 +117,9 @@ class BoostBar(BoxComponent):
 
         self.resize(resolution)
 
+    def clear(self) -> None:
+        ac.setText(self.__lb, "")
+
     def draw(self, data, delta_t: float) -> None:
         self._draw()
 
@@ -368,6 +371,10 @@ class RPMPower(BoxComponent):
         ac.setFontAlignment(self.__lb_rpm, "right")
 
         self.resize(resolution)
+
+    def clear(self) -> None:
+        ac.setText(self.__lb_hp, "")
+        ac.setText(self.__lb_rpm, "")
 
     def draw(self, data, delta_t: float) -> None:
         self._draw()
