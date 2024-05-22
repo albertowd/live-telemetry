@@ -147,8 +147,15 @@ For olders versions, its recommended to delete the plugins files from the foder 
 
 ## Changelog
 
+1.7.0
+   - Added Content Manager config support.
+   - Added Turbo boost bar.
+   - Added HP value on RPM bar.
+   - Config file now uses the `Document/Assetto Corsa/cfg/app` folder.
+   - Fixed more compatibility issues due to missmoduling by name.
+
 1.6.1
-   - Config file now uses the `Document/Assetto Corsa/cfg folder`.
+   - Config file now uses the `Document/Assetto Corsa/cfg` folder.
    - Fixed 100% static revbar (Mazda Rx7, ...).
    - Fixed crashes on RSS other mods with Copyright comments within `.lut` files.
    - New ABS indicator (still in beta) can be enabled through the config LT window.
