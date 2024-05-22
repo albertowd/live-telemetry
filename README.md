@@ -152,6 +152,7 @@ For olders versions, its recommended to delete the plugins files from the foder 
    - Added HP value on RPM bar.
    - Config file now uses the `<install folder>/cfg` folder.
    - Fixed more compatibility issues due to missmoduling by name.
+   - Fixed texts still drawing on screen on engine hide.
    - Now it supports AC Manager configuration.
 
 1.6.1
