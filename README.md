@@ -203,36 +203,58 @@ Boost bar:
 
 ![Wheel Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-wheel.jpg)
 
-Each wheel window shows:
+Every element is laid out around a central tire silhouette and mirrored on the left/right windows. Per-frame values are computed in `lib/lt_wheel_info.py:Data.update` and rendered by the matching subclass in `lib/lt_components.py`. Per-car limits (ideal pressure, thermal curves, suspension max, ABS slip target, …) come from the car's `data.acd` (or unpacked `data/` folder) at construction time — no value is "hardcoded per car".
 
-* **Suspension height (mm).** AC only exposes front/rear ride height, so left/right are interpolated from the opposite-side suspension travel difference.
-* **Suspension travel (%).** Bar uses `acsys.CS.SuspensionTravel` (more reliable than shared memory). When the car has no `suspensionMaxTravel` (some mods, e.g. Kunos Alfa 155), the max is computed dynamically from the running maximum and the bar turns blue. The displayed colour is the *worst* of the last 60 frames, to avoid flicker; the CSV log records each frame untouched.
+* **Suspension height (mm).** AC's shared memory only exposes one ride-height per axle (`physics.rideHeight[0]` for front, `[1]` for rear), so per-wheel height is reconstructed by subtracting half the difference between this wheel's suspension travel and the opposite-side wheel's. The textured background flashes red for `WARNING_TIME_S = 0.5 s` whenever the value drops below 0.02 mm — i.e. the chassis is scraping the surface.
+
+* **Suspension travel (%).** Bar uses `acsys.CS.SuspensionTravel` (the Python API value) instead of `physics.suspensionTravel`, because the shared-memory field is broken on several mods — the original 1.6.0 changelog and the comment in `Data.update` document a specific case where shared memory reported >100% travel while the API reported ~55%. When the car has no `suspensionMaxTravel` (some mods, e.g. Kunos Alfa 155), the max is computed dynamically from the running observed maximum and the bar turns blue to indicate "max is an estimate". The displayed colour is the *worst* of the last 60 frames, so a single-frame compression spike won't make the indicator flicker — but the CSV log records every frame untouched.
   * <span style="color:white">white</span> — 10%–90%
   * <span style="color:blue">blue</span> — 10%–90% with dynamic max
   * <span style="color:yellow">yellow</span> — 5%–10% or 90%–95%
   * <span style="color:red">red</span> — below 5% or above 95%
-* **Tire dirt** — brown rising bar.
-* **Tire pressure (psi).** Interpolated against `PRESSURE_IDEAL` from `tyres.ini`.
+
+* **Tire dirt.** Vertical brown bar that rises with `physics.tyreDirtyLevel[i]`, scaled ×4 so the bar reaches full height around AC's typical dirty-level cap (~0.25). No colour states — height only — and no per-car configuration.
+
+* **Tire pressure (psi).** `physics.wheelsPressure[i]` interpolated against the per-compound `PRESSURE_IDEAL` from `tyres.ini`. The compound section is resolved by scanning `FRONT_<n>` / `REAR_<n>` blocks for a `SHORT_NAME` matching the current `ac.getCarTyreCompound(0)`, falling back to the `[COMPOUND_DEFAULT] INDEX` value. The colour interpolation thresholds live in `lib/lt_interpolation.py:TirePsi.interpolate_color`.
   * <span style="color:blue">blue</span> — below 95%
   * <span style="color:blue">blue</span>→<span style="color:green">green</span> — 95%–100%
   * <span style="color:green">green</span>→<span style="color:red">red</span> — 100%–105%
   * <span style="color:red">red</span> — above 105%
-* **Tire temps (ºC).** Core plus inner / middle / outer (relative to the suspension), with the tire border showing the weighted average (75% core + 25% mean of outer probes).
+
+* **Tire temps (ºC).** Inner / middle / outer probes (`physics.tyreTempI/M/O[i]`) plus the core (`physics.tyreCoreTemperature[i]`). Each segment is coloured independently against the compound's `THERMAL_<section> → PERFORMANCE_CURVE` lookup from `tyres.ini`, parsed once on plugin start and interpolated by `lib/lt_interpolation.py:TireTemp`. The "I/M/O" labelling is *suspension-relative* — the inner edge of the tire as the suspension geometry sees it, not the steering rack — so on a left-side wheel the rendered "Inner" probe is the chassis-side temperature.
+
+  Separately, the **`Tire` widget** (the whole-tire silhouette) is tinted using a weighted average — `0.75 × core + 0.25 × mean(I, M, O)` — so the overall colour reflects bulk working temperature instead of just surface contact. `Tire` and `Temps` are independently toggleable from the Options window.
   * <span style="color:blue">blue</span> — below 98%
   * <span style="color:blue">blue</span>→<span style="color:green">green</span> — 98%–100%
   * <span style="color:green">green</span>→<span style="color:red">red</span> — 100%–102%
   * <span style="color:red">red</span> — above 102%
-* **Tire wear (%).** Vertical bar.
+
+* **Tire wear (%).** `physics.tyreWear[i] / 100`. The bar maps the last **6 %** of tread (94 %–100 %) to its full vertical range — most of a tire's life is "green" and the bar only starts visibly retreating once wear becomes meaningful. Below 94 % wear the bar is fully drained but still present (red).
   * <span style="color:green">green</span> — above 98%
   * <span style="color:yellow">yellow</span> — 96%–98%
   * <span style="color:red">red</span> — below 96%
-* **Wheel camber (rad)** — represented by the asphalt inclination beneath the tire.
-  * <span style="color:green">green</span>→<span style="color:red">red</span> — 0% to 100% wear
-* **Wheel load (N)** — the white circle expands with load.
-* **Wheel lock / ABS.** Derived from `wheelSlip`, `wheelAngularSpeed`, the player's ABS setting, and the per-car `SLIP_RATIO_LIMIT` from `electronics.ini`.
+
+* **Wheel camber (rad).** `physics.camberRAD[i]`. Drawn as a tilted asphalt quad beneath the tire — the inboard/outboard vertex is offset by `tan(camber) × bar_width` so the road plane visibly tips towards positive or negative camber. Always white; no colour coding (read the angle, not the colour).
+
+* **Wheel load (N).** `physics.wheelLoad[i]`, divided by `5 × g` (49.03) before being used as the diameter of the white circle drawn behind the tire. The conversion is purely visual scaling — there's no numeric readout. The widget is most useful as a *relative* indicator: comparing circle sizes across the four wheels makes weight transfer (braking, cornering, kerb hits) immediately obvious.
+
+* **Wheel lock / ABS.** Multi-signal detector that combines `physics.brake`, `physics.wheelSlip[i]`, `physics.wheelAngularSpeed[i]`, the player's ABS assist setting (`physics.abs`), and the car's `SLIP_RATIO_LIMIT` from `electronics.ini`.
   * <span style="color:blue">blue</span> — ABS active (pulses at the car's `RATE_HZ`)
-  * <span style="color:yellow">yellow</span>, blinking — wheel locked (typically cars without ABS, or ABS overwhelmed)
+  * <span style="color:yellow">yellow</span>, blinking at 5 Hz — wheel locked (typically cars without ABS, or ABS overwhelmed)
   * <span style="color:white">white</span> — neutral
+
+  **How it is detected (and what it deliberately *isn't*).** A common pitfall is to treat `info.physics.abs` as if it were a slip-ratio threshold — it isn't. `physics.abs` is the player's ABS-assist *level*, normalised 0…1 (0 = off, 1 = max). The actual slip threshold lives per-car in `electronics.ini → [ABS] → SLIP_RATIO_LIMIT`; the plugin reads it once at construction time (`ACD.get_abs_slip_limit()`), defaulting to `0.2` for cars that don't expose one or where parsing fails.
+
+  Per frame, the detector evaluates two independent flags in `lib/lt_wheel_info.py:Data.update`:
+
+  | Flag | Condition |
+  | --- | --- |
+  | `lock` | `brake > 0` AND `slip > 0` AND (`abs(wheelAngularSpeed) < 1.0` rad/s **OR** `slip > 0.5`) |
+  | `abs_active` | `physics.abs > 0` AND `brake > 0` AND `slip > SLIP_RATIO_LIMIT` AND **not** `lock` |
+
+  The `OR` branch in the lock condition is what catches AC physics cases where a locked wheel keeps a small residual angular velocity (~0.05–0.5 rad/s) instead of going to exact zero — the previous strict `== 0.0` check missed those. The `slip > 0` gate prevents false positives on stationary cars at idle. Lock takes precedence over ABS, so a fully locked wheel always reports as a lock, never as ABS pulsing.
+
+  The blue ABS pulse rate is the car's actual `[ABS] → RATE_HZ` (read by `ACD.get_abs_hz()` and consumed in `Lock.draw`). The yellow lock blink rate is fixed at 5 Hz via `LOCK_BLINK_PERIOD_S = 0.1` in `lib/lt_components.py`. After the wheel re-grips, the lock indicator keeps blinking for `WARNING_TIME_S = 0.5` seconds so a brief lock is still visible at typical render rates.
 
 ---
 
@@ -351,6 +373,12 @@ Produces `live-telemetry-1.7.1.7z` containing `apps/` and `content/`, excluding 
 **1.7.1**
 - BoostBar widget and its options-window toggle are now hidden on naturally aspirated cars (detected via `info.static.maxTurboBoost`).
 - BoostBar option now persists across sessions (was being dropped on `acShutdown`).
+- ABS / lock detection rewritten: now reads `SLIP_RATIO_LIMIT` from each car's `electronics.ini` (`ACD.get_abs_slip_limit`), gates ABS on the player's assist setting (`physics.abs > 0`), and detects lock-up via either a near-zero angular velocity *or* an extreme slip ratio. Previously compared `wheelSlip` directly against `physics.abs`, which is the assist *level* and not a threshold — the indicator misfired on cars without ABS and was unreliable on cars with ABS.
+- Lock indicator now blinks yellow at 5 Hz instead of solid red, making brief lock-ups easier to spot.
+- Default window-active state on a fresh config is now `True` for all five widgets, fixing the "checked-but-empty" symptom after a version bump (AC's app-bar restoration does not fire the activation listener).
+- Config defaults documented in `cfg/settings_defaults.ini` now match the runtime defaults in `Config.__init__`.
+- `7z-maker.bat` accepts an optional version argument and defaults to the current release.
+- Internal: removed dead `ABSSlipList` class and dead `get_abs_slip_ratio_list` method, tightened the `acShutdown` data-flush guard (was checking the same wheel twice), assorted lint/dead-code cleanup.
 
 **1.7.0**
 - Added Turbo boost bar.
