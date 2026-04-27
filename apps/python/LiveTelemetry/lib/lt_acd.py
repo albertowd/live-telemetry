@@ -152,29 +152,23 @@ class ACD:
         else:
             return 0.0
 
-    def get_abs_slip_ratio_list(self):
-        """ Returns the abs slip ratio list. """
+    def get_abs_slip_limit(self):
+        """ Returns the car's ABS slip-ratio threshold from electronics.ini.
+
+        Falls back to 0.2 (a reasonable default for street tires) when the
+        section is missing or unparseable.
+        """
         config = ConfigParser(
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
-        config.read_string(self.get_file("electronics.ini"))
-
-        if config.has_option("ABS", "CURVE") or config.has_option("ABS", "SLIP_RATIO_LIMIT"):
-            try:
-                return self.get_file(config["ABS"]["CURVE"])
-            except:
-                log("Failed to get ABS slip ratio curve:")
-                for info in exc_info():
-                    log(info)
-                log("Trying to get ratio limit:")
-                try:
-                    return "0|{}".format(config["ABS"]["SLIP_RATIO_LIMIT"])
-                except:
-                    log("Failed to get ABS slip ratio limit:")
-                    for info in exc_info():
-                        log(info)
-                    return ""
-        else:
-            return ""
+        try:
+            config.read_string(self.get_file("electronics.ini"))
+            if config.has_option("ABS", "SLIP_RATIO_LIMIT"):
+                return float(config.get("ABS", "SLIP_RATIO_LIMIT"))
+        except:
+            log("Failed to read ABS slip limit, using default 0.2:")
+            for info in exc_info():
+                log(info)
+        return 0.2
 
     def get_file(self, name):
         """ Returns the content of an inner file. """

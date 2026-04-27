@@ -17,6 +17,7 @@ from lib.lt_interpolation import Power, TirePsi, TireTemp
 
 
 WARNING_TIME_S = 0.5
+LOCK_BLINK_PERIOD_S = 0.1  # 5 Hz blink rate for the lock indicator.
 
 
 class Background:
@@ -269,14 +270,12 @@ class Lock(BoxComponent):
         self.__abs_cycle = (1.0 / abs_hz) if abs_hz > 0.0 else 3600.0
         self.__abs_timeout_s = 0.0 if abs_hz > 0.0 else 3600.0
 
-        #log(self.__abs_cycle)
-        #log(self.__abs_timeout_s)
-
         # Initial size is 85x85
         super(Lock, self).__init__(
             70.0 if wheel.is_left() else 382.0, 0.0, 60.0, 60.0)
         self._back.color = Colors.white
         self.__lock_time = 0.0
+        self.__lock_blink_t = 0.0
 
         if Lock.texture_id == 0:
             Lock.texture_id = ac.newTexture(
@@ -294,9 +293,6 @@ class Lock(BoxComponent):
         if lock is True:
             self.__lock_time = WARNING_TIME_S
 
-        #log(data.brake)
-        # The brake and abs slip ratio must be valid to activate the ABS system.
-        #if data.brake > 0.0 and data.abs_slip_ratio > 0 and data.wheel_slip_ratio > data.abs_slip_ratio:
         if data.abs_active:
             # Only release the brake if the elapsed time matches the ABS timeout.
             if self.__abs_timeout_s <= 0.0:
@@ -304,10 +300,15 @@ class Lock(BoxComponent):
                 self.__abs_timeout_s = self.__abs_cycle
 
         if abs_active:
+            self.__lock_blink_t = 0.0
             self._back.color = Colors.blue
         elif self.__lock_time > 0.0:
-            self._back.color = Colors.red
+            # Blink yellow/white at LOCK_BLINK_PERIOD_S to make the lock more visible.
+            self.__lock_blink_t += delta_t
+            blink_on = int(self.__lock_blink_t / LOCK_BLINK_PERIOD_S) % 2 == 0
+            self._back.color = Colors.yellow if blink_on else Colors.white
         else:
+            self.__lock_blink_t = 0.0
             self._back.color = Colors.white
 
         self._draw(Lock.texture_id)

@@ -23,7 +23,6 @@ class Data:
 
     def __init__(self):
         self.abs_active = False
-        #self.abs_slip_ratio = 0.0
         self.camber = 0.0
         self.height = 0.0
         self.lock = False
@@ -39,23 +38,31 @@ class Data:
         self.tire_t_m = 0.0
         self.tire_t_o = 0.0
         self.tire_w = 0.0
-        #self.wheel_slip_ratio = 0.0
 
-    def update(self, wheel, info_arg):
+    def update(self, wheel, info_arg, abs_slip_limit):
         """ Update the default values from the car engine. """
         index = wheel.index()
 
-        #self.abs_slip_ratio = info.physics.abs
-        self.abs_active = info.physics.brake > 0.0 and info.physics.wheelSlip[index] > info.physics.abs
-        self.camber = info.physics.camberRAD[index]
-        self.lock = info.physics.brake > 0.0 and info.physics.wheelSlip[index] > 0.0 and info.physics.wheelAngularSpeed[index] == 0.0
+        # ABS / lock detection.
+        # `info.physics.abs` is the player's ABS assist setting (0..1, 0 = off);
+        # it is NOT a per-frame "ABS pulsing now" flag. The real signal is wheel
+        # slip vs. the car's slip-ratio threshold from electronics.ini, gated by
+        # the player having ABS enabled at all.
+        braking = info.physics.brake > 0.0
+        slip = info.physics.wheelSlip[index]
+        ang_speed = info.physics.wheelAngularSpeed[index]
+        abs_enabled = info.physics.abs > 0.0
 
-        #Some cars the suspension travel from the shared memory is broken.
-        #Example:
-        #Shared Memory Max travel: 0.15000000596046448mm
-        #Python travel: 0.08263124525547028mm => 0.5508749464799981%
-        #Shared Memory Travel: 0.15007904171943665mm => 1.0005269050388772%
-        # self.susp_t = info.physics.suspensionTravel[index]
+        # A locked wheel either stops rotating or shows an extreme slip ratio.
+        # Using both signals catches AC physics cases where a locked wheel keeps
+        # a small residual angular velocity instead of going to exact zero.
+        # The `slip > 0` gate prevents false positives on stationary cars.
+        self.lock = braking and slip > 0.0 and (abs(ang_speed) < 1.0 or slip > 0.5)
+        self.abs_active = abs_enabled and braking and slip > abs_slip_limit and not self.lock
+
+        self.camber = info.physics.camberRAD[index]
+
+        # Shared memory's physics.suspensionTravel is unreliable on some mods, so fall back to the Python API.
         python_travel = ac.getCarState(0, acsys.CS.SuspensionTravel)
         self.susp_t = python_travel[index]
 
@@ -88,9 +95,6 @@ class Data:
         # Normal to percent
         self.tire_w = info.physics.tyreWear[index] / 100.0
 
-        # Wheel slip ratio to calculat ABS timing.
-        #self.wheel_slip_ratio = info.physics.wheelSlip[index]
-
 
 class WheelInfo:
     """ Wheel info to draw and update each wheel. """
@@ -99,6 +103,7 @@ class WheelInfo:
         """ Default constructor receive the index of the wheel it will draw info. """
         self.__wheel = WheelPos(wheel_index)
         self.__active = False
+        self.__abs_slip_limit = acd.get_abs_slip_limit()
         self.__data = Data()
         self.__data_log = []
         self.__info = info
@@ -203,6 +208,6 @@ class WheelInfo:
 
     def update(self, delta_t: float) -> None:
         """ Updates the wheel information. """
-        self.__data.update(self.__wheel, self.__info)
+        self.__data.update(self.__wheel, self.__info, self.__abs_slip_limit)
         if self.__options["Logging"] is True:
             self.__data_log.append(copy.copy(self.__data))

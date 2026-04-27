@@ -9,26 +9,6 @@ from lib.lt_colors import Colors
 from lib.lt_util import color_interpolate
 
 
-class ABSSlipList:
-    """ Handles ABS slip curve/value. """
-
-    def __init__(self, content=""):
-        """ Default constructor receives an inner '.lut' ACD file content. """
-        self.__list = []
-
-        lines = content.split("\n")
-        for line in lines:
-            if len(line) > 0:
-                values = line.split("|")
-                self.__list.append((int(values[0]), float(values[0])))
-
-    def level_ratio(self, abs_level: int) -> float:
-        """ Returns the ABS level related ratio, a hundred if is invalid. """
-        if 0 < abs_level <= len(self.__list):
-            return self.__list[abs_level - 1]
-        return 100.0
-
-
 class Curve:
     """ Handles default curve interpolation. """
 
