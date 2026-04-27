@@ -57,11 +57,15 @@ class Config:
             self.set_option("Tire", True)
             self.set_option("Wear", True)
 
-            self.set_window_active("EN", False)
-            self.set_window_active("FL", False)
-            self.set_window_active("FR", False)
-            self.set_window_active("RL", False)
-            self.set_window_active("RR", False)
+            # Default to active so that windows AC shows from its own app-bar
+            # persistence after a version bump still render content. AC's
+            # activation listener does not fire for auto-restored apps, so a
+            # False default here would surface as invisible widgets.
+            self.set_window_active("EN", True)
+            self.set_window_active("FL", True)
+            self.set_window_active("FR", True)
+            self.set_window_active("RL", True)
+            self.set_window_active("RR", True)
 
             h = 1080
             w = 1920
