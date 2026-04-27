@@ -4,7 +4,7 @@ An Assetto Corsa in-game app (Python plugin) that renders real-time, per-frame t
 
 The app reads live data through AC's shared-memory ABI and Python API, and resolves per-car limits directly from the encrypted Kunos `data.acd` files (or the unpacked `data/` folder for mods in development), so it works with no per-car configuration.
 
-[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/screenshot.jpg)](https://www.youtube.com/watch?v=TQ6D9RuJS1g)
+[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/screenshot.jpg)](https://youtu.be/_nfAqOOu0QI)
 
 ---
 
