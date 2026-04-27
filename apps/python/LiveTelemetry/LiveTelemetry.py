@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Live Telemetry App for Assetto Corsa
-v 1.7.0
+v 1.7.1
 https://github.com/albertowd/Wheellive-telemetry
 @author: albertowd
 """
@@ -21,7 +21,7 @@ from lib.lt_wheel_info import WheelInfo
 from lib.lt_util import clear_logs, export_saved_log, log
 
 # APP VERSION
-LT_VERSION = "1.7.0"
+LT_VERSION = "1.7.1"
 
 # Loaded car files
 LT_ACD_OBJ = None
@@ -54,7 +54,9 @@ def acMain(ac_version: str) -> None:
 
     log("Loading options window...")
     LT_OPTIONS_INFO = OptionsInfo(LT_CONFIGS)
-    ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("BoostBar"), on_click_boost)
+    boost_button_id = LT_OPTIONS_INFO.get_button_id("BoostBar")
+    if boost_button_id is not None:
+        ac.addOnClickedListener(boost_button_id, on_click_boost)
     ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Camber"), on_click_camber)
     ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Dirt"), on_click_dirt)
     ac.addOnClickedListener(LT_OPTIONS_INFO.get_button_id("Height"), on_click_height)
@@ -105,6 +107,9 @@ def acShutdown() -> None:
     global LT_WHEEL_INFOS
 
     log("Saving options configurations...")
+    boost_option = LT_OPTIONS_INFO.get_option("BoostBar")
+    if boost_option is not None:
+        LT_CONFIGS.set_option("BoostBar", boost_option)
     LT_CONFIGS.set_option("Camber", LT_OPTIONS_INFO.get_option("Camber"))
     LT_CONFIGS.set_option("Dirt", LT_OPTIONS_INFO.get_option("Dirt"))
     LT_CONFIGS.set_option("Height", LT_OPTIONS_INFO.get_option("Height"))

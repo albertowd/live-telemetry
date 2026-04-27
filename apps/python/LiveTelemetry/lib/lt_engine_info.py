@@ -64,7 +64,8 @@ class EngineInfo:
         ac.setSize(self.__window_id, 512 * mult, 85 * mult)
 
         self.__components = []
-        self.__components.append(BoostBar(acd, size, self.__window_id))
+        if info.static.maxTurboBoost > 0.0:
+            self.__components.append(BoostBar(acd, size, self.__window_id))
         self.__components.append(RPMPower(acd, size, self.__window_id))
 
         # Only starts to draw after the setup.

@@ -12,6 +12,7 @@ import ac
 
 from lib.lt_colors import Colors
 from lib.lt_config import Config
+from lib.sim_info import info
 
 
 class OptionsInfo:
@@ -21,7 +22,6 @@ class OptionsInfo:
         """ Default constructor. """
         self.__buttons = {}
         self.__options = {
-            "BoostBar": configs.get_bool_option("BoostBar"),
             "Camber": configs.get_bool_option("Camber"),
             "Dirt": configs.get_bool_option("Dirt"),
             "Height": configs.get_bool_option("Height"),
@@ -36,6 +36,10 @@ class OptionsInfo:
             "Tire": configs.get_bool_option("Tire"),
             "Wear": configs.get_bool_option("Wear")
         }
+
+        # Only expose BoostBar toggle for turbocharged cars.
+        if info.static.maxTurboBoost > 0.0:
+            self.__options["BoostBar"] = configs.get_bool_option("BoostBar")
 
         self.__window_id = ac.newApp("Live Telemetry")
         ac.setIconPosition(self.__window_id, 0, -10000)
@@ -58,12 +62,12 @@ class OptionsInfo:
             self.set_option(name, self.__options[name])
 
     def get_button_id(self, name):
-        """ Returns a button id. """
-        return self.__buttons[name]
+        """ Returns a button id, or None if the option button was not created. """
+        return self.__buttons.get(name)
 
     def get_option(self, name):
-        """ Returns an option value. """
-        return self.__options[name]
+        """ Returns an option value, or None if the option is not exposed. """
+        return self.__options.get(name)
 
     def get_position(self):
         """ Returns the window position. """
