@@ -229,9 +229,9 @@ Each wheel window shows:
 * **Wheel camber (rad)** — represented by the asphalt inclination beneath the tire.
   * <span style="color:green">green</span>→<span style="color:red">red</span> — 0% to 100% wear
 * **Wheel load (N)** — the white circle expands with load.
-* **Wheel lock / ABS.** Derived from `wheelSlip`, `wheelAngularSpeed`, and `physics.abs`.
-  * <span style="color:blue">blue</span> — ABS active
-  * <span style="color:red">red</span> — wheel locked (typically cars without ABS)
+* **Wheel lock / ABS.** Derived from `wheelSlip`, `wheelAngularSpeed`, the player's ABS setting, and the per-car `SLIP_RATIO_LIMIT` from `electronics.ini`.
+  * <span style="color:blue">blue</span> — ABS active (pulses at the car's `RATE_HZ`)
+  * <span style="color:yellow">yellow</span>, blinking — wheel locked (typically cars without ABS, or ABS overwhelmed)
   * <span style="color:white">white</span> — neutral
 
 ---
