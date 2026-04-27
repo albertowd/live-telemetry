@@ -139,7 +139,7 @@ def acShutdown() -> None:
 
     if (
         LT_ENGINE_INFO.has_data_logged()
-        or LT_WHEEL_INFOS["FL"].has_data_logged() or LT_WHEEL_INFOS["FL"].has_data_logged()
+        or LT_WHEEL_INFOS["FL"].has_data_logged() or LT_WHEEL_INFOS["FR"].has_data_logged()
         or LT_WHEEL_INFOS["RL"].has_data_logged() or LT_WHEEL_INFOS["RR"].has_data_logged()
     ):
         log("Saving csv data...")
@@ -207,7 +207,7 @@ def on_click_load(pos_x: int, pos_y: int) -> None:
 
 
 def on_click_lock(pos_x: int, pos_y: int) -> None:
-    """ Handles the click in one of the options load button. """
+    """ Handles the click in one of the options lock button. """
     toggle_option("Lock")
 
 

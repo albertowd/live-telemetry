@@ -125,7 +125,7 @@ class ACD:
         return info
 
     def filter_mod_file_content(self, file_content, prefixes=(";", "#")):
-        """ Filters the file content splitting it on lines and removing 
+        """ Filters the file content splitting it on lines and removing
         the ones that starts with the prefixes.
         """
         filtered_lines = []
@@ -158,7 +158,7 @@ class ACD:
             empty_lines_in_values=False, inline_comment_prefixes=(";",))
         config.read_string(self.get_file("electronics.ini"))
 
-        if config.has_option("ABS", "SLIP_RATIO_LIMIT") or config.has_option("ABS", "SLIP_RATIO_LIMIT"):
+        if config.has_option("ABS", "CURVE") or config.has_option("ABS", "SLIP_RATIO_LIMIT"):
             try:
                 return self.get_file(config["ABS"]["CURVE"])
             except:
