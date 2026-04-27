@@ -9,8 +9,8 @@ import copy
 
 import ac
 
-from lib.lt_colors import Colors
 from lib.lt_components import BoostBar, BoxComponent, RPMPower
+from lib.lt_info_window import InfoWindow
 from lib.sim_info import info
 
 
@@ -36,93 +36,40 @@ class Data:
         self.max_turbo_boost = max(self.max_turbo_boost, self.turbo_boost)
 
 
-class EngineInfo:
+class EngineInfo(InfoWindow):
     """ Engine info to draw and update. """
 
     def __init__(self, acd, configs):
         """ Default constructor. """
-        self.__active = False
-        self.__data = Data()
-        self.__data_log = []
-        self.__info = info
-        self.__options = {
-            "BoostBar": configs.get_bool_option("BoostBar"),
-            "Logging": configs.get_bool_option("Logging"),
-            "RPMPower": configs.get_bool_option("RPMPower")
-        }
-        self.__window_id = ac.newApp("Live Telemetry Engine")
-        ac.drawBorder(self.__window_id, 0)
-        ac.setBackgroundOpacity(self.__window_id, 0.0)
-        ac.setIconPosition(self.__window_id, 0, -10000)
-        ac.setTitle(self.__window_id, "")
+        super().__init__("Live Telemetry Engine")
+        self._data = Data()
+        self._info = info
+        self._options = {key: configs.get_bool_option(key)
+                         for key in ("BoostBar", "Logging", "RPMPower")}
 
         position = configs.get_window_position("EN")
-        ac.setPosition(self.__window_id, *position)
+        ac.setPosition(self._window_id, *position)
 
         size = configs.get_option("Size")
         mult = BoxComponent.resolution_map[size]
-        ac.setSize(self.__window_id, 512 * mult, 85 * mult)
+        ac.setSize(self._window_id, 512 * mult, 85 * mult)
 
-        self.__components = []
         if info.static.maxTurboBoost > 0.0:
-            self.__components.append(BoostBar(acd, size, self.__window_id))
-        self.__components.append(RPMPower(acd, size, self.__window_id))
+            self._components.append(BoostBar(acd, size, self._window_id))
+        self._components.append(RPMPower(acd, size, self._window_id))
 
         # Only starts to draw after the setup.
         self.set_active(configs.is_window_active("EN"))
 
-    def get_data_log(self):
-        """ Returns the saved data from the session. """
-        return self.__data_log
-
-    def get_option(self, name):
-        """ Returns an option value. """
-        return self.__options[name]
-
-    def get_position(self):
-        """ Returns the window position. """
-        return ac.getPosition(self.__window_id)
-
-    def get_window_id(self):
-        """ Returns the window id. """
-        return self.__window_id
-
-    def has_data_logged(self):
-        """Returns if the info has data logged."""
-        return len(self.__data_log) > 0
-
-    def is_active(self):
-        """ Returns window status. """
-        return self.__active
-
-    def draw(self, delta_t: float):
-        """ Draws all info on screen. """
-        ac.setBackgroundOpacity(self.__window_id, 0.0)
-        for component in self.__components:
-            if self.__options[type(component).__name__] is True:
-                ac.glColor4f(*Colors.white)
-                component.draw(self.__data, delta_t)
-            else:
-                component.clear()
-        ac.glColor4f(*Colors.white)
-
     def resize(self, resolution):
         """ Resizes the window. """
         mult = BoxComponent.resolution_map[resolution]
-        ac.setSize(self.__window_id, 512 * mult, 85 * mult)
-        for component in self.__components:
+        ac.setSize(self._window_id, 512 * mult, 85 * mult)
+        for component in self._components:
             component.resize(resolution)
-
-    def set_active(self, active):
-        """ Toggles the window status. """
-        self.__active = active
-
-    def set_option(self, name, value):
-        """ Updates an option value. """
-        self.__options[name] = value
 
     def update(self, delta_t: float):
         """ Updates the engine information. """
-        self.__data.update(self.__info)
-        if self.__options["Logging"] is True:
-            self.__data_log.append(copy.copy(self.__data))
+        self._data.update(self._info)
+        if self._options["Logging"] is True:
+            self._data_log.append(copy.copy(self._data))

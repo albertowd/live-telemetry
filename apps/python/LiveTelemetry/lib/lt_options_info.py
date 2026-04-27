@@ -21,21 +21,10 @@ class OptionsInfo:
     def __init__(self, configs: Config):
         """ Default constructor. """
         self.__buttons = {}
-        self.__options = {
-            "Camber": configs.get_bool_option("Camber"),
-            "Dirt": configs.get_bool_option("Dirt"),
-            "Height": configs.get_bool_option("Height"),
-            "Load": configs.get_bool_option("Load"),
-            "Lock": configs.get_bool_option("Lock"),
-            "Logging": configs.get_bool_option("Logging"),
-            "Pressure": configs.get_bool_option("Pressure"),
-            "RPMPower": configs.get_bool_option("RPMPower"),
-            "Size": configs.get_option("Size"),
-            "Suspension": configs.get_bool_option("Suspension"),
-            "Temps": configs.get_bool_option("Temps"),
-            "Tire": configs.get_bool_option("Tire"),
-            "Wear": configs.get_bool_option("Wear")
-        }
+        bool_keys = ("Camber", "Dirt", "Height", "Load", "Lock", "Logging",
+                     "Pressure", "RPMPower", "Suspension", "Temps", "Tire", "Wear")
+        self.__options = {key: configs.get_bool_option(key) for key in bool_keys}
+        self.__options["Size"] = configs.get_option("Size")
 
         # Only expose BoostBar toggle for turbocharged cars.
         if info.static.maxTurboBoost > 0.0:

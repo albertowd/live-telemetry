@@ -73,7 +73,7 @@ class BoxComponent:
     resolutions = ["240p", "360p", "480p", "576p","HD", "FHD", "1440p", "UHD", "4K", "8K"]
     resolution_map = {"240p": 0.16, "360p": 0.25, "480p": 0.33, "576p": 0.4, "HD": 0.5, "FHD": 0.75, "1440p": 1.0, "UHD": 1.5, "4K": 1.6, "8K": 3.0}
 
-    def __init__(self, p_x=0.0, p_y=0.0, width=100.0, height=100.0, font=24.0):
+    def __init__(self, p_x=0.0, p_y=0.0, width=100.0, height=100.0, *, font=24.0):
         self.__ini_font = font
         self.__ini_box = Box(p_x, p_y, width, height)
         self._back = Background()
@@ -462,7 +462,7 @@ class Temps(BoxComponent):
             ac.getCarTyreCompound(0), wheel))
 
         # Initial size is 160x256
-        super(Temps, self).__init__(176.0, 0.0, 160.0, 256.0, 16.0)
+        super(Temps, self).__init__(176.0, 0.0, 160.0, 256.0, font=16.0)
         self.__mult = 1.0
         self.resize(resolution)
 
