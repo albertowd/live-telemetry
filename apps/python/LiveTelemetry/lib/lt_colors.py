@@ -7,8 +7,8 @@ Module to keep an app color palette.
 """
 
 
-class Colors:
-    """ Colors used by the components. """
+class Colors:  # pylint: disable=too-few-public-methods
+    """ Colors used by the components. Pure constant container. """
 
     black = [0.0, 0.0, 0.0, 1.0]
     blue = [0.4, 0.596, 0.948, 1.0]

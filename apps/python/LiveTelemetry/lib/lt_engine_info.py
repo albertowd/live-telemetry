@@ -14,7 +14,7 @@ from lib.lt_info_window import InfoWindow
 from lib.sim_info import info
 
 
-class Data:
+class Data:  # pylint: disable=too-few-public-methods
     """ Data object to keep values between updates. """
 
     def __init__(self):
@@ -68,7 +68,7 @@ class EngineInfo(InfoWindow):
         for component in self._components:
             component.resize(resolution)
 
-    def update(self, delta_t: float):
+    def update(self, _delta_t: float):
         """ Updates the engine information. """
         self._data.update(self._info)
         if self._options["Logging"] is True:

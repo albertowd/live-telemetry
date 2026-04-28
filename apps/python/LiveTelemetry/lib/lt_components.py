@@ -20,7 +20,7 @@ WARNING_TIME_S = 0.5
 LOCK_BLINK_PERIOD_S = 0.1  # 5 Hz blink rate for the lock indicator.
 
 
-class Background:
+class Background:  # pylint: disable=too-few-public-methods
     """ Class to draw a background in a box component. """
 
     def __init__(self, color=Colors.transparent, border=Colors.transparent, size=1.0):
@@ -73,7 +73,7 @@ class BoxComponent:
     resolutions = ["240p", "360p", "480p", "576p","HD", "FHD", "1440p", "UHD", "4K", "8K"]
     resolution_map = {"240p": 0.16, "360p": 0.25, "480p": 0.33, "576p": 0.4, "HD": 0.5, "FHD": 0.75, "1440p": 1.0, "UHD": 1.5, "4K": 1.6, "8K": 3.0}
 
-    def __init__(self, p_x=0.0, p_y=0.0, width=100.0, height=100.0, *, font=24.0):
+    def __init__(self, p_x=0.0, p_y=0.0, width=100.0, height=100.0, *, font=24.0):  # pylint: disable=too-many-arguments
         self.__ini_font = font
         self.__ini_box = Box(p_x, p_y, width, height)
         self._back = Background()
@@ -108,9 +108,9 @@ class BoxComponent:
 class BoostBar(BoxComponent):
     """ Class to handle boost bar change. """
 
-    def __init__(self, acd: ACD, resolution: str, window_id: int):
+    def __init__(self, _acd: ACD, resolution: str, window_id: int):
         # Initial size is 512x85
-        super(BoostBar, self).__init__(0.0, -24.0, 512.0, 24.0)
+        super().__init__(0.0, -24.0, 512.0, 24.0)
         self._back.color = Colors.black
 
         self.__lb = ac.addLabel(window_id, "- bar")
@@ -147,7 +147,7 @@ class Camber(BoxComponent):
 
     def __init__(self, resolution: str):
         # Initial size is 160x10
-        super(Camber, self).__init__(170.0, 256.0, 172.0, 15.0)
+        super().__init__(170.0, 256.0, 172.0, 15.0)
         self.resize(resolution)
 
     def draw(self, data, delta_t: float) -> None:
@@ -171,7 +171,7 @@ class Dirt(BoxComponent):
 
     def __init__(self, resolution: str):
         # Initial size is 136x116
-        super(Dirt, self).__init__(188.0, 128.0, 136.0, 116.0)
+        super().__init__(188.0, 128.0, 136.0, 116.0)
         self.__mult = BoxComponent.resolution_map[resolution]
         self.resize(resolution)
 
@@ -196,7 +196,7 @@ class Height(BoxComponent):
 
     def __init__(self, resolution: str, wheel, window_id: int):
         # Initial size is 64x48
-        super(Height, self).__init__(
+        super().__init__(
             430.0 if wheel.is_left() else 18.0, 208.0, 64.0, 48.0)
         self._back.color = Colors.white
         self.__warn_time = 0.0
@@ -237,8 +237,8 @@ class Load(BoxComponent):
 
     texture_id = 0
 
-    def __init__(self, resolution: str, wheel):
-        super(Load, self).__init__(128.0, 0.0, 256.0, 256.0)
+    def __init__(self, resolution: str, _wheel):
+        super().__init__(128.0, 0.0, 256.0, 256.0)
         self._back.color = Colors.white
         self.__mult = BoxComponent.resolution_map[resolution]
 
@@ -271,7 +271,7 @@ class Lock(BoxComponent):
         self.__abs_timeout_s = 0.0 if abs_hz > 0.0 else 3600.0
 
         # Initial size is 85x85
-        super(Lock, self).__init__(
+        super().__init__(
             70.0 if wheel.is_left() else 382.0, 0.0, 60.0, 60.0)
         self._back.color = Colors.white
         self.__lock_time = 0.0
@@ -324,7 +324,7 @@ class Pressure(BoxComponent):
             ac.getCarTyreCompound(0), wheel))
 
         # Initial size is 85x85
-        super(Pressure, self).__init__(
+        super().__init__(
             70.0 if wheel.is_left() else 382.0, 171.0, 60.0, 60.0)
         self._back.color = Colors.white
 
@@ -362,7 +362,7 @@ class RPMPower(BoxComponent):
         self.__calc = Power(acd.get_power_curve())
 
         # Initial size is 512x85
-        super(RPMPower, self).__init__(0.0, 0.0, 512.0, 50.0)
+        super().__init__(0.0, 0.0, 512.0, 50.0)
         self._back.color = Colors.black
 
         self.__lb_hp = ac.addLabel(window_id, "- HP")
@@ -413,7 +413,7 @@ class Suspension(BoxComponent):
 
     def __init__(self, resolution: str, wheel):
         # Initial size is 64x256
-        super(Suspension, self).__init__(
+        super().__init__(
             346.0 if wheel.is_left() else 102.0, 0.0, 64.0, 256.0)
         self._back.color = Colors.white
         self.__mult = BoxComponent.resolution_map[resolution]
@@ -462,7 +462,7 @@ class Temps(BoxComponent):
             ac.getCarTyreCompound(0), wheel))
 
         # Initial size is 160x256
-        super(Temps, self).__init__(176.0, 0.0, 160.0, 256.0, font=16.0)
+        super().__init__(176.0, 0.0, 160.0, 256.0, font=16.0)
         self.__mult = 1.0
         self.resize(resolution)
 
@@ -520,7 +520,7 @@ class Tire(BoxComponent):
             ac.getCarTyreCompound(0), wheel))
 
         # Initial size is 160x256
-        super(Tire, self).__init__(176.0, 0.0, 160.0, 256.0)
+        super().__init__(176.0, 0.0, 160.0, 256.0)
         self._back.color = Colors.white
 
         if Tire.texture_id == 0:
@@ -543,7 +543,7 @@ class Wear(BoxComponent):
 
     def __init__(self, resolution: str, wheel):
         # Initial size is 14x256 (with borders)
-        super(Wear, self).__init__(
+        super().__init__(
             154.0 if wheel.is_left() else 348.0, 2.0, 10.0, 252.0)
         self._back.color = Colors.black
         self._back.border = Colors.white

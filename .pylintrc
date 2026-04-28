@@ -1,9 +1,21 @@
 [FORMAT]
 max-line-length=180
 
+[BASIC]
+# AC's plugin loader requires the package and entry-module to be named after
+# the app (e.g. "LiveTelemetry"), so allow CamelCase modules in addition to
+# the default snake_case.
+module-naming-style=any
+# AC calls these entry-point functions by exact name; they cannot be renamed
+# to snake_case.
+good-names=acMain,acShutdown,acUpdate
+
 [MESSAGES CONTROL]
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once).
-disable=bare-except,broad-exception-raised,consider-using-f-string,consider-using-dict-items,global-statement,import-error,invalid-name,super-with-arguments,too-few-public-methods,too-many-arguments,too-many-instance-attributes,too-many-statements,unused-argument
+# - consider-using-f-string: AC bundles Python 3.3 (python33.zip); f-strings
+#   require 3.6+, so .format() calls are mandatory for runtime compatibility.
+# - import-error: `ac` and `acsys` are runtime-injected by AC, not installable.
+disable=consider-using-f-string,import-error

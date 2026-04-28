@@ -7,7 +7,7 @@ import ctypes
 from ctypes import c_int32, c_float, c_wchar
 import time
 
-class Def:
+class Def:  # pylint: disable=too-few-public-methods
     """ Class to store definitions. """
 
     AC_STATUS = c_int32
@@ -33,7 +33,7 @@ class Def:
     AC_CHECKERED_FLAG = 5
     AC_PENALTY_FLAG = 6
 
-class SPageFilePhysics(ctypes.Structure):
+class SPageFilePhysics(ctypes.Structure):  # pylint: disable=too-few-public-methods
     """ Car physics informations. """
     _pack_ = 4
     _fields_ = [
@@ -99,7 +99,7 @@ class SPageFilePhysics(ctypes.Structure):
         ('localVelocity',c_float *3)
         ]
 
-class SPageFileGraphic(ctypes.Structure):
+class SPageFileGraphic(ctypes.Structure):  # pylint: disable=too-few-public-methods
     """ Dynamic car and session information. It changes over the session. """
     _pack_ = 4
     _fields_ = [
@@ -135,7 +135,7 @@ class SPageFileGraphic(ctypes.Structure):
         ('windDirection', c_float)
         ]
 
-class SPageFileStatic(ctypes.Structure):
+class SPageFileStatic(ctypes.Structure):  # pylint: disable=too-few-public-methods
     """ Static car and session informations. It do not changes over the session. """
     _pack_ = 4
     _fields_ = [

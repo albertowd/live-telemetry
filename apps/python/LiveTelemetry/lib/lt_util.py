@@ -74,7 +74,7 @@ def get_docs_path():
         buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
         ctypes.windll.shell32.SHGetFolderPathW(None, csidl_personal, None, shgfp_type_current, buf)
         return buf.value
-    except:
+    except (OSError, AttributeError):
         log("Could not load My Documents folder:")
         for info in exc_info():
             log(info)

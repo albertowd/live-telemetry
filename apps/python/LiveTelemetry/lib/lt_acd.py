@@ -8,7 +8,7 @@ Big thanks for aluigi@ZenHaxs.com that have the patience to help me to open the 
 """
 
 from collections import OrderedDict
-from configparser import ConfigParser
+from configparser import ConfigParser, Error as ConfigError
 from struct import unpack
 from sys import exc_info
 import os
@@ -48,7 +48,7 @@ class ACD:
             with open(path, "rb") as rb:
                 self.__content = bytearray(rb.read())
                 self.__content_size = len(self.__content)
-        except:
+        except OSError:
             log("Failed to open file {}:".format(path))
             for info in exc_info():
                 log(info)
@@ -110,7 +110,7 @@ class ACD:
                 try:
                     with open(file_path, "r") as r: # pylint: disable=unspecified-encoding
                         self.set_file(r.read(), file_name)
-                except:
+                except OSError:
                     log("Failed to open file {}:".format(file_name))
                     for info in exc_info():
                         log(info)
@@ -164,7 +164,7 @@ class ACD:
             config.read_string(self.get_file("electronics.ini"))
             if config.has_option("ABS", "SLIP_RATIO_LIMIT"):
                 return float(config.get("ABS", "SLIP_RATIO_LIMIT"))
-        except:
+        except (ConfigError, ValueError):
             log("Failed to read ABS slip limit, using default 0.2:")
             for info in exc_info():
                 log(info)

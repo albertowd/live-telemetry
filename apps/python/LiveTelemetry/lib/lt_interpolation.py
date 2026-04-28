@@ -9,7 +9,7 @@ from lib.lt_colors import Colors
 from lib.lt_util import color_interpolate
 
 
-class Curve:
+class Curve:  # pylint: disable=too-few-public-methods
     """ Handles default curve interpolation. """
 
     def __init__(self, content="", normalize=False):
@@ -49,7 +49,7 @@ class Power(Curve):
 
     def __init__(self, content=""):
         """ Default constructor receives an inner '.lut' ACD file content. """
-        super(Power, self).__init__(content)
+        super().__init__(content)
 
         new_curve = []
         self._max = (0.0, 0.0)
@@ -107,7 +107,7 @@ class TireTemp(Curve):
 
     def __init__(self, content="") -> None:
         """ Default constructor receives an inner '.lut' ACD file content. """
-        super(TireTemp, self).__init__(content)
+        super().__init__(content)
 
     def interpolate_color(self, temp: float, interpolated: float) -> list:
         """ Interpolates the temperature color through the interpolated value. """

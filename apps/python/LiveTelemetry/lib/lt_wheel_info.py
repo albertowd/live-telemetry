@@ -18,7 +18,7 @@ from lib.lt_util import WheelPos
 from lib.sim_info import info
 
 
-class Data:
+class Data:  # pylint: disable=too-few-public-methods,too-many-instance-attributes
     """ Data object to keep values between updates. """
 
     def __init__(self):
@@ -48,10 +48,10 @@ class Data:
         # it is NOT a per-frame "ABS pulsing now" flag. The real signal is wheel
         # slip vs. the car's slip-ratio threshold from electronics.ini, gated by
         # the player having ABS enabled at all.
-        braking = info.physics.brake > 0.0
-        slip = info.physics.wheelSlip[index]
-        ang_speed = info.physics.wheelAngularSpeed[index]
-        abs_enabled = info.physics.abs > 0.0
+        braking = info_arg.physics.brake > 0.0
+        slip = info_arg.physics.wheelSlip[index]
+        ang_speed = info_arg.physics.wheelAngularSpeed[index]
+        abs_enabled = info_arg.physics.abs > 0.0
 
         # A locked wheel either stops rotating or shows an extreme slip ratio.
         # Using both signals catches AC physics cases where a locked wheel keeps
@@ -60,40 +60,40 @@ class Data:
         self.lock = braking and slip > 0.0 and (abs(ang_speed) < 1.0 or slip > 0.5)
         self.abs_active = abs_enabled and braking and slip > abs_slip_limit and not self.lock
 
-        self.camber = info.physics.camberRAD[index]
+        self.camber = info_arg.physics.camberRAD[index]
 
         # Shared memory's physics.suspensionTravel is unreliable on some mods, so fall back to the Python API.
         python_travel = ac.getCarState(0, acsys.CS.SuspensionTravel)
         self.susp_t = python_travel[index]
 
         # If there's no max travel, keep it updating for max values.
-        max_travel = info.static.suspensionMaxTravel[index]
+        max_travel = info_arg.static.suspensionMaxTravel[index]
         self.susp_m_t = max_travel if max_travel > 0.0 else max(
             self.susp_t, self.susp_m_t)
         self.susp_v = max_travel == 0.0
 
         # um to mm
-        self.height = info.physics.rideHeight[int(index / 2)] * 1000.0
+        self.height = info_arg.physics.rideHeight[int(index / 2)] * 1000.0
 
         # Get susp diff
         susp_diff = self.susp_t - \
-            info.physics.suspensionTravel[index +
-                                          (1 if wheel.is_left() else -1)]
+            info_arg.physics.suspensionTravel[index +
+                                              (1 if wheel.is_left() else -1)]
         self.height -= ((susp_diff / 2.0) * 1000.0)
 
-        self.timestamp = info.graphics.iCurrentTime
-        self.tire_d = info.physics.tyreDirtyLevel[index] * 4.0
+        self.timestamp = info_arg.graphics.iCurrentTime
+        self.tire_d = info_arg.physics.tyreDirtyLevel[index] * 4.0
 
         # N to (5*kgf)
-        self.tire_l = info.physics.wheelLoad[index] / (5.0 * 9.80665)
-        self.tire_p = info.physics.wheelsPressure[index]
-        self.tire_t_c = info.physics.tyreCoreTemperature[index]
-        self.tire_t_i = info.physics.tyreTempI[index]
-        self.tire_t_m = info.physics.tyreTempM[index]
-        self.tire_t_o = info.physics.tyreTempO[index]
+        self.tire_l = info_arg.physics.wheelLoad[index] / (5.0 * 9.80665)
+        self.tire_p = info_arg.physics.wheelsPressure[index]
+        self.tire_t_c = info_arg.physics.tyreCoreTemperature[index]
+        self.tire_t_i = info_arg.physics.tyreTempI[index]
+        self.tire_t_m = info_arg.physics.tyreTempM[index]
+        self.tire_t_o = info_arg.physics.tyreTempO[index]
 
         # Normal to percent
-        self.tire_w = info.physics.tyreWear[index] / 100.0
+        self.tire_w = info_arg.physics.tyreWear[index] / 100.0
 
 
 # Bool-typed options shared across the wheel widget components.
@@ -148,7 +148,7 @@ class WheelInfo(InfoWindow):
         for component in self._components:
             component.resize(size)
 
-    def update(self, delta_t: float) -> None:
+    def update(self, _delta_t: float) -> None:
         """ Updates the wheel information. """
         self._data.update(self.__wheel, self._info, self.__abs_slip_limit)
         if self._options["Logging"] is True:
