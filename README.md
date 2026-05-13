@@ -205,7 +205,9 @@ Boost bar:
 
 Every element is laid out around a central tire silhouette and mirrored on the left/right windows. Per-frame values are computed in `lib/lt_wheel_info.py:Data.update` and rendered by the matching subclass in `lib/lt_components.py`. Per-car limits (ideal pressure, thermal curves, suspension max, ABS slip target, …) come from the car's `data.acd` (or unpacked `data/` folder) at construction time — no value is "hardcoded per car".
 
-* **Suspension height (mm).** AC's shared memory only exposes one ride-height per axle (`physics.rideHeight[0]` for front, `[1]` for rear), so per-wheel height is reconstructed by subtracting half the difference between this wheel's suspension travel and the opposite-side wheel's. The textured background flashes red for `WARNING_TIME_S = 0.5 s` whenever the value drops below 0.02 mm — i.e. the chassis is scraping the surface.
+The tire, suspension and height widgets are drawn as GL primitives — no PNG textures. The tire silhouette, IMO temperature grid, dirt bar, contact-patch bars and per-zone temperature readouts share a common pivot and rotate together under camber.
+
+* **Suspension height (mm).** AC's shared memory only exposes one ride-height per axle (`physics.rideHeight[0]` for front, `[1]` for rear), so per-wheel height is reconstructed by subtracting half the difference between this wheel's suspension travel and the opposite-side wheel's. Bars + arrows + readout flash red for `WARNING_TIME_S = 0.5 s` whenever the value drops below 0.02 mm — i.e. the chassis is scraping the surface.
 
 * **Suspension travel (%).** Bar uses `acsys.CS.SuspensionTravel` (the Python API value) instead of `physics.suspensionTravel`, because the shared-memory field is broken on several mods — the original 1.6.0 changelog and the comment in `Data.update` document a specific case where shared memory reported >100% travel while the API reported ~55%. When the car has no `suspensionMaxTravel` (some mods, e.g. Kunos Alfa 155), the max is computed dynamically from the running observed maximum and the bar turns blue to indicate "max is an estimate". The displayed colour is the *worst* of the last 60 frames, so a single-frame compression spike won't make the indicator flicker — but the CSV log records every frame untouched.
   * <span style="color:white">white</span> — 10%–90%
@@ -223,18 +225,22 @@ Every element is laid out around a central tire silhouette and mirrored on the l
 
 * **Tire temps (ºC).** Inner / middle / outer probes (`physics.tyreTempI/M/O[i]`) plus the core (`physics.tyreCoreTemperature[i]`). Each segment is coloured independently against the compound's `THERMAL_<section> → PERFORMANCE_CURVE` lookup from `tyres.ini`, parsed once on plugin start and interpolated by `lib/lt_interpolation.py:TireTemp`. The "I/M/O" labelling is *suspension-relative* — the inner edge of the tire as the suspension geometry sees it, not the steering rack — so on a left-side wheel the rendered "Inner" probe is the chassis-side temperature.
 
+  The IMO grid carries per-zone numeric readouts (inner / middle / outer / core). Text colour matches each zone's temperature colour and the label positions track the tire's camber rotation each frame, so the numbers stay attached to their bumps under tilt.
+
   Separately, the **`Tire` widget** (the whole-tire silhouette) is tinted using a weighted average — `0.75 × core + 0.25 × mean(I, M, O)` — so the overall colour reflects bulk working temperature instead of just surface contact. `Tire` and `Temps` are independently toggleable from the Options window.
   * <span style="color:blue">blue</span> — below 98%
   * <span style="color:blue">blue</span>→<span style="color:green">green</span> — 98%–100%
   * <span style="color:green">green</span>→<span style="color:red">red</span> — 100%–102%
   * <span style="color:red">red</span> — above 102%
 
-* **Tire wear (%).** `physics.tyreWear[i] / 100`. The bar maps the last **6 %** of tread (94 %–100 %) to its full vertical range — most of a tire's life is "green" and the bar only starts visibly retreating once wear becomes meaningful. Below 94 % wear the bar is fully drained but still present (red).
+* **Tire wear (%).** `physics.tyreWear[i] / 100`. Horizontal "Tire Wear" bar in the brake column (between the lock and pressure icons), left→right fill (full = fresh). The bar maps the last **6 %** of tread (94 %–100 %) to its full width — most of a tire's life is "green" and the bar only starts visibly retreating once wear becomes meaningful.
   * <span style="color:green">green</span> — above 98%
   * <span style="color:yellow">yellow</span> — 96%–98%
   * <span style="color:red">red</span> — below 96%
 
-* **Wheel camber (rad).** `physics.camberRAD[i]`. Drawn as a tilted asphalt quad beneath the tire — the inboard/outboard vertex is offset by `tan(camber) × bar_width` so the road plane visibly tips towards positive or negative camber. Always white; no colour coding (read the angle, not the colour).
+* **Contact patch (camber × pressure × load).** Three white bars sitting at the tire-ground line — inner / middle / outer — whose heights are a qualitative load-distribution heuristic combining camber (lateral bias), pressure norm vs. ideal (crown / bow), and wheel load (overall extent). Replaces the older "tilted asphalt quad" camber indicator. Toggled by the `Camber` option for backward compatibility with existing configs.
+
+* **Wheel ID + tyre compound.** Two-line caption (`FL`/`FR`/`RL`/`RR` over a 3-character compound abbreviation — `SOF` / `MED` / `HAR` / `INT` / `WET`) stacked at the top of the inboard column, lined up with the ride-height value below. Always on; not user-toggleable.
 
 * **Wheel load (N).** `physics.wheelLoad[i]`, divided by `5 × g` (49.03) before being used as the diameter of the white circle drawn behind the tire. The conversion is purely visual scaling — there's no numeric readout. The widget is most useful as a *relative* indicator: comparing circle sizes across the four wheels makes weight transfer (braking, cornering, kerb hits) immediately obvious.
 
