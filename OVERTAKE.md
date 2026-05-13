@@ -19,13 +19,16 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
 [LIST]
 [*]Engine Boost Pressure (bar).
 [*]Engine RPM/HP.
+[*]Driver-aid chips: PIT, TC, ABS, DRS, ERS.
+[*]Fuel and brake-bias readouts.
 [*]Suspension height (mm).
 [*]Suspension travel (%).
 [*]Tire pressure (psi).
-[*]Tire core, inner, middle and outer temperatures (ºC).
+[*]Tire core, inner, middle and outer temperatures (ºC), with per-zone numeric readouts on the IMO grid.
 [*]Tire load (N).
 [*]Tire wear (%).
-[*]Wheel camber (rad).
+[*]Tyre compound abbreviation and wheel ID label.
+[*]Contact-patch bars (camber × pressure × load heuristic).
 [*]Wheel load (N).
 [*]Wheel lock / ABS.
 [/LIST]
@@ -58,59 +61,65 @@ Also, it displays the current boost bar pression:
 [*][COLOR=rgb(97, 189, 109)]green[/COLOR]: current boost pressure above 90%.
 [/LIST]
 
+Below the RPM bar, a strip of driver-aid chips lights up only while each condition is true (so the bar stays compact): [B]PIT[/B] limiter, [B]TC[/B] (bright when cutting, dim when armed), [B]ABS[/B] (same scheme), [B]DRS[/B] (bright when deployed), [B]ERS[/B] charging. The bottom row shows fuel litres and brake-bias percentage.
+
 [SIZE=5][B]Wheel Window[/B][/SIZE]
 
 [IMG alt="Wheel Window"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-wheel.jpg?[/IMG]
 
-Each wheel window will display a lot of information:
+Each wheel window will display a lot of information. The tire silhouette, IMO temperature grid, dirt overlay, contact-patch bars and per-zone temperature readouts share a single pivot and rotate together with the wheel under camber (the tilt is amplified ×2 so a typical setup camber reads clearly at a glance).
 
 [LIST]
-[*]Suspension height (mm).
-Suspension height from the floor is the same on each side because the AC only tells the front and rear ride height.
-[*]Suspension travel (%).
-The suspension bar shows the actual travel. Now it uses the Python API to fetch correct values. But if the mod does not have max suspension travel, it will dynamically change the max value based on each data current travel value and change its normal color to blue (aka Kunos Alfa 155). Also, the drawed color is the worst of the last 60 frames to not change it so fast (the log will still logs each frame data). It changes color warn about the percentage level :
-[LIST]
-[*]white: between 90% and 10%.
-[*][COLOR=rgb(44, 130, 201)]blue[/COLOR]: between 90% and 10% if the suspension is using dynamic values.
-[*][COLOR=rgb(247, 218, 100)]yellow[/COLOR]: between 95% and 90% and between 10% and 5%.
-[*][COLOR=rgb(226, 80, 65)]red[/COLOR]: above 95% and below 5%.
-[/LIST]
-[*]Tire dirt level (as an uprising brown bar).
-[*]Tire pressure (psi).
-It interpolates its colors based on the the PRESSURE_IDEAL in the tyres.ini file:
-[LIST]
-[*][COLOR=rgb(44, 130, 201)]blue[/COLOR]: below 95%.
-[*][COLOR=rgb(44, 130, 201)]blue [/COLOR]- [COLOR=rgb(97, 189, 109)]green[/COLOR]: 95% to 100%.
-[*][COLOR=rgb(97, 189, 109)]green [/COLOR]- [COLOR=rgb(226, 80, 65)]red[/COLOR]: 100% to 105%.
-[*][COLOR=rgb(226, 80, 65)]red[/COLOR]: above 105%.
-[/LIST]
-[*]Tire temps (ºC).
-Displays the core, three outer temperatures (inner, middle and outer from the suspension point of view) and the tire average (as the border color).
+[*][B]Tire silhouette[/B].
+Drawn as pure GL primitives (no PNG textures); tinted by composite tire temperature (75 % core + 25 % average of inner / middle / outer) on the same compound-normalised scale as the IMO grid.
+[*][B]Inner / middle / outer / core temp grid[/B] (ºC).
+Per-face temperature blocks colour-coded by the compound's thermal curve, with numeric readouts that follow the camber rotation each frame. The inner zone always faces screen-centre so reading temperature bias is consistent across the four wheels.
 [LIST]
 [*][COLOR=rgb(44, 130, 201)]blue[/COLOR]: below 98%.
 [*][COLOR=rgb(44, 130, 201)]blue [/COLOR]- [COLOR=rgb(97, 189, 109)]green[/COLOR]: between 98% and 100%.
 [*][COLOR=rgb(97, 189, 109)]green [/COLOR]- [COLOR=rgb(226, 80, 65)]red[/COLOR]: between 100% and 102%.
 [*][COLOR=rgb(226, 80, 65)]red[/COLOR]: above 102%.
 [/LIST]
-[*]The tire border color is determined with 75% of the core and the 25% of the average of of each outer temperatures.
-[*]Tire wear (%).
-Represented by the vertical bar. It changes its color by wear percentage:
+[*][B]Suspension height[/B] (mm).
+Per-axle ride height with a small up/down arrow icon (also rebuilt as GL primitives). Bars + arrows + readout flash [COLOR=rgb(226, 80, 65)]red[/COLOR] for 0.5 s when the chassis bottoms out (below 0.02 mm).
+[*][B]Suspension travel[/B] (%).
+Strut graphic with a fill that shrinks as the suspension compresses. Uses the Python API to fetch correct values; if the mod does not publish a max travel, it self-calibrates against the running maximum (aka Kunos Alfa 155) and turns blue. The drawn colour is the worst of the last 60 frames so the indicator doesn't flicker (the CSV log still records every frame).
+[LIST]
+[*]white: between 90% and 10%.
+[*][COLOR=rgb(44, 130, 201)]blue[/COLOR]: between 90% and 10% with a self-calibrated max.
+[*][COLOR=rgb(247, 218, 100)]yellow[/COLOR]: between 95% and 90%, and between 10% and 5%.
+[*][COLOR=rgb(226, 80, 65)]red[/COLOR]: above 95% or below 5%.
+[/LIST]
+[*][B]Tire dirt[/B].
+Brown bar that rises from the bottom of the tire as it picks up off-track grass and gravel.
+[*][B]Tire pressure[/B] (psi).
+Pressure icon tinted by per-compound normalised pressure (`PRESSURE_IDEAL` in `tyres.ini`); the label shows the raw psi value.
+[LIST]
+[*][COLOR=rgb(44, 130, 201)]blue[/COLOR]: below 95%.
+[*][COLOR=rgb(44, 130, 201)]blue [/COLOR]- [COLOR=rgb(97, 189, 109)]green[/COLOR]: 95% to 100%.
+[*][COLOR=rgb(97, 189, 109)]green [/COLOR]- [COLOR=rgb(226, 80, 65)]red[/COLOR]: 100% to 105%.
+[*][COLOR=rgb(226, 80, 65)]red[/COLOR]: above 105%.
+[/LIST]
+[*][B]Tire wear[/B] (%).
+Horizontal "Tire Wear" bar in the brake column (between the lock and pressure icons), left → right fill (full = fresh).
 [LIST]
 [*][COLOR=rgb(97, 189, 109)]green[/COLOR]: above 98%.
 [*][COLOR=rgb(247, 218, 100)]yellow[/COLOR]: between 98% and 96%.
 [*][COLOR=rgb(226, 80, 65)]red[/COLOR]: below 96%.
 [/LIST]
-[*]Wheel camber (Rad).
-Represented by the surface inclination below the wheel.
-[*]Wheel load (N).
-Represented as the white circle that increases its sized based on the wheel load.
-[*]Wheel lock / ABS
-A new brake indicator that turns red when the wheel has locked up and blue when the ABS is working (based on the angular velocity and slip coefficient).
+[*][B]Contact-patch bars[/B] (camber × pressure × load).
+Three white bars at the tire-ground line — inner / middle / outer — whose heights are a qualitative load-distribution heuristic. Replaces the older tilted "asphalt quad" camber strip and is still toggled by the [B]Camber[/B] option for backward compatibility.
+[*][B]Wheel load[/B] (N).
+White circle behind the tire whose diameter scales linearly with vertical wheel load; useful for spotting weight transfer at a glance.
+[*][B]Wheel lock / ABS[/B].
+Brake icon that blinks to flag pedal events on this corner. Enabled by default in 1.8.0.
 [LIST]
-[*][COLOR=rgb(44, 130, 201)]blue[/COLOR]: ABS working.
-[*][COLOR=rgb(226, 80, 65)]red[/COLOR]: wheel locked up (mostly cars with no ABS).
-[*][COLOR=rgb(226, 226, 226)]white[/COLOR]: wheel being a regular wheel.
+[*][COLOR=rgb(44, 130, 201)]blue[/COLOR]: ABS modulating on this wheel (pulses at the car's `RATE_HZ`).
+[*][COLOR=rgb(247, 218, 100)]yellow[/COLOR]: wheel locked up, blinking at 5 Hz (mostly cars without ABS).
+[*][COLOR=rgb(226, 226, 226)]white[/COLOR]: neutral.
 [/LIST]
+[*][B]Wheel ID + tyre compound[/B].
+Two-line caption ([B]FL[/B] / [B]FR[/B] / [B]RL[/B] / [B]RR[/B] over a 3-character compound abbreviation — [B]SOF[/B] / [B]MED[/B] / [B]HAR[/B] / [B]INT[/B] / [B]WET[/B]) stacked at the top of the inboard column, lined up with the ride-height readout below.
 [/LIST]
 
 [SIZE=5][B]CSV Log[/B][/SIZE]
@@ -132,7 +141,7 @@ Each component have a button designed to scale all the components to best fit ea
 [*]480p: 640x480
 [*]576p: 768x576
 [*]HD: 1280x720
-[*]FH: 1920x1080
+[*]FHD: 1920x1080
 [*]1440p: 2560x1440
 [*]UHD: 3840x2160
 [*]4K: 4096x2304
@@ -160,7 +169,7 @@ Last step is to enter any session (online, practice, race) and select the desire
 
 [B]Update Insatllation[/B]
 
-For 1.4.1+ versions, just extract the .zip file on the AC folder.For olders versions, its recommended to delete the plugins files from the foder apps/python/LiveTelemetry before extracting the new content.
+For 1.4.1+ versions, just extract the .7z archive on the AC folder. For older versions, it's recommended to delete the plugin files from the folder apps/python/LiveTelemetry before extracting the new content.
 
 [SIZE=6][B]Noted Bugs[/B][/SIZE]
 
