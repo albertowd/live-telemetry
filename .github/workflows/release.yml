@@ -1,12 +1,14 @@
 name: Release
 
-# Fires when a version tag is pushed (e.g. ``git tag v1.8.0 && git push --tags``).
+# Fires when a version tag is pushed (e.g. ``git tag 1.8.0 && git push --tags``
+# matching the existing release convention; ``v1.8.0`` also works).
 # Builds the ``live-telemetry-<version>.7z`` archive on a Windows runner and
 # publishes a GitHub Release with the archive + the matching CHANGELOG section.
 on:
   push:
     tags:
-      - 'v*'
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 # softprops/action-gh-release needs write access to the repo's Releases.
 permissions:
