@@ -1,7 +1,20 @@
 # Changelog
 
-**1.7.2**
-- _TBD_
+**1.8.0**
+- Tire silhouette rebuilt as a hollow rounded-rect frame (matches `tire.svg`); rotates by camber together with the IMO temp grid and dirt bar.
+- Tire-load circle now scales linearly in N (calibrated against ~3 kN static / ~6 kN cornering) and clamps at the tire silhouette width; hidden when sub-pixel.
+- Per-zone tire temperature text readouts on the IMO grid (inner/middle/outer/core).
+- IMO inner zone now sits on the screen-centre-facing side of each wheel widget.
+- Contact-patch bars replace the trapezoidal camber strip (camber × pressure × load heuristic). Toggled by the existing `Camber` option.
+- Tyre compound abbreviation label above the IMO band.
+- Tire-wear bar rebuilt as a horizontal "Tire Wear" caption + left→right fill (full = fresh) in the brake column between the lock and pressure icons. Replaces the side-of-tire vertical bar.
+- Engine widget: driver-aid chip strip (PIT, TC, ABS, DRS, ERS).
+- Engine widget: fuel and brake-bias readouts row.
+- Engine widget height bumped 85 → 120 to fit the new rows.
+- Internal: `BoxComponent` gains `_rotate` / `_camber_rotation` / `_emit_rotated_quad` / `_emit_rotated_rect` so any widget can share the tire-pivot rotation.
+- Internal: `InfoWindow.draw` defaults to enabled for components without a config toggle.
+- Config: version bump resets `cfg/conf.ini` on first run.
+
 
 **1.7.1**
 - BoostBar widget and its options-window toggle are now hidden on naturally aspirated cars (detected via `info.static.maxTurboBoost`).

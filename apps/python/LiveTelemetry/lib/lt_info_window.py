@@ -62,7 +62,12 @@ class InfoWindow:
         """ Draws all enabled components on screen. """
         ac.setBackgroundOpacity(self._window_id, 0.0)
         for component in self._components:
-            if self._options[type(component).__name__] is True:
+            # `.get(..., True)` so always-on components added in 1.8.0
+            # (Compound, EngineChips, EngineReadouts) render without
+            # needing a new persisted option key. Existing toggleable
+            # components are still keyed on their class name and look
+            # up the user-set bool the same way as before.
+            if self._options.get(type(component).__name__, True) is True:
                 ac.glColor4f(*Colors.white)
                 component.draw(self._data, delta_t)
             else:

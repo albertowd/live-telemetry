@@ -59,7 +59,7 @@ class Config:
         self.set_option("Dirt", True)
         self.set_option("Height", True)
         self.set_option("Load", True)
-        self.set_option("Lock", False)
+        self.set_option("Lock", True)
         self.set_option("Logging", False)
         self.set_option("Pressure", True)
         self.set_option("RPMPower", True)

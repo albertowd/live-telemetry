@@ -11,7 +11,9 @@ import ac
 import acsys
 
 from lib.lt_acd import ACD
-from lib.lt_components import BoxComponent, Camber, Dirt, Height, Load, Lock, Pressure, Temps, Suspension, Tire, Wear
+from lib.lt_components import (BoxComponent, Camber, Compound, Dirt, Height,
+                               Load, Lock, Pressure, Temps, Suspension, Tire,
+                               Wear)
 from lib.lt_config import Config
 from lib.lt_info_window import InfoWindow
 from lib.lt_util import WheelPos
@@ -120,17 +122,31 @@ class WheelInfo(InfoWindow):
         mult = BoxComponent.resolution_map[size]
         ac.setSize(self._window_id, 512 * mult, 271 * mult)
 
-        self._components.append(Temps(acd, size, self.__wheel))
+        # Tire silhouette draws first so every other overlay (Temps,
+        # Dirt, Lock, contact patches, ...) lands on top of it. The
+        # new geometry is solid-filled — drawing it later would cover
+        # the IMO temperature grid and dirt bar.
+        self._components.append(Tire(acd, size, self.__wheel))
+        self._components.append(
+            Temps(acd, size, self.__wheel, self._window_id))
         self._components.append(Dirt(size))
         self._components.append(Lock(acd, size, self.__wheel))
-        self._components.append(Tire(acd, size, self.__wheel))
 
-        self._components.append(Camber(size))
+        # Camber option now toggles the contact-patch load-distribution
+        # heuristic — the trapezoidal camber strip was replaced in 1.8.0.
+        # The component class kept its "Camber" name so the existing
+        # option toggle and saved configs continue to work without a
+        # migration step.
+        self._components.append(Camber(acd, size, self.__wheel))
         self._components.append(Suspension(size, self.__wheel))
         self._components.append(Height(size, self.__wheel, self._window_id))
         self._components.append(
             Pressure(acd, size, self.__wheel, self._window_id))
-        self._components.append(Wear(size, self.__wheel))
+        self._components.append(Wear(size, self.__wheel, self._window_id))
+        # Compound abbreviation label — small, always rendered when the
+        # wheel widget is active. Not user-toggleable: it's text-only and
+        # cheap, gating it behind an option would just be UI noise.
+        self._components.append(Compound(size, self._window_id))
         # Needs to be the last to render above all components
         self._components.append(Load(size, self.__wheel))
 
