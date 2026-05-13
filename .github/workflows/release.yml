@@ -1,0 +1,79 @@
+name: Release
+
+# Fires when a version tag is pushed (e.g. ``git tag v1.8.0 && git push --tags``).
+# Builds the ``live-telemetry-<version>.7z`` archive on a Windows runner and
+# publishes a GitHub Release with the archive + the matching CHANGELOG section.
+on:
+  push:
+    tags:
+      - 'v*'
+
+# softprops/action-gh-release needs write access to the repo's Releases.
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build archive and publish release
+    runs-on: windows-latest
+    env:
+      # Force UTF-8 on the Windows runner so the changelog extractor
+      # doesn't trip over non-ASCII characters under cp1252.
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: utf-8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Determine version
+        id: version
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $version = $tag -replace '^v', ''
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Building Live Telemetry $version"
+
+      - name: Build 7z archive
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.version }}"
+          $archive = "live-telemetry-$version.7z"
+          # ``windows-latest`` ships 7-Zip on PATH — mirrors the local
+          # 7z-maker.bat output (``apps`` + ``content``, no .psd/.svg).
+          & 7z a $archive apps content "-x!*.psd" "-x!*.svg" -r
+          if (-not (Test-Path $archive)) { throw "$archive not created" }
+          $size = (Get-Item $archive).Length
+          Write-Host "built $archive ($([math]::Round($size / 1KB, 1)) KB)"
+
+      - name: Compute SHA256 checksum
+        # Lets users verify their download against the release notes.
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.version }}"
+          $archive = "live-telemetry-$version.7z"
+          $hash = (Get-FileHash -Algorithm SHA256 -Path $archive).Hash.ToLower()
+          "$hash  $archive" | Out-File -FilePath SHA256SUMS.txt -Encoding ASCII
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Extract changelog section
+        # Writes the matching ``**<version>**`` CHANGELOG section body
+        # into release_notes.md so softprops uses it as the release
+        # description. Falls back to a placeholder if no match.
+        shell: pwsh
+        run: python tools/extract_changelog.py "${{ steps.version.outputs.version }}" release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            live-telemetry-*.7z
+            SHA256SUMS.txt
+          body_path: release_notes.md
+          # Auto-generated PR/commit list is appended after ``body_path``.
+          generate_release_notes: true
+          fail_on_unmatched_files: true

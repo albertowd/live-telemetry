@@ -1,6 +1,7 @@
 # Changelog
 
 **1.8.0**
+- New GitHub actions to make automatic release assets
 
 Wheel widgets
 - Tire, suspension and height widgets rebuilt as GL primitives; tire group (silhouette, IMO grid, dirt, contact patch, per-zone readouts) rotates together under camber.
