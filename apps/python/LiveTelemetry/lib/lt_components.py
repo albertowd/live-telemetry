@@ -287,9 +287,26 @@ class Dirt(BoxComponent):
 
 
 class Height(BoxComponent):
-    """ Class to handle height draw. """
+    """ Ride-height widget rebuilt as pure GL primitives — matches
+    ``height.svg`` (2048×1536 path, scaled 1:32 into the 64×48
+    widget). Geometry:
 
-    texture_id = 0
+    * 2 horizontal quads form the reference-surface bars (top and
+      bottom rails).
+    * 2 triangles point inward at each bar (up-arrow at the top,
+      down-arrow at the bottom).
+
+    Bars and arrows are slimmer than the SVG (4 / 5 px instead of
+    5 / 6 px) so the gap between rails opens from 26 to 30 logical
+    px — the height readout sits in that gap and now has breathing
+    room above and below. Text is properly vertically centred (text
+    height ≈ 1.2 × font, so anchor = centre − font·0.6).
+
+    Colour flips to red for ``WARNING_TIME_S`` after the ride height
+    drops below 0.02 mm (kerb-strike / bottom-out indicator). Bars,
+    arrows, and the readout all share the warning colour so the
+    alert is unmistakable.
+    """
 
     def __init__(self, resolution: str, wheel, window_id: int):
         # 64×48. Flush with the widget edge so the suspension widget
@@ -299,10 +316,6 @@ class Height(BoxComponent):
             448.0 if wheel.is_left() else 0.0, 208.0, 64.0, 48.0)
         self._back.color = Colors.white
         self.__warn_time = 0.0
-
-        if Height.texture_id == 0:
-            Height.texture_id = ac.newTexture(
-                "apps/python/LiveTelemetry/img/height.png")
 
         self.__lb = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb, "center")
@@ -315,20 +328,60 @@ class Height(BoxComponent):
     def draw(self, data, delta_t: float) -> None:
         if data.height < 0.02:
             self.__warn_time = WARNING_TIME_S
-
         if self.__warn_time - delta_t > 0.0:
-            self._back.color = Colors.red
+            color = Colors.red
             self.__warn_time -= delta_t
         else:
-            self._back.color = Colors.white
+            color = Colors.white
+        self._back.color = color
+        ac.glColor4f(*color)
 
-        self._draw(Height.texture_id)
+        m = self._mult
+        rx, ry = self._box.rect[0], self._box.rect[1]
+        w = self._box.rect[2]
+        h = self._box.rect[3]
+        bar_h = 4.0 * m
+        arrow_h = 5.0 * m
+        arrow_half_w = 6.0 * m
+        cx = rx + w * 0.5
+
+        # 2 reference-surface bars (top + bottom).
+        ac.glQuad(rx, ry, w, bar_h)
+        ac.glQuad(rx, ry + h - bar_h, w, bar_h)
+
+        # 2 arrow triangles — top points up at the top bar, bottom
+        # points down at the bottom bar.
+        top_apex_y = ry + bar_h
+        top_base_y = top_apex_y + arrow_h
+        ac.glBegin(acsys.GL.Triangles)
+        ac.glVertex2f(cx, top_apex_y)
+        ac.glVertex2f(cx - arrow_half_w, top_base_y)
+        ac.glVertex2f(cx + arrow_half_w, top_base_y)
+        ac.glEnd()
+
+        bot_apex_y = ry + h - bar_h
+        bot_base_y = bot_apex_y - arrow_h
+        ac.glBegin(acsys.GL.Triangles)
+        ac.glVertex2f(cx, bot_apex_y)
+        ac.glVertex2f(cx - arrow_half_w, bot_base_y)
+        ac.glVertex2f(cx + arrow_half_w, bot_base_y)
+        ac.glEnd()
+
         ac.setText(self.__lb, "{:03.1f} mm".format(data.height))
+        ac.setFontColor(self.__lb, *color)
 
     def resize_fonts(self, resolution: str) -> None:
         ac.setFontSize(self.__lb, self._font)
+        # Vertically centred between the two arrow bases. AC1 anchors
+        # the label by its top edge and its baseline sits low inside
+        # the rendered glyph box, so the visible centre of the text
+        # ends up *below* the geometric centre at the offset implied
+        # by half the font height. Bumping the offset to `font · 0.8`
+        # nudges the text up enough that the x-height of the readout
+        # lines up with the centre of the gap between the bars.
         ac.setPosition(
-            self.__lb, self._box.center[0], self._box.center[1] - (self._font / 1.25))
+            self.__lb, self._box.center[0],
+            self._box.center[1] - self._font * 0.8)
 
 
 class Load(BoxComponent):
@@ -531,13 +584,12 @@ class Suspension(BoxComponent):
     """
 
     def __init__(self, resolution: str, wheel):
-        # 64×256 logical. X chosen so the inboard edge sits 46 px from
-        # the tire — matches the outboard brake column's 46 px gap so
-        # the tire is symmetrically framed and has room to swing the
-        # camber-rotated corners (~13 px at ±6°) without clipping into
-        # this widget.
+        # 64×256 logical. Inboard edge sits ~26 px from the tire — more
+        # than the ~13 px needed for ±6° camber-rotated corners to
+        # clear this widget, while leaving a healthy gap (~22 px) to
+        # the ride-height widget sitting flush against the widget edge.
         super().__init__(
-            382.0 if wheel.is_left() else 66.0, 0.0, 64.0, 256.0)
+            362.0 if wheel.is_left() else 86.0, 0.0, 64.0, 256.0)
         self._back.color = Colors.white
         self.__mult = BoxComponent.resolution_map[resolution]
         self.resize(resolution)
