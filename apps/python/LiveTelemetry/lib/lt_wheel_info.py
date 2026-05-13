@@ -11,9 +11,9 @@ import ac
 import acsys
 
 from lib.lt_acd import ACD
-from lib.lt_components import (BoxComponent, Camber, Compound, Dirt, Height,
+from lib.lt_components import (BoxComponent, Camber, Dirt, Height,
                                Load, Lock, Pressure, Temps, Suspension, Tire,
-                               Wear)
+                               Wear, WheelTitle)
 from lib.lt_config import Config
 from lib.lt_info_window import InfoWindow
 from lib.lt_util import WheelPos
@@ -143,10 +143,11 @@ class WheelInfo(InfoWindow):
         self._components.append(
             Pressure(acd, size, self.__wheel, self._window_id))
         self._components.append(Wear(size, self.__wheel, self._window_id))
-        # Compound abbreviation label — small, always rendered when the
-        # wheel widget is active. Not user-toggleable: it's text-only and
-        # cheap, gating it behind an option would just be UI noise.
-        self._components.append(Compound(size, self._window_id))
+        # Wheel ID + compound abbreviation stacked above the height
+        # widget. Always rendered (text-only, cheap); gating it behind
+        # an option would just be UI noise.
+        self._components.append(
+            WheelTitle(size, self.__wheel, self._window_id))
         # Needs to be the last to render above all components
         self._components.append(Load(size, self.__wheel))
 

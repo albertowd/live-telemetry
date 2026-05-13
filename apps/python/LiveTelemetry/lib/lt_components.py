@@ -1022,47 +1022,64 @@ class Wear(BoxComponent):
             self.__lb, self._box.center[0], self._box.rect[1])
 
 
-class Compound(BoxComponent):
-    """ Tyre compound abbreviation label.
-
-    Small text label rendered above the IMO band showing the current
-    compound's short name (first three uppercase chars — keeps "SOFT" /
-    "MEDIUM" / "HARD" / "INTER" / "WET" readable while staying out of
-    other widgets' footprints). Ported from live-telemetry-ac-evo
-    (wheel_view.py:_draw_label, compound clause).
+class WheelTitle(BoxComponent):
+    """ Wheel ID + tyre compound abbreviation stacked at the top of
+    the inboard column, lined up with the height widget's x. Replaces
+    the old ``Compound`` placement above the tire silhouette, which
+    AC1's GL render order pushed under the tire's top frame quad
+    (the render callback paints primitives *after* UI labels, so
+    anything on top of a solid quad disappears).
 
     Compound is published per-frame by AC's graphics block via
-    ``ac.getCarTyreCompound(0)``; we cache it on the component and only
-    re-read when the string changes (pit-stop tyre swaps re-publish).
+    ``ac.getCarTyreCompound(0)``; we cache it on the component and
+    only re-read when the string changes (pit-stop tyre swaps
+    re-publish).
     """
 
-    def __init__(self, resolution: str, window_id: int):
-        # 80x16 centred on the widget — visually a small caption above
-        # the tire silhouette, doesn't overlap with any other widget.
-        super().__init__(216.0, 0.0, 80.0, 16.0, font=12.0)
-        self.__lb = ac.addLabel(window_id, "")
-        ac.setFontAlignment(self.__lb, "center")
+    def __init__(self, resolution: str, wheel, window_id: int):
+        # Same x as the height widget so the wheel ID + compound and
+        # the ride-height readout share a column. 64×40 leaves room
+        # for the ID row (font 20) + compound row (font 14) with a
+        # small gap, and sits well above the height widget at y=208.
+        super().__init__(
+            448.0 if wheel.is_left() else 0.0, 4.0, 64.0, 40.0, font=20.0)
+        self.__wheel = wheel
+        self.__lb_id = ac.addLabel(window_id, wheel.name())
+        ac.setFontAlignment(self.__lb_id, "center")
+        self.__lb_compound = ac.addLabel(window_id, "")
+        ac.setFontAlignment(self.__lb_compound, "center")
         self.__last_compound = ""
         self.resize(resolution)
 
     def clear(self) -> None:
-        ac.setText(self.__lb, "")
+        ac.setText(self.__lb_id, "")
+        ac.setText(self.__lb_compound, "")
 
     def draw(self, data, delta_t: float) -> None:
+        ac.setText(self.__lb_id, self.__wheel.name())
+        ac.setFontColor(self.__lb_id, *Colors.white)
+
         try:
             compound = ac.getCarTyreCompound(0) or ""
         except (TypeError, ValueError):
             compound = ""
         if compound != self.__last_compound:
             self.__last_compound = compound
-            ac.setText(self.__lb, compound[:3].upper() if compound else "")
-        ac.setFontColor(self.__lb, *Colors.white)
+            ac.setText(self.__lb_compound,
+                       compound[:3].upper() if compound else "")
+        ac.setFontColor(self.__lb_compound, *Colors.white)
 
     def resize_fonts(self, resolution: str) -> None:
-        ac.setFontSize(self.__lb, self._font)
+        m = self._mult
+        id_font = self._font            # 20 logical
+        compound_font = self._font * 0.7  # ~14 logical
+        ac.setFontSize(self.__lb_id, id_font)
+        ac.setFontSize(self.__lb_compound, compound_font)
         ac.setPosition(
-            self.__lb, self._box.center[0],
-            self._box.rect[1])
+            self.__lb_id, self._box.center[0], self._box.rect[1])
+        ac.setPosition(
+            self.__lb_compound, self._box.center[0],
+            self._box.rect[1] + id_font + 2.0 * m)
 
 
 # Engine widget chip / readout positions. The engine widget grew from
