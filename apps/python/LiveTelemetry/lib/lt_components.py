@@ -27,6 +27,9 @@ _PRESSURE_AMP = 0.3
 _LOAD_FULL_N = 6000.0
 _LOAD_FLOOR = 0.30
 
+# Polygonal approximation for the suspension widget's mount-point rings.
+_SUSP_RING_SEGMENTS = 16
+
 
 class Background:  # pylint: disable=too-few-public-methods
     """ Class to draw a background in a box component. """
@@ -289,9 +292,11 @@ class Height(BoxComponent):
     texture_id = 0
 
     def __init__(self, resolution: str, wheel, window_id: int):
-        # Initial size is 64x48
+        # 64×48. Flush with the widget edge so the suspension widget
+        # can be pushed outward (46 px from the tire) without
+        # overlapping this row in the y=208-256 band.
         super().__init__(
-            430.0 if wheel.is_left() else 18.0, 208.0, 64.0, 48.0)
+            448.0 if wheel.is_left() else 0.0, 208.0, 64.0, 48.0)
         self._back.color = Colors.white
         self.__warn_time = 0.0
 
@@ -506,48 +511,95 @@ class RPMPower(BoxComponent):
 
 
 class Suspension(BoxComponent):
-    """ Class to handle suspension draw. """
+    """ Strut silhouette rebuilt as pure GL quads — matches
+    ``suspension.svg`` (512×2048 path, scaled 1:8 into the 64×256
+    widget). Geometry:
 
-    texture_id = 0
+    * 4 quads form the hollow rectangular body frame (left / right /
+      top / bottom walls, each 10 logical px thick) — same outline as
+      the SVG's evenodd outer-minus-inner path.
+    * 2 mount-point rings (top + bottom) are approximated as
+      16-segment annular fans — donut shape from the SVG packers path
+      (outer r=22, inner r=10 in logical px).
+
+    A coloured inner-fill quad still sits inside the hollow and
+    shrinks as the suspension compresses (parity with the legacy
+    texture widget: solid at full extension, empty at full
+    compression). The whole shape is recoloured per frame based on
+    travel: red at the limits, yellow nearing them, blue when running
+    on a dynamic ``susp_v`` max, white otherwise.
+    """
 
     def __init__(self, resolution: str, wheel):
-        # Initial size is 64x256
+        # 64×256 logical. X chosen so the inboard edge sits 46 px from
+        # the tire — matches the outboard brake column's 46 px gap so
+        # the tire is symmetrically framed and has room to swing the
+        # camber-rotated corners (~13 px at ±6°) without clipping into
+        # this widget.
         super().__init__(
-            346.0 if wheel.is_left() else 102.0, 0.0, 64.0, 256.0)
+            382.0 if wheel.is_left() else 66.0, 0.0, 64.0, 256.0)
         self._back.color = Colors.white
         self.__mult = BoxComponent.resolution_map[resolution]
-
-        if Suspension.texture_id == 0:
-            Suspension.texture_id = ac.newTexture(
-                "apps/python/LiveTelemetry/img/suspension.png")
-
         self.resize(resolution)
 
     def draw(self, data, delta_t: float) -> None:
-        # Calculates the current suspension travel in percentage.
         travel = (data.susp_t / data.susp_m_t) if data.susp_m_t > 0.0 else 0.5
-
-        # Checks the correct color.
         if travel > 0.95 or travel < 0.05:
             self._back.color = Colors.red
         elif travel > 0.90 or travel < 0.1:
             self._back.color = Colors.yellow
         else:
             self._back.color = Colors.blue if data.susp_v else Colors.white
-        self._draw(Suspension.texture_id)
-
-        # Initial padding is 10x44
-        rect = copy.copy(self._box.rect)
-        rect[0] += 10 * self.__mult
-        rect[1] += 44 * self.__mult
-        rect[2] -= 20 * self.__mult
-        rect[3] -= 88 * self.__mult  # 100%
-
-        # Why there is negative and above maximum numbers, KUNOS???
-        rect[3] = min(rect[3], max(0.0, rect[3] * (1.0 - travel)))
-
         ac.glColor4f(*self._back.color)
-        ac.glQuad(*rect)
+
+        m = self.__mult
+        rx, ry = self._box.rect[0], self._box.rect[1]
+        wall = 10.0 * m
+        body_top = ry + 34.0 * m
+        body_bot = ry + 222.0 * m
+        body_h = body_bot - body_top
+        inner_left = rx + 10.0 * m
+        inner_right = rx + 54.0 * m
+        inner_top = ry + 44.0 * m
+        inner_bot = ry + 212.0 * m
+        inner_w = inner_right - inner_left
+
+        # 4 body-frame quads (left / right / top / bottom walls).
+        ac.glQuad(rx, body_top, wall, body_h)
+        ac.glQuad(inner_right, body_top, wall, body_h)
+        ac.glQuad(inner_left, body_top, inner_w, wall)
+        ac.glQuad(inner_left, inner_bot, inner_w, wall)
+
+        # Mount-point rings — centres at (32, 22) and (32, 234) in
+        # logical coords (matches the SVG packers path).
+        self._emit_ring(rx + 32.0 * m, ry + 22.0 * m)
+        self._emit_ring(rx + 32.0 * m, ry + 234.0 * m)
+
+        # Inner travel fill — same colour as the frame; height shrinks
+        # toward zero as the strut compresses.
+        fill_h = min(inner_bot - inner_top,
+                     max(0.0, (inner_bot - inner_top) * (1.0 - travel)))
+        if fill_h > 0.0:
+            ac.glQuad(inner_left, inner_top, inner_w, fill_h)
+
+    def _emit_ring(self, cx: float, cy: float) -> None:
+        """ ``_SUSP_RING_SEGMENTS`` trapezoidal quads spanning the
+        annulus between the inner and outer radii. """
+        m = self.__mult
+        r_o = 22.0 * m
+        r_i = 10.0 * m
+        step = (2.0 * math.pi) / _SUSP_RING_SEGMENTS
+        for i in range(_SUSP_RING_SEGMENTS):
+            t1 = step * i
+            t2 = step * (i + 1)
+            c1, s1 = math.cos(t1), math.sin(t1)
+            c2, s2 = math.cos(t2), math.sin(t2)
+            ac.glBegin(acsys.GL.Quads)
+            ac.glVertex2f(cx + r_i * c1, cy + r_i * s1)
+            ac.glVertex2f(cx + r_o * c1, cy + r_o * s1)
+            ac.glVertex2f(cx + r_o * c2, cy + r_o * s2)
+            ac.glVertex2f(cx + r_i * c2, cy + r_i * s2)
+            ac.glEnd()
 
     def resize_fonts(self, resolution: str) -> None:
         self.__mult = BoxComponent.resolution_map[resolution]
