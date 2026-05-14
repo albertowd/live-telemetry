@@ -44,6 +44,9 @@ def acMain(ac_version: str) -> None:
     log("Starting Live Telemetry {} on AC Python API version {}...".format(
         LT_VERSION, ac_version))
 
+    # Preload Arial Bold so tire-temp readouts can use setCustomFont.
+    ac.initFont(0, "Arial", 0, 1)
+
     log("Loading configs...")
     LT.configs = Config(LT_VERSION)
 

@@ -14,6 +14,20 @@ from sys import exc_info
 from lib.lt_util import get_docs_path, log
 
 
+# Widget logical dimensions at mult=1.0 (1440p); kept in sync with
+# ac.setSize calls in lt_wheel_info.py / lt_engine_info.py. Options
+# window is a fixed AC dialog and does not scale.
+_TIRE_LOGICAL_WH = (512, 271)
+_ENGINE_LOGICAL_WH = (512, 120)
+_OPTIONS_WH = (395, 195)
+
+# Local copy of BoxComponent.resolution_map so config layout math
+# doesn't have to import lt_components (which pulls in `ac`/`acsys`).
+_SIZE_MULT = {"240p": 0.16, "360p": 0.25, "480p": 0.33, "576p": 0.4,
+              "HD": 0.5, "FHD": 0.75, "1440p": 1.0, "UHD": 1.5,
+              "4K": 1.6, "8K": 3.0}
+
+
 class Config:
     """ Singleton to handle configuration methods. """
 
@@ -47,40 +61,27 @@ class Config:
         self.__configs["Windows"] = {}
         self.__configs["Windows Positions"] = {}
 
-        self.__set_default_options()
-        self.__set_default_windows_active()
+        self.__load_documented_defaults()
         height, width = self.__read_screen_resolution()
         self.__set_default_window_positions(height, width)
 
-    def __set_default_options(self) -> None:
-        """ Writes the default option values. """
-        self.set_option("BoostBar", True)
-        self.set_option("Camber", True)
-        self.set_option("Dirt", True)
-        self.set_option("Height", True)
-        self.set_option("Load", True)
-        self.set_option("Lock", True)
-        self.set_option("Logging", False)
-        self.set_option("Pressure", True)
-        self.set_option("RPMPower", True)
-        self.set_option("Size", "FHD")
-        self.set_option("Suspension", True)
-        self.set_option("Temps", True)
-        self.set_option("Tire", True)
-        self.set_option("Wear", True)
+    def __load_documented_defaults(self) -> None:
+        """ Copies [Options] and [Windows] from settings_defaults.ini.
 
-    def __set_default_windows_active(self) -> None:
-        """ Marks all windows active by default.
-
-        AC restores apps from its own app-bar persistence after a version bump,
-        but its activation listener does not fire for auto-restored apps — so
-        a False default here would surface as invisible widgets.
+        settings_defaults.ini is the single source of truth for documented
+        defaults so the runtime cannot drift from the docs. [Windows
+        Positions] is computed from screen resolution instead.
         """
-        self.set_window_active("EN", True)
-        self.set_window_active("FL", True)
-        self.set_window_active("FR", True)
-        self.set_window_active("RL", True)
-        self.set_window_active("RR", True)
+        defaults_path = path.join(self.__base_path, "settings_defaults.ini")
+        defaults = ConfigParser(allow_no_value=True, comment_prefixes=(";","#","/","_"), empty_lines_in_values=False, inline_comment_prefixes=(";","#","/","_"), strict=False)
+        defaults.read(defaults_path)
+        for section in ("Options", "Windows"):
+            if defaults.has_section(section):
+                for name, value in defaults.items(section):
+                    # ConfigParser keeps inline-comment-stripped values
+                    # with trailing whitespace; strip so "True " becomes
+                    # "True" and get_bool_option compares correctly.
+                    self.__set_str(section, name, value.strip())
 
     @staticmethod
     def __read_screen_resolution() -> (int, int):
@@ -103,13 +104,28 @@ class Config:
         return height, width
 
     def __set_default_window_positions(self, height: int, width: int) -> None:
-        """ Writes the default window positions for the given screen size. """
-        self.set_window_position("EN", [floor((width - 360) / 2), height - 51 - 160])
-        self.set_window_position("FL", [10, 80])
-        self.set_window_position("FR", [width - 360 - 10, 80])
-        self.set_window_position("OP", [width - 395 - 50, floor((height - 195) / 2)])
-        self.set_window_position("RL", [10, height - 163 - 80])
-        self.set_window_position("RR", [width - 360 - 10, height - 163 - 80])
+        """ Writes the default window positions for the given screen size.
+
+        Widget dimensions are scaled by the currently-configured Size
+        multiplier so widgets land at the corners/centre of the screen
+        without overlapping at any documented default.
+        """
+        mult = _SIZE_MULT.get(self.get_option("Size"), 1.0)
+        tire_w = int(_TIRE_LOGICAL_WH[0] * mult)
+        tire_h = int(_TIRE_LOGICAL_WH[1] * mult)
+        engine_w = int(_ENGINE_LOGICAL_WH[0] * mult)
+        engine_h = int(_ENGINE_LOGICAL_WH[1] * mult)
+        op_w, op_h = _OPTIONS_WH
+
+        edge = 10
+        pad = 80
+
+        self.set_window_position("EN", [floor((width - engine_w) / 2), height - engine_h - pad])
+        self.set_window_position("FL", [edge, pad])
+        self.set_window_position("FR", [width - tire_w - edge, pad])
+        self.set_window_position("OP", [width - op_w - 50, floor((height - op_h) / 2)])
+        self.set_window_position("RL", [edge, height - tire_h - pad])
+        self.set_window_position("RR", [width - tire_w - edge, height - tire_h - pad])
 
     def __get_str(self, section: str, option: str) -> str:
         """ Returns an option. """

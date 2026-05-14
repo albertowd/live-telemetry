@@ -167,6 +167,7 @@ class BoostBar(BoxComponent):
 
         self.__lb = ac.addLabel(window_id, "- bar")
         ac.setFontAlignment(self.__lb, "center")
+        ac.setCustomFont(self.__lb, "Arial", 0, 1)
 
         self.resize(resolution)
 
@@ -319,6 +320,7 @@ class Height(BoxComponent):
 
         self.__lb = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb, "center")
+        ac.setCustomFont(self.__lb, "Arial", 0, 1)
 
         self.resize(resolution)
 
@@ -491,6 +493,7 @@ class Pressure(BoxComponent):
 
         self.__lb = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb, "center")
+        ac.setCustomFont(self.__lb, "Arial", 0, 1)
 
         self.resize(resolution)
 
@@ -524,9 +527,11 @@ class RPMPower(BoxComponent):
 
         self.__lb_hp = ac.addLabel(window_id, "- HP")
         ac.setFontAlignment(self.__lb_hp, "left")
+        ac.setCustomFont(self.__lb_hp, "Arial", 0, 1)
 
         self.__lb_rpm = ac.addLabel(window_id, "- RPM")
         ac.setFontAlignment(self.__lb_rpm, "right")
+        ac.setCustomFont(self.__lb_rpm, "Arial", 0, 1)
 
         self.resize(resolution)
 
@@ -687,14 +692,20 @@ class Temps(BoxComponent):  # pylint: disable=too-many-instance-attributes
         self.__core_font = 16.0
 
         # Per-zone labels. clear() blanks the text — AC has no removeLabel.
+        # Arial Bold (preloaded in acMain) makes the small zone readouts
+        # legible against the coloured bump quads.
         self.__lb_i = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb_i, "center")
+        ac.setCustomFont(self.__lb_i, "Arial", 0, 1)
         self.__lb_m = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb_m, "center")
+        ac.setCustomFont(self.__lb_m, "Arial", 0, 1)
         self.__lb_o = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb_o, "center")
+        ac.setCustomFont(self.__lb_o, "Arial", 0, 1)
         self.__lb_c = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb_c, "center")
+        ac.setCustomFont(self.__lb_c, "Arial", 0, 1)
 
         self.resize(resolution)
 
@@ -791,15 +802,15 @@ class Temps(BoxComponent):  # pylint: disable=too-many-instance-attributes
 
         # Core readout fits inside the carved gap, coloured in the core
         # temp colour so the magnitude still reads at a glance.
-        ac.setText(self.__lb_c, "{} C".format(int(data.tire_t_c)))
+        ac.setText(self.__lb_c, "{}°C".format(int(data.tire_t_c)))
         ac.setFontColor(self.__lb_c, *core_color)
         ac.setPosition(self.__lb_c, self._box.center[0],
                        self._box.center[1] - (self.__core_font * 0.5))
 
     def resize_fonts(self, resolution: str) -> None:
         self.__mult = BoxComponent.resolution_map[resolution]
-        self.__zone_font = max(8.0, self._font * 0.85)
-        self.__core_font = self._font * 1.4
+        self.__zone_font = max(16.0, self._font * 1.35)
+        self.__core_font = self._font * 1.6
         for lb in (self.__lb_i, self.__lb_m, self.__lb_o):
             ac.setFontSize(lb, self.__zone_font)
         ac.setFontSize(self.__lb_c, self.__core_font)
@@ -968,17 +979,18 @@ class Wear(BoxComponent):
     """
 
     def __init__(self, resolution: str, wheel, window_id: int):
-        # 60 wide × 32 tall: title row (12) + 8 px gap + bar (12).
+        # 60 wide × 32 tall: title row (14) + 6 px gap + bar (12).
         # Centred vertically between the lock icon (ends y=60) and the
         # pressure icon (starts y=171) — midpoint y=115.5, top y=100.
         super().__init__(
-            70.0 if wheel.is_left() else 382.0, 100.0, 60.0, 32.0, font=12.0)
+            70.0 if wheel.is_left() else 382.0, 100.0, 60.0, 32.0, font=14.0)
         self._back.color = Colors.black
         self._back.border = Colors.white
         self._back.size = 1.5
 
         self.__lb = ac.addLabel(window_id, "Tire Wear")
         ac.setFontAlignment(self.__lb, "center")
+        ac.setCustomFont(self.__lb, "Arial", 0, 1)
 
         self.resize(resolution)
 
@@ -1001,8 +1013,8 @@ class Wear(BoxComponent):
             color = Colors.red
 
         # Bar outline + black fill below the title row.
-        title_h = 12.0 * self._mult
-        gap = 8.0 * self._mult
+        title_h = 14.0 * self._mult
+        gap = 6.0 * self._mult
         bar_h = 12.0 * self._mult
         bar_x = self._box.rect[0]
         bar_y = self._box.rect[1] + title_h + gap
@@ -1046,8 +1058,10 @@ class WheelTitle(BoxComponent):
         self.__wheel = wheel
         self.__lb_id = ac.addLabel(window_id, wheel.name())
         ac.setFontAlignment(self.__lb_id, "center")
+        ac.setCustomFont(self.__lb_id, "Arial", 0, 1)
         self.__lb_compound = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb_compound, "center")
+        ac.setCustomFont(self.__lb_compound, "Arial", 0, 1)
         self.__last_compound = ""
         self.resize(resolution)
 
@@ -1103,6 +1117,7 @@ class EngineChips(BoxComponent):
         self.__labels = [ac.addLabel(window_id, "") for _ in range(6)]
         for lb in self.__labels:
             ac.setFontAlignment(lb, "center")
+            ac.setCustomFont(lb, "Arial", 0, 1)
         self.resize(resolution)
 
     def clear(self) -> None:
@@ -1161,8 +1176,10 @@ class EngineReadouts(BoxComponent):
         super().__init__(0.0, _ENGINE_READOUTS_Y, 512.0, _ENGINE_READOUTS_H, font=12.0)
         self.__lb_fuel = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb_fuel, "center")
+        ac.setCustomFont(self.__lb_fuel, "Arial", 0, 1)
         self.__lb_bbias = ac.addLabel(window_id, "")
         ac.setFontAlignment(self.__lb_bbias, "center")
+        ac.setCustomFont(self.__lb_bbias, "Arial", 0, 1)
         self.resize(resolution)
 
     def clear(self) -> None:
