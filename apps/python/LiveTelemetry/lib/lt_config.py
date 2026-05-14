@@ -59,8 +59,8 @@ class Config:
         if self.__configs.has_option("Options", "Size"):
             current_size = self.__get_str("Options", "Size")
             if current_size not in _SIZE_MULT:
-                log("Unsupported Size '{}', falling back to 1440p.".format(current_size))
-                self.set_option("Size", "1440p")
+                log("Unsupported Size '{}', falling back to FHD.".format(current_size))
+                self.set_option("Size", "FHD")
                 self.save_config()
 
     def __create_default_config(self, lt_version: str) -> None:

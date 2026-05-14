@@ -785,15 +785,26 @@ class Temps(BoxComponent):  # pylint: disable=too-many-instance-attributes
         if bot_h > 0.0:
             self._emit_rotated_rect(
                 (self.__band_left, gap_bot, band_w, bot_h), pivot, trig)
-        # Left + right side quads filling the gap row's outer columns.
+        # Left + right side quads filling the gap row's outer edges.
+        # The carve-out is wider than the middle column so a 3-digit
+        # core reading (e.g. "100°C") doesn't get overpainted by the
+        # filler quads — kept symmetric around the centre.
         gap_row_h = gap_bot - gap_top
+        gap_w = self.__part * 1.8
+        gap_left = self._box.center[0] - gap_w * 0.5
+        gap_right = gap_left + gap_w
+        left_filler_w = max(0.0, gap_left - self.__band_left)
+        right_filler_w = max(
+            0.0, (self.__band_left + band_w) - gap_right)
         if gap_row_h > 0.0:
-            self._emit_rotated_rect(
-                (self.__band_left, gap_top, self.__part, gap_row_h),
-                pivot, trig)
-            self._emit_rotated_rect(
-                (self.__band_left + 2.0 * self.__part, gap_top,
-                 self.__part, gap_row_h), pivot, trig)
+            if left_filler_w > 0.0:
+                self._emit_rotated_rect(
+                    (self.__band_left, gap_top,
+                     left_filler_w, gap_row_h), pivot, trig)
+            if right_filler_w > 0.0:
+                self._emit_rotated_rect(
+                    (gap_right, gap_top,
+                     right_filler_w, gap_row_h), pivot, trig)
 
         # Per-zone bumps + text readouts (positions rotated inside _draw_zone).
         self._draw_zone(data.tire_t_i, self.__inner_x, self.__lb_i, rot)

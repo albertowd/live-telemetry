@@ -1,5 +1,12 @@
 # Changelog
 
+**1.8.1**
+- Tire IMO temperature readouts (inner / middle / outer) bumped in size and switched to Arial Bold for legibility against the coloured bump quads.
+- Core tire temperature readout shows the degree symbol (e.g. `85°C`).
+- Tire wear label font bumped and switched to Arial Bold; layout retuned to keep the title row + bar inside the existing box.
+- All other telemetry labels (BoostBar, Height, Pressure, RPM/HP, wheel ID + compound, engine chips, fuel, brake bias) switched to Arial Bold for consistency.
+- Dropped sub-720p resolution presets (240p, 360p, 480p, 576p) from the Size cycle and docs; stale `Size` entries in `conf.ini` are coerced to `FHD` on load.
+
 **1.8.0**
 - New GitHub actions to make automatic release assets
 

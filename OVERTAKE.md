@@ -136,10 +136,6 @@ All engine and wheels logs are stored in the folder Documents/Assetto Corsa/logs
 Each component have a button designed to scale all the components to best fit each default resolution. Choose be free to choose the best scale for your taste. ;)
 
 [LIST]
-[*]240p: 352x240
-[*]360p: 480x360
-[*]480p: 640x480
-[*]576p: 768x576
 [*]HD: 1280x720
 [*]FHD: 1920x1080
 [*]1440p: 2560x1440

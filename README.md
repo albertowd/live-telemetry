@@ -1,4 +1,4 @@
-# Live Telemetry 1.8.0
+# Live Telemetry 1.8.1
 
 An Assetto Corsa in-game app (Python plugin) that renders real-time, per-frame telemetry for engine, suspension, and each tire individually. The goal is not to replace AC's built-in apps but to give a richer signal while iterating on car setups.
 
@@ -350,10 +350,10 @@ pylint apps/python/LiveTelemetry
 ### Packaging a release
 
 ```bat
-7z-maker.bat 1.8.0
+7z-maker.bat 1.8.1
 ```
 
-Produces `live-telemetry-1.8.0.7z` containing `apps/` and `content/`, excluding `*.psd` and `*.svg` source assets. The archive is the artefact you ship to Content Manager / RaceDepartment / GitHub Releases. Running `7z-maker.bat` with no argument defaults to the current `1.8.0` version.
+Produces `live-telemetry-1.8.1.7z` containing `apps/` and `content/`, excluding `*.psd` and `*.svg` source assets. The archive is the artefact you ship to Content Manager / RaceDepartment / GitHub Releases. Running `7z-maker.bat` with no argument defaults to the current `1.8.1` version.
 
 ### Adding a new option (worked example)
 
