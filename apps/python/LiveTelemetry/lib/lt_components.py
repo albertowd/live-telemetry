@@ -81,8 +81,8 @@ class Box:
 class BoxComponent:
     """ Class to handle position and resize of a component. """
 
-    resolutions = ["240p", "360p", "480p", "576p","HD", "FHD", "1440p", "UHD", "4K", "8K"]
-    resolution_map = {"240p": 0.16, "360p": 0.25, "480p": 0.33, "576p": 0.4, "HD": 0.5, "FHD": 0.75, "1440p": 1.0, "UHD": 1.5, "4K": 1.6, "8K": 3.0}
+    resolutions = ["HD", "FHD", "1440p", "UHD", "4K", "8K"]
+    resolution_map = {"HD": 0.5, "FHD": 0.75, "1440p": 1.0, "UHD": 1.5, "4K": 1.6, "8K": 3.0}
 
     # Tire-centre rotation pivot in unrotated logical coords; shared
     # by Tire / Temps / Dirt so they tilt together under camber.

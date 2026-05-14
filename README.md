@@ -270,10 +270,6 @@ Each window has a button that scales every component to a target resolution. Pic
 
 | Preset | Pixels | Multiplier |
 | --- | --- | --- |
-| 240p | 352×240 | 0.16 |
-| 360p | 480×360 | 0.25 |
-| 480p | 640×480 | 0.33 |
-| 576p | 768×576 | 0.40 |
 | HD | 1280×720 | 0.50 |
 | FHD | 1920×1080 | 0.75 |
 | 1440p | 2560×1440 | 1.00 |

@@ -23,8 +23,7 @@ _OPTIONS_WH = (395, 195)
 
 # Local copy of BoxComponent.resolution_map so config layout math
 # doesn't have to import lt_components (which pulls in `ac`/`acsys`).
-_SIZE_MULT = {"240p": 0.16, "360p": 0.25, "480p": 0.33, "576p": 0.4,
-              "HD": 0.5, "FHD": 0.75, "1440p": 1.0, "UHD": 1.5,
+_SIZE_MULT = {"HD": 0.5, "FHD": 0.75, "1440p": 1.0, "UHD": 1.5,
               "4K": 1.6, "8K": 3.0}
 
 
@@ -53,6 +52,16 @@ class Config:
             log("Creating new config file.")
             self.__create_default_config(lt_version)
             self.save_config()
+
+        # Coerce a stale Size preset (e.g. 480p, which was dropped) to a
+        # supported one so downstream resolution_map[size] lookups don't
+        # KeyError on first launch after the sub-720p presets were removed.
+        if self.__configs.has_option("Options", "Size"):
+            current_size = self.__get_str("Options", "Size")
+            if current_size not in _SIZE_MULT:
+                log("Unsupported Size '{}', falling back to 1440p.".format(current_size))
+                self.set_option("Size", "1440p")
+                self.save_config()
 
     def __create_default_config(self, lt_version: str) -> None:
         """ Initializes the in-memory config with default sections and values. """
