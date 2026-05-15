@@ -200,7 +200,7 @@ The RPM bar uses the power curve from `engine.ini` (`POWER CURVE` → `power.lut
 * <span style="color:red">red</span> — past peak RPM but still above 99.5%
 * <span style="color:green">green</span> — at or above 99.5% (the shift hint, though sometimes you should hold)
 
-Predicting the *true* optimal shift point would require knowing the next-gear RPM after the shift, which AC doesn't expose, so the heuristic targets the >99.5% / pre-redline window.
+Predicting the *true* optimal shift point would require knowing the next-gear RPM after the shift, which AC doesn't expose, so the heuristic targets the >99.5% / pre-redline window. `power.lut` is the engine's **no-boost** torque curve, so on turbo cars the rev-bar peak tracks the base peak — typically close to the on-boost peak by design, since engine builders align the two. The colour band uses that base peak; the HP figure below scales by `(1 + boost)` live, so the *value* you read is exact while the *colour position* may sit a few hundred RPM off the actual boosted peak.
 
 The HP value displayed alongside is `hp = power(rpm) * (1 + boost) + kers_deploy_kw * 1.341`. The first term is the legacy ICE figure; the second is the live electric contribution — only added while `kers_charge` is actually falling (real energy leaving the battery, regardless of whether the driver pressed a KERS button or the MCU triggered the deploy itself). `kers_deploy_kw` is EMA-smoothed (α=0.3, ~30 ms half-life at AC's 100 Hz update) so the per-frame `kers_charge` quantisation step doesn't flicker the readout — at the cost of a short tail when deploy stops.
 
