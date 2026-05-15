@@ -4,7 +4,7 @@ An Assetto Corsa in-game app (Python plugin) that renders real-time, per-frame t
 
 The app reads live data through AC's shared-memory ABI and Python API, and resolves per-car limits directly from the encrypted Kunos `data.acd` files (or the unpacked `data/` folder for mods in development), so it works with no per-car configuration.
 
-[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/screenshot.jpg)](https://youtu.be/_nfAqOOu0QI)
+[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/screenshot.webp)](https://youtu.be/ISR4TEXZyTw)
 
 ---
 
@@ -167,23 +167,30 @@ All toggleable from the in-game **Options** window (or via Content Manager):
 ### What gets shown
 
 * Engine boost pressure (bar)
-* Engine RPM and live HP
+* Engine RPM and live HP (HP = `power(rpm) * (1 + boost)`)
+* Driver-aid chip strip (PIT, TC, ABS, DRS, ERS)
+* Fuel (L) and brake-bias (%F) readouts
 * Suspension height (mm) and travel (%)
 * Tire pressure (psi)
-* Tire core, inner, middle, outer temperatures (ºC)
-* Tire load (N) and wear (%)
-* Wheel camber (rad) and load (N)
-* Wheel lock / ABS
+* Tire core, inner, middle, outer temperatures (ºC) with per-zone numeric readouts on the IMO grid
+* Tire dirt level
+* Tire wear (self-calibrating, full = fresh)
+* Contact-patch bars (camber × pressure × load distribution heuristic)
+* Wheel load (N) drawn as a circle behind the tire
+* Wheel lock / ABS indicator (blue ABS pulse at the car's `RATE_HZ`, yellow 5 Hz lock blink)
+* Wheel ID + tyre compound abbreviation
 
 ### Options Window
 
-![Options Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-options.jpg)
+![Options Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-options.webp)
 
-Toggles every overlay element, switches the global scale, and turns CSV logging on or off. Logging only persists the elements that were actually drawn — disabled fields are not written.
+Toggles every overlay element, switches the global `Size`, and turns CSV logging on or off — logging only persists the elements that were actually drawn, disabled fields are not written. The `Reset` action button snaps every widget back to its default screen-edge anchor for the current resolution.
+
+Window positions are stored in **anchor-space**: each widget pins to a specific corner of the screen — FL top-left, FR top-right, RL bottom-left, RR bottom-right, Engine bottom-centre, Options top-left — so cycling `Size` scales the widget around that anchor instead of growing it off-screen.
 
 ### Engine Window
 
-![Engine Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-engine.jpg)
+![Engine Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-engine.webp)
 
 The RPM bar uses the power curve from `engine.ini` (`POWER CURVE` → `power.lut`) to colour the current RPM by how close it is to peak power:
 
@@ -201,7 +208,7 @@ Boost bar:
 
 ### Wheel Window
 
-![Wheel Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-wheel.jpg)
+![Wheel Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-wheel.webp)
 
 Every element is laid out around a central tire silhouette and mirrored on the left/right windows. Per-frame values are computed in `lib/lt_wheel_info.py:Data.update` and rendered by the matching subclass in `lib/lt_components.py`. Per-car limits (ideal pressure, thermal curves, suspension max, ABS slip target, …) come from the car's `data.acd` (or unpacked `data/` folder) at construction time — no value is "hardcoded per car".
 
@@ -233,10 +240,10 @@ The tire, suspension and height widgets are drawn as GL primitives — no PNG te
   * <span style="color:green">green</span>→<span style="color:red">red</span> — 100%–102%
   * <span style="color:red">red</span> — above 102%
 
-* **Tire wear (%).** `physics.tyreWear[i] / 100`. Horizontal "Tire Wear" bar in the brake column (between the lock and pressure icons), left→right fill (full = fresh). The bar maps the last **6 %** of tread (94 %–100 %) to its full width — most of a tire's life is "green" and the bar only starts visibly retreating once wear becomes meaningful.
-  * <span style="color:green">green</span> — above 98%
-  * <span style="color:yellow">yellow</span> — 96%–98%
-  * <span style="color:red">red</span> — below 96%
+* **Tire wear.** `physics.tyreWear[i] / 100`. Horizontal "Tire Wear" bar in the brake column (between the lock and pressure icons), left→right fill (full = fresh). AC's `tyreWear` is a grip / health signal, not a monotonic wear counter — fresh tires read ~0.995, the value climbs toward 1.0 during warm-up, and only then drifts back down as the tire actually wears. The bar therefore **self-calibrates against the per-wheel peak** observed in the session: it pins at 100% while warm-up is still pushing the peak up, and only starts retreating once the current reading falls below that peak (stretched across a 0.06-unit window, the legacy empirical wear range).
+  * <span style="color:green">green</span> — within the top 50% of the peak-grip window
+  * <span style="color:yellow">yellow</span> — 20%–50%
+  * <span style="color:red">red</span> — below 20%
 
 * **Contact patch (camber × pressure × load).** Three white bars sitting at the tire-ground line — inner / middle / outer — whose heights are a qualitative load-distribution heuristic combining camber (lateral bias), pressure norm vs. ideal (crown / bow), and wheel load (overall extent). Replaces the older "tilted asphalt quad" camber indicator. Toggled by the `Camber` option for backward compatibility with existing configs.
 
@@ -298,17 +305,17 @@ CSV uses `;` as separator, UTF-8 encoding, and one column per attribute of the p
 
 Drag the release `.7z` onto Content Manager and accept the install/update prompt. Settings are then editable from Content Manager → Settings → Live Telemetry:
 
-![Live Telemetry Settings on Content Manager](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/content-manager-app-settings.jpg)
+![Live Telemetry Settings on Content Manager](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/content-manager-app-settings.webp)
 
 ### Manual install
 
 Extract the `.7z` directly into your Assetto Corsa root (typically `C:/Program Files (x86)/steam/steamapps/common/assettocorsa`). In-game, enable the app under **Options → General → UI Modules → Live Telemetry**:
 
-![Launcher Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/launcher-menu.jpg)
+![Launcher Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/launcher-menu.webp)
 
 Then enter any session and pick the desired window from the right-hand app bar:
 
-![Session Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/session-menu.jpg)
+![Session Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/session-menu.webp)
 
 ### Manual update
 

@@ -12,36 +12,38 @@ Now there is a standalone executable version of this plugin that can read AC1, A
 
 The app uses the mod file directly or the encrypted Kunos files to calculate it's limits, does not need configuration.
 
-[MEDIA=youtube]_nfAqOOu0QI[/MEDIA]
+[MEDIA=youtube]ISR4TEXZyTw[/MEDIA]
 
 [SIZE=5][B]Telemetry Info[/B][/SIZE]
 
 [LIST]
-[*]Engine Boost Pressure (bar).
-[*]Engine RPM/HP.
-[*]Driver-aid chips: PIT, TC, ABS, DRS, ERS.
-[*]Fuel and brake-bias readouts.
-[*]Suspension height (mm).
-[*]Suspension travel (%).
-[*]Tire pressure (psi).
-[*]Tire core, inner, middle and outer temperatures (ºC), with per-zone numeric readouts on the IMO grid.
-[*]Tire load (N).
-[*]Tire wear (%).
-[*]Tyre compound abbreviation and wheel ID label.
-[*]Contact-patch bars (camber × pressure × load heuristic).
-[*]Wheel load (N).
-[*]Wheel lock / ABS.
+[*]Engine boost pressure (bar).
+[*]Engine RPM with current HP (HP = power(rpm) × (1 + boost)).
+[*]Driver-aid chip strip: PIT, TC, ABS, DRS, ERS — each lights up only while its condition is true.
+[*]Fuel (L) and brake-bias (%F) readouts.
+[*]Suspension ride height (mm) with bottom-out flash.
+[*]Suspension travel (%) with dynamic-max fallback for mods that don't publish one.
+[*]Tire pressure (psi), normalised against per-compound PRESSURE_IDEAL.
+[*]Tire core / inner / middle / outer temperatures (°C) with per-zone numeric readouts on the IMO grid.
+[*]Tire dirt level (vertical brown bar).
+[*]Tire wear bar (self-calibrating, full = fresh).
+[*]Contact-patch bars (camber × pressure × load distribution heuristic).
+[*]Wheel load (N) drawn as a circle behind the tire.
+[*]Wheel lock / ABS indicator (blue ABS pulse at the car's RATE_HZ, yellow 5 Hz lock blink).
+[*]Wheel ID (FL/FR/RL/RR) + tyre compound abbreviation (SOF / MED / HAR / INT / WET).
 [/LIST]
 
 [SIZE=5][B]Options Window[/B][/SIZE]
 
-[IMG alt="Options Window"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-options.jpg[/IMG]
+[IMG alt="Options Window"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-options.webp[/IMG]
 
-The options window should give you the ability to toggle every information drew by the other windows on screen. You can switch the app scale and if the app is logging the information (it will save on files only the information that was drew on screen, not the entire session).
+The options window toggles every overlay element rendered by the other windows. You can also cycle the global widget scale ([B]Size[/B]), turn CSV [B]Logging[/B] on or off (only fields actually drawn are recorded), and use the new [B]Reset[/B] button to snap every widget back to its default screen-edge anchor for the current resolution.
+
+Widget positions are stored in anchor-space — FL pins top-left, FR top-right, RL bottom-left, RR bottom-right and the engine widget bottom-centre — so cycling Size scales each widget around its assigned corner instead of pushing it off-screen.
 
 [SIZE=5][B]Engine Window[/B][/SIZE]
 
-[IMG alt="Engine Menu"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-engine.jpg[/IMG]
+[IMG alt="Engine Menu"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-engine.webp[/IMG]
 
 The engine window will display the actual RPM with some color variation. The color is based on the percentage of power produced by the current RPM by the last peak RPM power.
 
@@ -65,7 +67,7 @@ Below the RPM bar, a strip of driver-aid chips lights up only while each conditi
 
 [SIZE=5][B]Wheel Window[/B][/SIZE]
 
-[IMG alt="Wheel Window"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-wheel.jpg?[/IMG]
+[IMG alt="Wheel Window"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-wheel.webp[/IMG]
 
 Each wheel window will display a lot of information. The tire silhouette, IMO temperature grid, dirt overlay, contact-patch bars and per-zone temperature readouts share a single pivot and rotate together with the wheel under camber (the tilt is amplified ×2 so a typical setup camber reads clearly at a glance).
 
@@ -100,12 +102,12 @@ Pressure icon tinted by per-compound normalised pressure (`PRESSURE_IDEAL` in `t
 [*][COLOR=rgb(97, 189, 109)]green [/COLOR]- [COLOR=rgb(226, 80, 65)]red[/COLOR]: 100% to 105%.
 [*][COLOR=rgb(226, 80, 65)]red[/COLOR]: above 105%.
 [/LIST]
-[*][B]Tire wear[/B] (%).
-Horizontal "Tire Wear" bar in the brake column (between the lock and pressure icons), left → right fill (full = fresh).
+[*][B]Tire wear[/B].
+Horizontal "Tire Wear" bar in the brake column (between the lock and pressure icons), left → right fill (full = fresh). AC's `tyreWear` is actually a grip / health value that climbs during warm-up and only drops once the tyre wears, so the bar self-calibrates against the per-wheel peak observed in the session — a fresh set always reads 100% and the bar only retreats once grip falls below that peak.
 [LIST]
-[*][COLOR=rgb(97, 189, 109)]green[/COLOR]: above 98%.
-[*][COLOR=rgb(247, 218, 100)]yellow[/COLOR]: between 98% and 96%.
-[*][COLOR=rgb(226, 80, 65)]red[/COLOR]: below 96%.
+[*][COLOR=rgb(97, 189, 109)]green[/COLOR]: above 50% of the peak-grip window.
+[*][COLOR=rgb(247, 218, 100)]yellow[/COLOR]: between 50% and 20%.
+[*][COLOR=rgb(226, 80, 65)]red[/COLOR]: below 20%.
 [/LIST]
 [*][B]Contact-patch bars[/B] (camber × pressure × load).
 Three white bars at the tire-ground line — inner / middle / outer — whose heights are a qualitative load-distribution heuristic. Replaces the older tilted "asphalt quad" camber strip and is still toggled by the [B]Camber[/B] option for backward compatibility.
@@ -152,16 +154,16 @@ Just drag the compressed folder to the Content Manager windows and accept the in
 
 After the first initialization, it detects the default configurations of the app and it can be modified via Content Manager Settings page, as bellow:
 
-[IMG alt="Live Telemetry Settings on Content Manager"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/content-manager-app-settings.jpg[/IMG]
+[IMG alt="Live Telemetry Settings on Content Manager"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/content-manager-app-settings.webp[/IMG]
 
 [B]New Manual Installation[/B]
 First unzip the release content direct on your Assetto Corsa main folder (C:/Program Files (x86)/steam/steamapps/common/assettocorsa) and load the game. Select the option menu and the general sub menu. In the UI Module section will be listed this app to be checked.
 
-[IMG alt="Launcher Menu"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/launcher-menu.jpg[/IMG]
+[IMG alt="Launcher Menu"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/launcher-menu.webp[/IMG]
 
 Last step is to enter any session (online, practice, race) and select the desired app window on the right app bar to see it on screen.
 
-[IMG alt="Session Menu"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/session-menu.jpg[/IMG]
+[IMG alt="Session Menu"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/session-menu.webp[/IMG]
 
 [B]Update Insatllation[/B]
 
