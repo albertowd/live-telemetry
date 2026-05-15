@@ -1,5 +1,13 @@
 # Changelog
 
+**1.8.5**
+- KERS-aware HP on the RPM bar: combustion HP plus electric deploy kW while the battery is draining.
+- EMA smoothing on `kers_deploy_kw` so AC's quantised SoC doesn't flicker the HP readout.
+- New `BatteryBar` widget — fill = SoC; shows kJ when AC exposes battery capacity, else percentage.
+- BatteryBar auto-hides on pure-ICE cars; reveals on the first frame of detected battery activity.
+- Tri-state `Battery` toggle in Options (yellow AUTO / red ON / white OFF), static label.
+- Deploy detection gates on SoC falling, not the KERS button — fixes false-positive HP during regen.
+
 **1.8.1**
 - IMO temperature readouts (inner / middle / outer) larger and bold for clearer reading.
 - Tire-wear label larger and bold; row + bar layout retuned to fit the existing box.

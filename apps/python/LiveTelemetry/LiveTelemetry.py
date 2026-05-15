@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Live Telemetry App for Assetto Corsa
-v 1.8.1
+v 1.8.5
 https://github.com/albertowd/Wheellive-telemetry
 @author: albertowd
 """
@@ -21,7 +21,7 @@ from lib.lt_wheel_info import WheelInfo
 from lib.lt_util import clear_logs, export_saved_log, log
 
 # APP VERSION
-LT_VERSION = "1.8.1"
+LT_VERSION = "1.8.5"
 
 
 class _State:  # pylint: disable=too-few-public-methods
@@ -59,6 +59,7 @@ def acMain(ac_version: str) -> None:
     boost_button_id = LT.options_info.get_button_id("BoostBar")
     if boost_button_id is not None:
         ac.addOnClickedListener(boost_button_id, on_click_boost)
+    ac.addOnClickedListener(LT.options_info.get_button_id("BatteryBar"), on_click_battery)
     ac.addOnClickedListener(LT.options_info.get_button_id("Camber"), on_click_camber)
     ac.addOnClickedListener(LT.options_info.get_button_id("Dirt"), on_click_dirt)
     ac.addOnClickedListener(LT.options_info.get_button_id("Height"), on_click_height)
@@ -107,6 +108,7 @@ def acShutdown() -> None:
     boost_option = LT.options_info.get_option("BoostBar")
     if boost_option is not None:
         LT.configs.set_option("BoostBar", boost_option)
+    LT.configs.set_option("BatteryBar", LT.options_info.get_option("BatteryBar"))
     LT.configs.set_option("Camber", LT.options_info.get_option("Camber"))
     LT.configs.set_option("Dirt", LT.options_info.get_option("Dirt"))
     LT.configs.set_option("Height", LT.options_info.get_option("Height"))
@@ -172,6 +174,27 @@ def on_activation(window_id: int) -> None:
     for info in LT.wheel_infos.values():
         if info.get_window_id() is window_id:
             info.set_active(True)
+
+
+def on_click_battery(_pos_x: int, _pos_y: int) -> None:
+    """ Cycles the BatteryBar tri-state mode AUTO -> ON -> OFF -> AUTO.
+
+    Treated like the Size cycle button rather than the simple bool
+    toggles: each click advances the value, the button face shows the
+    current value, and the change is pushed into every widget so the
+    battery component's draw() picks it up next frame.
+    """
+    sequence = ("AUTO", "ON", "OFF")
+    current = LT.options_info.get_option("BatteryBar")
+    try:
+        next_index = (sequence.index(current) + 1) % len(sequence)
+    except ValueError:
+        next_index = 0
+    new_value = sequence[next_index]
+    LT.engine_info.set_option("BatteryBar", new_value)
+    LT.options_info.set_option("BatteryBar", new_value)
+    for info in LT.wheel_infos.values():
+        info.set_option("BatteryBar", new_value)
 
 
 def on_click_boost(_pos_x: int, _pos_y: int) -> None:

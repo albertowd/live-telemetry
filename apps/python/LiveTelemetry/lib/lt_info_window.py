@@ -113,8 +113,13 @@ class InfoWindow:
             # (Compound, EngineChips, EngineReadouts) render without
             # needing a new persisted option key. Existing toggleable
             # components are still keyed on their class name and look
-            # up the user-set bool the same way as before.
-            if self._options.get(type(component).__name__, True) is True:
+            # up the user-set bool the same way as before. Tri-state
+            # options (BatteryBar's AUTO/ON/OFF) only need the "OFF"
+            # literal handled here — both AUTO and ON should render the
+            # component and let the component decide visibility itself.
+            opt = self._options.get(type(component).__name__, True)
+            disabled = opt is False or opt == "OFF"
+            if not disabled:
                 ac.glColor4f(*Colors.white)
                 component.draw(self._data, delta_t)
             else:

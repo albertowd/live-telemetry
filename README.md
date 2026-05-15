@@ -1,4 +1,4 @@
-# Live Telemetry 1.8.1
+# Live Telemetry 1.8.5
 
 An Assetto Corsa in-game app (Python plugin) that renders real-time, per-frame telemetry for engine, suspension, and each tire individually. The goal is not to replace AC's built-in apps but to give a richer signal while iterating on car setups.
 
@@ -156,9 +156,9 @@ acShutdown()         → persist options/positions, flush CSV (or wipe if loggin
 
 All toggleable from the in-game **Options** window (or via Content Manager):
 
-`BoostBar`, `Camber`, `Dirt`, `Height`, `Load`, `Lock`, `Logging`, `Pressure`, `RPMPower`, `Size`, `Suspension`, `Temps`, `Tire`, `Wear`.
+`BatteryBar`, `BoostBar`, `Camber`, `Dirt`, `Height`, `Load`, `Lock`, `Logging`, `Pressure`, `RPMPower`, `Size`, `Suspension`, `Temps`, `Tire`, `Wear`.
 
-`Tire` is a parent toggle that hides every tire-related widget at once.
+`Tire` is a parent toggle that hides every tire-related widget at once. `BatteryBar` is the only tri-state toggle in the list — it cycles `AUTO` (detector decides, default), `ON` (force visible), `OFF` (always hidden). The button label stays on the static text "Battery" and the current mode is encoded in the font colour (yellow / red / white).
 
 ---
 
@@ -167,7 +167,8 @@ All toggleable from the in-game **Options** window (or via Content Manager):
 ### What gets shown
 
 * Engine boost pressure (bar)
-* Engine RPM and live HP (HP = `power(rpm) * (1 + boost)`)
+* Engine RPM and live HP (HP = `power(rpm) * (1 + boost) + kers_deploy_kw * 1.341` — deploy term added only while the hybrid battery is draining)
+* KERS battery state-of-charge — `BAT N%` on hybrids where AC doesn't publish a battery capacity, `BAT X / Y kJ` on cars where it does. Auto-hidden on pure-ICE cars.
 * Driver-aid chip strip (PIT, TC, ABS, DRS, ERS)
 * Fuel (L) and brake-bias (%F) readouts
 * Suspension height (mm) and travel (%)
@@ -199,12 +200,22 @@ The RPM bar uses the power curve from `engine.ini` (`POWER CURVE` → `power.lut
 * <span style="color:red">red</span> — past peak RPM but still above 99.5%
 * <span style="color:green">green</span> — at or above 99.5% (the shift hint, though sometimes you should hold)
 
-Predicting the *true* optimal shift point would require knowing the next-gear RPM after the shift, which AC doesn't expose, so the heuristic targets the >99.5% / pre-redline window. The HP value displayed alongside is `hp = power(rpm) * (1 + boost)`.
+Predicting the *true* optimal shift point would require knowing the next-gear RPM after the shift, which AC doesn't expose, so the heuristic targets the >99.5% / pre-redline window.
+
+The HP value displayed alongside is `hp = power(rpm) * (1 + boost) + kers_deploy_kw * 1.341`. The first term is the legacy ICE figure; the second is the live electric contribution — only added while `kers_charge` is actually falling (real energy leaving the battery, regardless of whether the driver pressed a KERS button or the MCU triggered the deploy itself). `kers_deploy_kw` is EMA-smoothed (α=0.3, ~30 ms half-life at AC's 100 Hz update) so the per-frame `kers_charge` quantisation step doesn't flicker the readout — at the cost of a short tail when deploy stops.
 
 Boost bar:
 
 * <span style="color:white">white</span> — boost below 90% of session-max
 * <span style="color:green">green</span> — boost at or above 90%
+
+Battery bar (KERS hybrids only — auto-hidden on pure-ICE cars, see the `BatteryBar` toggle in [Available options](#available-options)). Stacks above the boost bar; the fill width tracks `kers_charge` and the label shows `BAT X / Y kJ` when AC publishes `static.kersMaxJ`, otherwise the SoC percentage:
+
+* <span style="color:green">green</span> — SoC above 50%
+* <span style="color:yellow">yellow</span> — SoC 20% – 50%
+* <span style="color:red">red</span> — SoC below 20%
+
+Hybrid detection runs at runtime (in `AUTO` mode): AC1 spawns `kers_charge = 1.0` on plenty of pure-ICE cars and many hybrid mods leave `static.kersMaxJ` at 0, so a static gate would either paint a stuck-full bar on every road car or miss real hybrids. Instead the bar starts hidden and latches visible the first frame it sees actual battery activity — `kers_charge` moving from its spawn value or the throughput counter (`kers_current_kj`) ticking. Pure-ICE cars never trigger either signal so the bar stays hidden permanently.
 
 ### Wheel Window
 
@@ -357,10 +368,10 @@ pylint apps/python/LiveTelemetry
 ### Packaging a release
 
 ```bat
-7z-maker.bat 1.8.1
+7z-maker.bat 1.8.5
 ```
 
-Produces `live-telemetry-1.8.1.7z` containing `apps/` and `content/`, excluding `*.psd` and `*.svg` source assets. The archive is the artefact you ship to Content Manager / RaceDepartment / GitHub Releases. Running `7z-maker.bat` with no argument defaults to the current `1.8.1` version.
+Produces `live-telemetry-1.8.5.7z` containing `apps/` and `content/`, excluding `*.psd` and `*.svg` source assets. The archive is the artefact you ship to Content Manager / RaceDepartment / GitHub Releases. Running `7z-maker.bat` with no argument defaults to the current `1.8.5` version.
 
 ### Adding a new option (worked example)
 

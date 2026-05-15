@@ -7,8 +7,8 @@ Module to update one engine infos from car and draw on screen.
 """
 import copy
 
-from lib.lt_components import (BoostBar, BoxComponent, EngineChips,
-                               EngineReadouts, RPMPower)
+from lib.lt_components import (BatteryBar, BoostBar, BoxComponent,
+                               EngineChips, EngineReadouts, RPMPower)
 from lib.lt_info_window import InfoWindow
 from lib.sim_info import info
 
@@ -24,11 +24,36 @@ class Data:  # pylint: disable=too-few-public-methods,too-many-instance-attribut
 
     def __init__(self):
         self.abs_level = 0.0
+        # User-controlled visibility for the battery bar, plumbed in
+        # from EngineInfo._options each frame. "AUTO" defers to the
+        # component's own runtime hybrid detection; "ON" forces the bar
+        # visible (useful for AC1 hybrid mods whose activity signals
+        # the detector misses); "OFF" hides it regardless.
+        self.battery_bar_mode = "AUTO"
         self.brake_bias = 0.0
         self.drs_available = False
         self.drs_enabled = False
         self.ers_charging = False
+        self.ers_heat_charging = False
+        self.ers_power_level = 0
+        self.ers_recovery_level = 0
         self.fuel = 0.0
+        self.kers_charge = 0.0
+        self.kers_current_kj = 0.0
+        # Positive kW = deploying (battery SoC falling); 0 otherwise.
+        # kers_current_kj is a monotonic throughput counter on AC1 hybrid
+        # cars (it ticks while energy moves in either direction), so a
+        # kj-delta alone can't tell deploy from regen. The reliable signal
+        # is a kers_charge drop — true regardless of whether the driver
+        # triggered it via a manual button or the MCU did so on its own.
+        # We deliberately do not gate on kers_input: on at least one
+        # auto-deploy test car the button acts more like a "block regen"
+        # switch than a deploy actuator, so holding it during a regen
+        # phase produced false positives where the bar showed deploy HP
+        # while energy was actually flowing into the battery.
+        self.kers_deploy_kw = 0.0
+        self.kers_input = 0.0
+        self.kers_max_j = 0.0
         self.max_power = 0.0
         self.max_rpm = 0.0
         self.max_turbo_boost = 0.0
@@ -59,7 +84,14 @@ class Data:  # pylint: disable=too-few-public-methods,too-many-instance-attribut
         self.drs_available = bool(info_arg.physics.drsAvailable)
         self.drs_enabled = bool(info_arg.physics.drsEnabled) or float(info_arg.physics.drs) > 0.5
         self.ers_charging = bool(info_arg.physics.ersIsCharging)
+        self.ers_heat_charging = bool(info_arg.physics.ersHeatCharging)
+        self.ers_power_level = int(info_arg.physics.ersPowerLevel)
+        self.ers_recovery_level = int(info_arg.physics.ersRecoveryLevel)
         self.fuel = float(info_arg.physics.fuel)
+        self.kers_charge = float(info_arg.physics.kersCharge)
+        self.kers_current_kj = float(info_arg.physics.kersCurrentKJ)
+        self.kers_input = float(info_arg.physics.kersInput)
+        self.kers_max_j = float(info_arg.static.kersMaxJ)
         self.pit_limiter = bool(info_arg.physics.pitLimiterOn)
         self.tc_level = float(info_arg.physics.tc)
 
@@ -74,6 +106,10 @@ class EngineInfo(InfoWindow):
         self._info = info
         self._options = {key: configs.get_bool_option(key)
                          for key in ("BoostBar", "Logging", "RPMPower")}
+        # BatteryBar is a tri-state string (AUTO / ON / OFF), not a
+        # plain bool — InfoWindow.draw checks for the "OFF" literal in
+        # addition to its existing `is True` truthy gate.
+        self._options["BatteryBar"] = configs.get_option("BatteryBar")
 
         # Engine widget pins to bottom-centre so it stays anchored above
         # the player's HUD on every supported resolution.
@@ -85,8 +121,20 @@ class EngineInfo(InfoWindow):
             configs, "EN",
             int(512 * mult), int(_ENGINE_LOGICAL_H * mult))
 
-        if info.static.maxTurboBoost > 0.0:
+        has_turbo = info.static.maxTurboBoost > 0.0
+        if has_turbo:
             self._components.append(BoostBar(acd, size, self._window_id))
+        # BatteryBar is always added — it self-hides on pure-ICE cars
+        # via runtime activity detection (see its docstring). We can't
+        # gate on kersMaxJ at init because AC1 leaves that at 0 for
+        # plenty of mods that do model a working hybrid, and we can't
+        # gate on kersCharge because AC1 spawns it at 1.0 on cars with
+        # no battery at all. When boost is present the battery sits at
+        # y=-88 (ending at y=-64) so its bar clears the boost label at
+        # y≈-56 — see BatteryBar's docstring for the stack geometry.
+        self._components.append(BatteryBar(
+            acd, size, self._window_id,
+            y_offset=-88.0 if has_turbo else -24.0))
         self._components.append(RPMPower(acd, size, self._window_id))
         # Always-on driver-aid chips + analog readouts (see lt_info_window
         # for the missing-key default-True dispatch). Cheap text-only
@@ -104,8 +152,34 @@ class EngineInfo(InfoWindow):
         for component in self._components:
             component.resize(resolution)
 
-    def update(self, _delta_t: float):
-        """ Updates the engine information. """
+    def update(self, delta_t: float):
+        """ Updates the engine information.
+
+        ``kers_deploy_kw`` is derived here because it isn't a raw AC
+        physics field — we fire only when ``kers_charge`` drops (real
+        energy leaving the battery), then read the rate off the
+        throughput counter and EMA-smooth it. See the field comment on
+        ``Data.kers_deploy_kw`` for why ``kers_input`` isn't a reliable
+        deploy signal on its own, and why raw frame deltas need
+        smoothing.
+        """
+        prev_kj = self._data.kers_current_kj
+        prev_charge = self._data.kers_charge
+        prev_kw = self._data.kers_deploy_kw
         self._data.update(self._info)
+        # Re-plumb the user's BatteryBar mode every tick — the option
+        # may have been toggled via the menu button mid-session.
+        self._data.battery_bar_mode = self._options.get("BatteryBar", "AUTO")
+        if delta_t > 0.0 and self._data.kers_charge < prev_charge:
+            raw_kw = max(
+                0.0, (self._data.kers_current_kj - prev_kj) / delta_t)
+        else:
+            raw_kw = 0.0
+        # EMA with alpha=0.3 at ~100 Hz: ~30 ms half-life. Cuts the
+        # ~16% frame-to-frame jitter from kers_charge quantisation
+        # (charge ticks unevenly across frames so the raw rate
+        # alternates between high and low samples), at the cost of a
+        # short tail when deploy stops — barely visible on the HP read.
+        self._data.kers_deploy_kw = 0.7 * prev_kw + 0.3 * raw_kw
         if self._options["Logging"] is True:
             self._data_log.append(copy.copy(self._data))

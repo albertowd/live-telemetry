@@ -157,6 +157,130 @@ class BoxComponent:
             pivot, trig)
 
 
+class BatteryBar(BoxComponent):
+    """ KERS battery state-of-charge bar.
+
+    Mirrors BoostBar in placement and styling. When the car has both a
+    turbo and a hybrid system the two bars stack above the main RPM bar
+    with the battery on top. The boost label floats above its bar at
+    y ≈ -56 (rect y -24 minus font 24 minus 8 px padding) and extends
+    24 px down, so the battery bar needs to end at or above y=-56 to
+    avoid painting over it. We park the battery bar at y=-88 with
+    h=24 — bar bottom lands at y=-64, leaving 8 logical-px of head-
+    room above the boost label. When the car has no turbo the caller
+    positions the battery bar at y=-24 instead and that label
+    collision is moot.
+
+    Fill width = kers_charge (0..1). Label shows kJ values when AC1
+    exposes ``kers_max_j``; otherwise falls back to a SoC percentage —
+    many AC1 hybrid mods leave ``static.kersMaxJ`` at 0 even when the
+    battery is functional, so the % path is the common one in practice.
+
+    Visibility in AUTO mode is runtime-detected: AC1 reports
+    ``kers_charge = 1.0`` for plenty of pure-ICE cars and won't ever
+    change after spawn, so a static gate either misses real hybrids
+    (when ``kers_max_j == 0``) or paints a stuck-full bar on every
+    non-hybrid. Instead we always instantiate the component and latch
+    it visible only after we see actual battery activity — any of
+    (a) AC declared ``kers_max_j``, (b) ``kers_charge`` moved from
+    its spawn value, or (c) the throughput counter ticked. ICE cars
+    never trigger any of these so the bar stays hidden. AC1 is
+    end-of-life, so this is a permanent workaround rather than a
+    stopgap.
+
+    The user can override the detection via the options-window cycle
+    button (``data.battery_bar_mode``): ``AUTO`` runs the detector,
+    ``ON`` forces the bar visible regardless, and ``OFF`` hides it (the
+    ``OFF`` branch is short-circuited upstream in InfoWindow.draw).
+    """
+
+    def __init__(self, _acd: ACD, resolution: str, window_id: int,
+                 y_offset: float = -88.0):
+        super().__init__(0.0, y_offset, 512.0, 24.0)
+        self._back.color = Colors.black
+
+        self.__lb = ac.addLabel(window_id, "")
+        ac.setFontAlignment(self.__lb, "center")
+        ac.setCustomFont(self.__lb, "Arial", 0, 1)
+
+        self.__visible = False
+        self.__spawn_charge = None
+
+        self.resize(resolution)
+
+    def clear(self) -> None:
+        ac.setText(self.__lb, "")
+
+    def draw(self, data, delta_t: float) -> None:
+        # User override via the options-window cycle button. "OFF" is
+        # already filtered upstream in InfoWindow.draw (component is
+        # cleared, not drawn), so by the time we get here the only
+        # modes worth distinguishing are "ON" (force show) and "AUTO"
+        # (use detection). Any unknown value falls back to AUTO.
+        #
+        # ON deliberately does NOT latch ``__visible``: if it did, a
+        # user who briefly forced ON on an ICE car would poison the
+        # detector state and AUTO would keep showing the bar after the
+        # cycle returned. Compute a per-frame show flag instead, so
+        # ``__visible`` only ever flips True via genuine detection.
+        mode = getattr(data, "battery_bar_mode", "AUTO")
+        if mode == "ON":
+            show = True
+        else:
+            if not self.__visible:
+                if data.kers_max_j > 0.0:
+                    self.__visible = True
+                else:
+                    if self.__spawn_charge is None:
+                        self.__spawn_charge = data.kers_charge
+                    # 1e-4 threshold: AC1 publishes kers_charge as a
+                    # single-precision float so genuine "frozen" values
+                    # stay bit-exact, while any real hybrid moves the
+                    # value by at least a quantisation step (~1e-4)
+                    # very quickly under load. kers_current_kj > 0 is
+                    # the second trigger — the throughput counter ticks
+                    # on either deploy or regen for hybrids, and stays
+                    # at 0 forever on ICE cars.
+                    if (abs(data.kers_charge - self.__spawn_charge) > 1e-4
+                            or data.kers_current_kj > 0.0):
+                        self.__visible = True
+            show = self.__visible
+
+        if not show:
+            ac.setText(self.__lb, "")
+            return
+
+        self._draw()
+
+        ratio = max(0.0, min(1.0, data.kers_charge))
+
+        p_bar = copy.copy(self._box.rect)
+        p_bar[2] *= ratio
+
+        if ratio > 0.5:
+            color = Colors.green
+        elif ratio > 0.2:
+            color = Colors.yellow
+        else:
+            color = Colors.red
+        ac.glColor4f(*color)
+        ac.glQuad(*p_bar)
+
+        if data.kers_max_j > 0.0:
+            max_kj = data.kers_max_j / 1000.0
+            cur_kj = ratio * max_kj
+            text = "BAT {:.0f} / {:.0f} kJ".format(cur_kj, max_kj)
+        else:
+            text = "BAT {:.0f}%".format(ratio * 100.0)
+
+        ac.setFontColor(self.__lb, color[0], color[1], color[2], color[3])
+        ac.setText(self.__lb, text)
+
+    def resize_fonts(self, resolution: str) -> None:
+        ac.setFontSize(self.__lb, self._font)
+        ac.setPosition(self.__lb, self._box.center[0], self._box.rect[1] - self._font - 8)
+
+
 class BoostBar(BoxComponent):
     """ Class to handle boost bar change. """
 
@@ -545,7 +669,10 @@ class RPMPower(BoxComponent):
         rpm = data.rpm
         ratio = min(rpm / data.max_rpm, 1.0)
         torque = self.__calc.interpolate(rpm)
-        hp = int(torque * ( 1.0 + data.turbo_boost))
+        # kers_deploy_kw is only ever > 0 while the hybrid system is
+        # actually pushing power to the wheels (button held or MCU auto-
+        # discharge). 1 kW ≈ 1.341 HP.
+        hp = int(torque * (1.0 + data.turbo_boost) + data.kers_deploy_kw * 1.341)
 
         p_bar = copy.copy(self._box.rect)
         p_bar[2] *= ratio

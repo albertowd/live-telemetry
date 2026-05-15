@@ -25,6 +25,11 @@ class OptionsInfo:
                      "Pressure", "RPMPower", "Suspension", "Temps", "Tire", "Wear")
         self.__options = {key: configs.get_bool_option(key) for key in bool_keys}
         self.__options["Size"] = configs.get_option("Size")
+        # BatteryBar is tri-state (AUTO / ON / OFF). Unlike Size, the
+        # button face stays on the static "Battery" label and the
+        # current mode is read from the font colour instead (yellow
+        # AUTO, red ON, white OFF).
+        self.__options["BatteryBar"] = configs.get_option("BatteryBar")
 
         # Only expose BoostBar toggle for turbocharged cars.
         if info.static.maxTurboBoost > 0.0:
@@ -46,8 +51,15 @@ class OptionsInfo:
         action_buttons = ("Reset",)
         button_names = sorted(self.__options.keys()) + list(action_buttons)
 
+        # Size's button face shows its current value (e.g. "FHD"),
+        # BatteryBar uses a friendly static label, and everything else
+        # falls back to the option key as the button text.
+        custom_labels = {"BatteryBar": "Battery"}
         for index, name in enumerate(button_names):
-            text = str(name) if name != "Size" else self.__options[name]
+            if name == "Size":
+                text = self.__options[name]
+            else:
+                text = custom_labels.get(name, str(name))
             self.__buttons[name] = ac.addButton(self.__window_id, text)
             x = 30 + (floor(index / 4) * 85)
             y = 30 + (floor(index % 4) * 35)
@@ -87,6 +99,20 @@ class OptionsInfo:
     def set_option(self, name, value):
         """ Updates an option value. """
         self.__options[name] = value
-        if name != "Size":
-            color = Colors.red if value else Colors.white
+        if name == "Size":
+            return
+        if name == "BatteryBar":
+            # Button face stays on the static "Battery" label — the
+            # current mode is encoded in the font colour: yellow AUTO
+            # (default, detector decides), red ON (force visible),
+            # white OFF (hidden regardless).
+            if value == "ON":
+                color = Colors.red
+            elif value == "OFF":
+                color = Colors.white
+            else:
+                color = Colors.yellow
             ac.setFontColor(self.__buttons[name], *color)
+            return
+        color = Colors.red if value else Colors.white
+        ac.setFontColor(self.__buttons[name], *color)

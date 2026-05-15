@@ -1,6 +1,6 @@
 @echo off
 SET VERSION=%1
-IF "%VERSION%"=="" SET VERSION=1.8.1
+IF "%VERSION%"=="" SET VERSION=1.8.5
 echo Packaging Live Telemetry %VERSION%...
 IF EXIST "live-telemetry-%VERSION%.7z" (
     echo Deleting old files...

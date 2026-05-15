@@ -18,7 +18,8 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
 
 [LIST]
 [*]Engine boost pressure (bar).
-[*]Engine RPM with current HP (HP = power(rpm) × (1 + boost)).
+[*]Engine RPM with current HP (combustion + electric deploy on hybrids).
+[*]KERS battery state-of-charge bar (hybrid cars only).
 [*]Driver-aid chip strip: PIT, TC, ABS, DRS, ERS — each lights up only while its condition is true.
 [*]Fuel (L) and brake-bias (%F) readouts.
 [*]Suspension ride height (mm) with bottom-out flash.
@@ -37,7 +38,7 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
 
 [IMG alt="Options Window"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/app-options.webp[/IMG]
 
-The options window toggles every overlay element rendered by the other windows. You can also cycle the global widget scale ([B]Size[/B]), turn CSV [B]Logging[/B] on or off (only fields actually drawn are recorded), and use the new [B]Reset[/B] button to snap every widget back to its default screen-edge anchor for the current resolution.
+The options window toggles every overlay element rendered by the other windows. You can also cycle the global widget scale ([B]Size[/B]), the hybrid-battery bar mode ([B]Battery[/B] — yellow AUTO / red ON / white OFF, see the Engine Window section), turn CSV [B]Logging[/B] on or off (only fields actually drawn are recorded), and use the [B]Reset[/B] button to snap every widget back to its default screen-edge anchor for the current resolution.
 
 Widget positions are stored in anchor-space — FL pins top-left, FR top-right, RL bottom-left, RR bottom-right and the engine widget bottom-centre — so cycling Size scales each widget around its assigned corner instead of pushing it off-screen.
 
@@ -54,7 +55,9 @@ The engine window will display the actual RPM with some color variation. The col
 [*][COLOR=rgb(97, 189, 109)]green[/COLOR]: power above 99.5% (you should shift here, but some times not...).
 [/LIST]
 
-The power curve is a complex thing to calculate because it depends the actual RPM power combined with the next gear RPM power that will be shifted. But I don't know how much RPM will decrease over the shift action so I cannot predict the next gear RPM power. So the app calculates the best gear shift over the 99.5% RPM power and bellow the max RPM power on the engine power curve (.lut file defined in the engine.ini as POWER CURVE). Also, the HP displaed together is the current power or torque from the power cure mupltiplied by the current boost pressure `hp = power * ( 1 + boost )`.
+The power curve is a complex thing to calculate because it depends the actual RPM power combined with the next gear RPM power that will be shifted. But I don't know how much RPM will decrease over the shift action so I cannot predict the next gear RPM power. So the app calculates the best gear shift over the 99.5% RPM power and bellow the max RPM power on the engine power curve (.lut file defined in the engine.ini as POWER CURVE).
+
+The HP value displayed alongside is `hp = power(rpm) × (1 + boost) + kers_deploy_kw × 1.341`. The first term is the legacy ICE figure; the second is the live electric contribution — only added while the battery is actually losing charge (real energy leaving the cells, regardless of whether the driver pressed a KERS button or the MCU triggered the deploy on its own). The deploy reading is EMA-smoothed so the per-frame quantisation of AC's `kers_charge` field doesn't flicker the HP number.
 
 Also, it displays the current boost bar pression:
 
@@ -62,6 +65,16 @@ Also, it displays the current boost bar pression:
 [*]white current power below 90%.
 [*][COLOR=rgb(97, 189, 109)]green[/COLOR]: current boost pressure above 90%.
 [/LIST]
+
+On hybrid cars, a [B]Battery[/B] bar stacks above the boost row — fill width tracks state-of-charge, and the label shows `BAT X / Y kJ` when AC exposes a battery capacity (mostly F1-style cars), otherwise `BAT N%`. The bar is colour-coded by SoC:
+
+[LIST]
+[*][COLOR=rgb(97, 189, 109)]green[/COLOR]: SoC above 50%.
+[*][COLOR=rgb(247, 218, 100)]yellow[/COLOR]: SoC between 20% and 50%.
+[*][COLOR=rgb(226, 80, 65)]red[/COLOR]: SoC below 20%.
+[/LIST]
+
+Hybrid detection is runtime-aware in `AUTO` mode: AC1 spawns `kers_charge = 1.0` on plenty of pure-ICE cars and many hybrid mods leave the battery capacity at 0, so a static gate would either show a stuck-full bar on every road car or miss real hybrids. The bar starts hidden and reveals itself the first frame it sees actual battery activity (`kers_charge` moves from spawn, or the energy-throughput counter ticks). The [B]Battery[/B] button in the Options window cycles three modes — colour-coded on the button face: yellow [B]AUTO[/B] (detector decides), red [B]ON[/B] (force visible, useful if a mod's signals are missed), white [B]OFF[/B] (always hidden).
 
 Below the RPM bar, a strip of driver-aid chips lights up only while each condition is true (so the bar stays compact): [B]PIT[/B] limiter, [B]TC[/B] (bright when cutting, dim when armed), [B]ABS[/B] (same scheme), [B]DRS[/B] (bright when deployed), [B]ERS[/B] charging. The bottom row shows fuel litres and brake-bias percentage.
 
