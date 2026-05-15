@@ -4,7 +4,7 @@ An Assetto Corsa in-game app (Python plugin) that renders real-time, per-frame t
 
 The app reads live data through AC's shared-memory ABI and Python API, and resolves per-car limits directly from the encrypted Kunos `data.acd` files (or the unpacked `data/` folder for mods in development), so it works with no per-car configuration.
 
-[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/screenshot.webp)](https://youtu.be/ISR4TEXZyTw)
+[![Screen-shot](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/screenshot.webp)](https://youtu.be/ISR4TEXZyTw)
 
 ---
 
@@ -182,7 +182,7 @@ All toggleable from the in-game **Options** window (or via Content Manager):
 
 ### Options Window
 
-![Options Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-options.webp)
+![Options Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/app-options.webp)
 
 Toggles every overlay element, switches the global `Size`, and turns CSV logging on or off — logging only persists the elements that were actually drawn, disabled fields are not written. The `Reset` action button snaps every widget back to its default screen-edge anchor for the current resolution.
 
@@ -190,7 +190,7 @@ Window positions are stored in **anchor-space**: each widget pins to a specific 
 
 ### Engine Window
 
-![Engine Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-engine.webp)
+![Engine Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/app-engine.webp)
 
 The RPM bar uses the power curve from `engine.ini` (`POWER CURVE` → `power.lut`) to colour the current RPM by how close it is to peak power:
 
@@ -208,7 +208,7 @@ Boost bar:
 
 ### Wheel Window
 
-![Wheel Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-wheel.webp)
+![Wheel Window](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/app-wheel.webp)
 
 Every element is laid out around a central tire silhouette and mirrored on the left/right windows. Per-frame values are computed in `lib/lt_wheel_info.py:Data.update` and rendered by the matching subclass in `lib/lt_components.py`. Per-car limits (ideal pressure, thermal curves, suspension max, ABS slip target, …) come from the car's `data.acd` (or unpacked `data/` folder) at construction time — no value is "hardcoded per car".
 
@@ -305,17 +305,17 @@ CSV uses `;` as separator, UTF-8 encoding, and one column per attribute of the p
 
 Drag the release `.7z` onto Content Manager and accept the install/update prompt. Settings are then editable from Content Manager → Settings → Live Telemetry:
 
-![Live Telemetry Settings on Content Manager](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/content-manager-app-settings.webp)
+![Live Telemetry Settings on Content Manager](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/content-manager-app-settings.webp)
 
 ### Manual install
 
 Extract the `.7z` directly into your Assetto Corsa root (typically `C:/Program Files (x86)/steam/steamapps/common/assettocorsa`). In-game, enable the app under **Options → General → UI Modules → Live Telemetry**:
 
-![Launcher Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/launcher-menu.webp)
+![Launcher Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/launcher-menu.webp)
 
 Then enter any session and pick the desired window from the right-hand app bar:
 
-![Session Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/session-menu.webp)
+![Session Menu](https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/session-menu.webp)
 
 ### Manual update
 

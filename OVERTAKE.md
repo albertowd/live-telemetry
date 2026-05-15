@@ -35,7 +35,7 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
 
 [SIZE=5][B]Options Window[/B][/SIZE]
 
-[IMG alt="Options Window"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-options.webp[/IMG]
+[IMG alt="Options Window"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/app-options.webp[/IMG]
 
 The options window toggles every overlay element rendered by the other windows. You can also cycle the global widget scale ([B]Size[/B]), turn CSV [B]Logging[/B] on or off (only fields actually drawn are recorded), and use the new [B]Reset[/B] button to snap every widget back to its default screen-edge anchor for the current resolution.
 
@@ -43,7 +43,7 @@ Widget positions are stored in anchor-space — FL pins top-left, FR top-right, 
 
 [SIZE=5][B]Engine Window[/B][/SIZE]
 
-[IMG alt="Engine Menu"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-engine.webp[/IMG]
+[IMG alt="Engine Menu"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/app-engine.webp[/IMG]
 
 The engine window will display the actual RPM with some color variation. The color is based on the percentage of power produced by the current RPM by the last peak RPM power.
 
@@ -67,7 +67,7 @@ Below the RPM bar, a strip of driver-aid chips lights up only while each conditi
 
 [SIZE=5][B]Wheel Window[/B][/SIZE]
 
-[IMG alt="Wheel Window"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/app-wheel.webp[/IMG]
+[IMG alt="Wheel Window"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/app-wheel.webp[/IMG]
 
 Each wheel window will display a lot of information. The tire silhouette, IMO temperature grid, dirt overlay, contact-patch bars and per-zone temperature readouts share a single pivot and rotate together with the wheel under camber (the tilt is amplified ×2 so a typical setup camber reads clearly at a glance).
 
@@ -154,16 +154,16 @@ Just drag the compressed folder to the Content Manager windows and accept the in
 
 After the first initialization, it detects the default configurations of the app and it can be modified via Content Manager Settings page, as bellow:
 
-[IMG alt="Live Telemetry Settings on Content Manager"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/content-manager-app-settings.webp[/IMG]
+[IMG alt="Live Telemetry Settings on Content Manager"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/content-manager-app-settings.webp[/IMG]
 
 [B]New Manual Installation[/B]
 First unzip the release content direct on your Assetto Corsa main folder (C:/Program Files (x86)/steam/steamapps/common/assettocorsa) and load the game. Select the option menu and the general sub menu. In the UI Module section will be listed this app to be checked.
 
-[IMG alt="Launcher Menu"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/launcher-menu.webp[/IMG]
+[IMG alt="Launcher Menu"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/launcher-menu.webp[/IMG]
 
 Last step is to enter any session (online, practice, race) and select the desired app window on the right app bar to see it on screen.
 
-[IMG alt="Session Menu"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/session-menu.webp[/IMG]
+[IMG alt="Session Menu"]https://raw.githubusercontent.com/albertowd/live-telemetry/master/resources/img/session-menu.webp[/IMG]
 
 [B]Update Insatllation[/B]
 

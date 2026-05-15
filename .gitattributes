@@ -1,6 +1,6 @@
 * eol=lf
 
-*.jpg binary
+*.pdf binary
 *.png binary
 *.psd binary
 *.pyd binary
