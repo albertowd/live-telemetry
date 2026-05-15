@@ -7,8 +7,6 @@ Module to update one engine infos from car and draw on screen.
 """
 import copy
 
-import ac
-
 from lib.lt_components import (BoostBar, BoxComponent, EngineChips,
                                EngineReadouts, RPMPower)
 from lib.lt_info_window import InfoWindow
@@ -77,12 +75,15 @@ class EngineInfo(InfoWindow):
         self._options = {key: configs.get_bool_option(key)
                          for key in ("BoostBar", "Logging", "RPMPower")}
 
-        position = configs.get_window_position("EN")
-        ac.setPosition(self._window_id, *position)
+        # Engine widget pins to bottom-centre so it stays anchored above
+        # the player's HUD on every supported resolution.
+        self._anchor = "BC"
 
         size = configs.get_option("Size")
         mult = BoxComponent.resolution_map[size]
-        ac.setSize(self._window_id, 512 * mult, _ENGINE_LOGICAL_H * mult)
+        self._apply_initial_geometry(
+            configs, "EN",
+            int(512 * mult), int(_ENGINE_LOGICAL_H * mult))
 
         if info.static.maxTurboBoost > 0.0:
             self._components.append(BoostBar(acd, size, self._window_id))
@@ -99,7 +100,7 @@ class EngineInfo(InfoWindow):
     def resize(self, resolution):
         """ Resizes the window. """
         mult = BoxComponent.resolution_map[resolution]
-        ac.setSize(self._window_id, 512 * mult, _ENGINE_LOGICAL_H * mult)
+        self._resize_window(int(512 * mult), int(_ENGINE_LOGICAL_H * mult))
         for component in self._components:
             component.resize(resolution)
 

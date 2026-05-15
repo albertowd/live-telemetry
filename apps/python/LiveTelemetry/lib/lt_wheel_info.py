@@ -94,7 +94,9 @@ class Data:  # pylint: disable=too-few-public-methods,too-many-instance-attribut
         self.tire_t_m = info_arg.physics.tyreTempM[index]
         self.tire_t_o = info_arg.physics.tyreTempO[index]
 
-        # Normal to percent
+        # Normalised to [~0.99, ~1.0]; Wear.draw self-calibrates against
+        # the peak observed value because AC's tyreWear is a grip/health
+        # signal that climbs during warm-up before degrading.
         self.tire_w = info_arg.physics.tyreWear[index] / 100.0
 
 
@@ -115,12 +117,17 @@ class WheelInfo(InfoWindow):
         self._info = info
         self._options = {key: configs.get_bool_option(key) for key in WHEEL_BOOL_OPTIONS}
 
-        position = configs.get_window_position(self.__wheel.name())
-        ac.setPosition(self._window_id, *position)
+        # Per-wheel anchor pins the widget to its on-screen corner so a
+        # Size cycle keeps it inside the screen (FL top-left, FR top-right,
+        # RL bottom-left, RR bottom-right).
+        self._anchor = {"FL": "TL", "FR": "TR",
+                        "RL": "BL", "RR": "BR"}[self.__wheel.name()]
 
         size = configs.get_option("Size")
         mult = BoxComponent.resolution_map[size]
-        ac.setSize(self._window_id, 512 * mult, 271 * mult)
+        self._apply_initial_geometry(
+            configs, self.__wheel.name(),
+            int(512 * mult), int(271 * mult))
 
         # Tire silhouette draws first so every other overlay (Temps,
         # Dirt, Lock, contact patches, ...) lands on top of it. The
@@ -161,7 +168,7 @@ class WheelInfo(InfoWindow):
     def resize(self, size: str) -> None:
         """ Resizes the window. """
         mult = BoxComponent.resolution_map[size]
-        ac.setSize(self._window_id, 512 * mult, 271 * mult)
+        self._resize_window(int(512 * mult), int(271 * mult))
         for component in self._components:
             component.resize(size)
 

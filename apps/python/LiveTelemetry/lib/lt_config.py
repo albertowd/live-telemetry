@@ -14,17 +14,58 @@ from sys import exc_info
 from lib.lt_util import get_docs_path, log
 
 
-# Widget logical dimensions at mult=1.0 (1440p); kept in sync with
-# ac.setSize calls in lt_wheel_info.py / lt_engine_info.py. Options
-# window is a fixed AC dialog and does not scale.
-_TIRE_LOGICAL_WH = (512, 271)
-_ENGINE_LOGICAL_WH = (512, 120)
+# Options window dimensions — a fixed AC dialog that does not scale,
+# used only to position the default OP anchor along the screen edge.
 _OPTIONS_WH = (395, 195)
 
 # Local copy of BoxComponent.resolution_map so config layout math
 # doesn't have to import lt_components (which pulls in `ac`/`acsys`).
 _SIZE_MULT = {"HD": 0.5, "FHD": 0.75, "1440p": 1.0, "UHD": 1.5,
               "4K": 1.6, "8K": 3.0}
+
+# Persisted window positions are stored in anchor-space: the (x, y)
+# pair represents the listed corner of the widget on screen so that a
+# resolution change scales the widget without dragging it off-screen.
+# AC's ac.setPosition still expects top-left coords, so callers convert
+# via ``anchor_to_top_left`` / ``top_left_to_anchor`` below.
+_ANCHOR_BY_WINDOW = {
+    "EN": "BC", "FL": "TL", "FR": "TR", "OP": "TL",
+    "RL": "BL", "RR": "BR",
+}
+
+
+def anchor_for(name: str) -> str:
+    """ Returns the persisted anchor convention for a window name. """
+    return _ANCHOR_BY_WINDOW.get(name, "TL")
+
+
+def anchor_to_top_left(anchor: str, anchor_x: int, anchor_y: int,
+                       width: int, height: int) -> [int]:
+    """ Converts an anchor-space (x, y) to AC's top-left coords. """
+    if anchor == "TR":
+        return [int(anchor_x - width), int(anchor_y)]
+    if anchor == "BL":
+        return [int(anchor_x), int(anchor_y - height)]
+    if anchor == "BR":
+        return [int(anchor_x - width), int(anchor_y - height)]
+    if anchor == "BC":
+        return [int(anchor_x - width / 2), int(anchor_y - height)]
+    return [int(anchor_x), int(anchor_y)]
+
+
+def top_left_to_anchor(anchor: str, tl_x: int, tl_y: int,
+                       width: int, height: int) -> [int]:
+    """ Inverse of ``anchor_to_top_left``; converts AC's reported TL
+    back into the persisted anchor-space coords. """
+    if anchor == "TR":
+        return [int(tl_x + width), int(tl_y)]
+    if anchor == "BL":
+        return [int(tl_x), int(tl_y + height)]
+    if anchor == "BR":
+        return [int(tl_x + width), int(tl_y + height)]
+    if anchor == "BC":
+        return [int(tl_x + width / 2), int(tl_y + height)]
+    return [int(tl_x), int(tl_y)]
 
 
 class Config:
@@ -112,29 +153,33 @@ class Config:
                     log(info)
         return height, width
 
+    def reset_window_positions(self) -> None:
+        """ Recomputes the default anchor positions for the current
+        screen resolution and persists them. Fired by the options
+        window's Reset button to send widgets back to their default
+        screen edge without forcing a config wipe. """
+        height, width = self.__read_screen_resolution()
+        self.__set_default_window_positions(height, width)
+        self.save_config()
+
     def __set_default_window_positions(self, height: int, width: int) -> None:
         """ Writes the default window positions for the given screen size.
 
-        Widget dimensions are scaled by the currently-configured Size
-        multiplier so widgets land at the corners/centre of the screen
-        without overlapping at any documented default.
+        Positions are stored in anchor-space (see ``_ANCHOR_BY_WINDOW``):
+        each widget pins to its assigned screen corner / edge so that
+        cycling Size keeps it on-screen without recomputing offsets.
         """
-        mult = _SIZE_MULT.get(self.get_option("Size"), 1.0)
-        tire_w = int(_TIRE_LOGICAL_WH[0] * mult)
-        tire_h = int(_TIRE_LOGICAL_WH[1] * mult)
-        engine_w = int(_ENGINE_LOGICAL_WH[0] * mult)
-        engine_h = int(_ENGINE_LOGICAL_WH[1] * mult)
         op_w, op_h = _OPTIONS_WH
 
         edge = 10
         pad = 80
 
-        self.set_window_position("EN", [floor((width - engine_w) / 2), height - engine_h - pad])
+        self.set_window_position("EN", [floor(width / 2), height - pad])
         self.set_window_position("FL", [edge, pad])
-        self.set_window_position("FR", [width - tire_w - edge, pad])
+        self.set_window_position("FR", [width - edge, pad])
         self.set_window_position("OP", [width - op_w - 50, floor((height - op_h) / 2)])
-        self.set_window_position("RL", [edge, height - tire_h - pad])
-        self.set_window_position("RR", [width - tire_w - edge, height - tire_h - pad])
+        self.set_window_position("RL", [edge, height - pad])
+        self.set_window_position("RR", [width - edge, height - pad])
 
     def __get_str(self, section: str, option: str) -> str:
         """ Returns an option. """

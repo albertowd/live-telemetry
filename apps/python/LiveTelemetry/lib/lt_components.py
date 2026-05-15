@@ -983,11 +983,18 @@ class Wear(BoxComponent):
     and the pressure icon (y=171), sharing their 60 px width so the
     column reads as a single vertical stack.
 
-    AC1's ``tyreWear`` stays in the ``[0.94, 1.0]`` window for a
-    typical session, so the bar stretches that window across its full
-    width — the raw 0..1 value would barely move. Colour thresholds
-    keep the legacy plugin's behaviour: >0.98 green, >0.96 yellow.
+    AC1's ``tyreWear`` is a grip/health signal, not a monotonic wear
+    counter: it starts ~0.995 on a fresh tyre, climbs toward 1.0
+    during warm-up, then drifts back down as the tyre actually wears.
+    The bar tracks the per-wheel peak observed this session and shows
+    how far the current reading has fallen below it (stretched across
+    a 0.06-unit window — the legacy plugin's empirical wear range).
     """
+
+    # End-of-life delta below peak grip in normalised units. AC's
+    # tyreWear typically spans ~6 raw units (0.06 normalised) from peak
+    # to a tyre that's effectively done.
+    _WEAR_WINDOW = 0.06
 
     def __init__(self, resolution: str, wheel, window_id: int):
         # 60 wide × 32 tall: title row (14) + 6 px gap + bar (12).
@@ -1002,6 +1009,10 @@ class Wear(BoxComponent):
         self.__lb = ac.addLabel(window_id, "Tire Wear")
         ac.setFontAlignment(self.__lb, "center")
         ac.setCustomFont(self.__lb, "Arial", 0, 1)
+        # Highest normalised tyreWear seen this session; None until the
+        # first non-zero reading so we don't lock in a 0.0 baseline
+        # before AC has populated the physics block.
+        self.__peak_wear = None
 
         self.resize(resolution)
 
@@ -1012,10 +1023,18 @@ class Wear(BoxComponent):
         ac.setText(self.__lb, "Tire Wear")
         ac.setFontColor(self.__lb, *Colors.white)
 
-        # Stretch the AC1 [0.94, 1.0] useful range across the bar so
-        # the fill actually moves during a session.
+        # Self-calibrate against the peak grip seen so far. Until AC has
+        # delivered a sensible reading (>0), keep the bar pinned at
+        # 100% — the alternative would flash empty during the first
+        # frames before tyreWear is published.
         wear = data.tire_w
-        ratio = max(0.0, min(1.0, (wear - 0.94) / 0.06))
+        if wear > 0.0 and (self.__peak_wear is None or wear > self.__peak_wear):
+            self.__peak_wear = wear
+        if self.__peak_wear is None or self.__peak_wear <= 0.0:
+            ratio = 1.0
+        else:
+            floor = self.__peak_wear - Wear._WEAR_WINDOW
+            ratio = max(0.0, min(1.0, (wear - floor) / Wear._WEAR_WINDOW))
         if ratio > 0.5:
             color = Colors.green
         elif ratio > 0.2:

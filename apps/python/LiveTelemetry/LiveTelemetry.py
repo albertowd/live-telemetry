@@ -67,6 +67,7 @@ def acMain(ac_version: str) -> None:
     ac.addOnClickedListener(LT.options_info.get_button_id("Logging"), on_click_logging)
     ac.addOnClickedListener(LT.options_info.get_button_id("Pressure"), on_click_pressure)
     ac.addOnClickedListener(LT.options_info.get_button_id("RPMPower"), on_click_rpm)
+    ac.addOnClickedListener(LT.options_info.get_button_id("Reset"), on_click_reset)
     ac.addOnClickedListener(LT.options_info.get_button_id("Size"), on_click_size)
     ac.addOnClickedListener(LT.options_info.get_button_id("Suspension"), on_click_suspension)
     ac.addOnClickedListener(LT.options_info.get_button_id("Temps"), on_click_temps)
@@ -122,12 +123,12 @@ def acShutdown() -> None:
 
     log("Saving windows configurations...")
     LT.configs.set_window_active("EN", LT.engine_info.is_active())
-    LT.configs.set_window_position("EN", LT.engine_info.get_position())
+    LT.configs.set_window_position("EN", LT.engine_info.get_anchor_position())
     LT.engine_info.set_active(False)
     LT.configs.set_window_position("OP", LT.options_info.get_position())
     for wheel_id, info in LT.wheel_infos.items():
         LT.configs.set_window_active(wheel_id, info.is_active())
-        LT.configs.set_window_position(wheel_id, info.get_position())
+        LT.configs.set_window_position(wheel_id, info.get_anchor_position())
         info.set_active(False)
 
     LT.configs.save_config()
@@ -216,6 +217,17 @@ def on_click_pressure(_pos_x: int, _pos_y: int) -> None:
 def on_click_rpm(_pos_x: int, _pos_y: int) -> None:
     """ Handles the click in one of the options rpm button. """
     toggle_option("RPMPower")
+
+
+def on_click_reset(_pos_x: int, _pos_y: int) -> None:
+    """ Handles the click in the options reset button — recomputes
+    the default anchor positions for the current screen and snaps
+    every widget back to its assigned screen edge. """
+    LT.configs.reset_window_positions()
+    LT.engine_info.reset_position(LT.configs, "EN")
+    LT.options_info.reset_position(LT.configs)
+    for wheel_id, info in LT.wheel_infos.items():
+        info.reset_position(LT.configs, wheel_id)
 
 
 def on_click_size(_pos_x: int, _pos_y: int) -> None:

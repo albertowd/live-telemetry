@@ -1,20 +1,22 @@
 # Changelog
 
 **1.8.1**
-- Tire IMO temperature readouts (inner / middle / outer) bumped in size and switched to Arial Bold for legibility against the coloured bump quads.
-- Core tire temperature readout shows the degree symbol (e.g. `85°C`).
-- Tire wear label font bumped and switched to Arial Bold; layout retuned to keep the title row + bar inside the existing box.
-- All other telemetry labels (BoostBar, Height, Pressure, RPM/HP, wheel ID + compound, engine chips, fuel, brake bias) switched to Arial Bold for consistency.
-- Dropped sub-720p resolution presets (240p, 360p, 480p, 576p) from the Size cycle and docs; stale `Size` entries in `conf.ini` are coerced to `FHD` on load.
+- IMO temperature readouts (inner / middle / outer) larger and bold for clearer reading.
+- Tire-wear label larger and bold; row + bar layout retuned to fit the existing box.
+- All remaining telemetry labels switched to Arial Bold for consistency.
+- Dropped sub-720p Size presets; stale `Size` in `conf.ini` is coerced to `FHD` on load.
+- Window positions stored in anchor-space — each widget pins to its screen corner.
+- New `Reset` button — snaps every widget back to its default screen-edge anchor.
+- Tire-wear bar self-calibrates against per-wheel peak `tyreWear`; fresh tyres read 100%.
 
 **1.8.0**
 - New GitHub actions to make automatic release assets
 
 Wheel widgets
-- Tire, suspension and height widgets rebuilt as GL primitives; tire group (silhouette, IMO grid, dirt, contact patch, per-zone readouts) rotates together under camber.
-- Per-zone IMO temperature readouts (inner / middle / outer / core); inner zone faces screen-centre; positions follow the rotation.
-- Tire-load circle scales linearly with wheel load; contact-patch bars (camber × pressure × load) replace the camber strip — same `Camber` toggle.
-- Wheel ID + compound abbreviation stacked above the height widget; tire-wear moved into the brake column as a horizontal left→right fill.
+- Tire / suspension / height widgets rebuilt as GL primitives; tire group rotates under camber.
+- Per-zone IMO readouts (I / M / O / C); inner faces screen-centre and follows the rotation.
+- Tire-load circle scales with wheel load; contact-patch bars replace the camber strip.
+- Wheel ID + compound stacked above height; tire-wear moved into the brake column as a fill bar.
 - Layout retuned for camber clearance; lock indicator on by default.
 
 Engine widget
@@ -23,20 +25,20 @@ Engine widget
 - Widget height bumped 85 → 120 to fit the new rows.
 
 Internal
-- `BoxComponent` ships rotation helpers (`_rotate`, `_camber_rotation`, `_emit_rotated_quad`, `_emit_rotated_rect`) so any widget can share the tire-pivot rotation.
+- `BoxComponent` exposes camber-rotation helpers shared by all rotated widgets.
 - `InfoWindow.draw` defaults to enabled for components without a config toggle.
 - Config: version bump resets `cfg/conf.ini` on first run.
 
 
 **1.7.1**
-- BoostBar widget and its options-window toggle are now hidden on naturally aspirated cars (detected via `info.static.maxTurboBoost`).
-- BoostBar option now persists across sessions (was being dropped on `acShutdown`).
-- ABS / lock detection rewritten: now reads `SLIP_RATIO_LIMIT` from each car's `electronics.ini` (`ACD.get_abs_slip_limit`), gates ABS on the player's assist setting (`physics.abs > 0`), and detects lock-up via either a near-zero angular velocity *or* an extreme slip ratio. Previously compared `wheelSlip` directly against `physics.abs`, which is the assist *level* and not a threshold — the indicator misfired on cars without ABS and was unreliable on cars with ABS.
-- Lock indicator now blinks yellow at 5 Hz instead of solid red, making brief lock-ups easier to spot.
-- Default window-active state on a fresh config is now `True` for all five widgets, fixing the "checked-but-empty" symptom after a version bump (AC's app-bar restoration does not fire the activation listener).
-- Config defaults documented in `cfg/settings_defaults.ini` now match the runtime defaults in `Config.__init__`.
+- BoostBar widget + toggle now hidden on naturally aspirated cars.
+- BoostBar option now persists across sessions (was dropped on `acShutdown`).
+- ABS / lock detection rewritten — uses per-car slip limits, fixes false positives on cars w/o ABS.
+- Lock indicator blinks yellow at 5 Hz instead of solid red — brief lock-ups are easier to spot.
+- Default window-active is now `True` for all widgets — fixes "checked-but-empty" after upgrades.
+- `cfg/settings_defaults.ini` now matches the runtime defaults in `Config.__init__`.
 - `7z-maker.bat` accepts an optional version argument and defaults to the current release.
-- Internal: removed dead `ABSSlipList` class and dead `get_abs_slip_ratio_list` method, tightened the `acShutdown` data-flush guard (was checking the same wheel twice), assorted lint/dead-code cleanup.
+- Internal: removed dead ABS slip-list code; tightened `acShutdown` data-flush guard; lint cleanup.
 
 **1.7.0**
 - Added Turbo boost bar.

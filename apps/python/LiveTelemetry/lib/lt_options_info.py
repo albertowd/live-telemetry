@@ -40,7 +40,13 @@ class OptionsInfo:
 
         ac.setSize(self.__window_id, 395, 195)
 
-        for index, name in enumerate(sorted(self.__options.keys())):
+        # Action buttons live outside the toggle-options dict: they
+        # don't carry a persisted bool and so must skip the colouring
+        # / set_option path used by the regular toggles.
+        action_buttons = ("Reset",)
+        button_names = sorted(self.__options.keys()) + list(action_buttons)
+
+        for index, name in enumerate(button_names):
             text = str(name) if name != "Size" else self.__options[name]
             self.__buttons[name] = ac.addButton(self.__window_id, text)
             x = 30 + (floor(index / 4) * 85)
@@ -48,7 +54,8 @@ class OptionsInfo:
             ac.setPosition(self.__buttons[name], x, y)
             ac.setSize(self.__buttons[name], 80, 30)
             ac.setFontAlignment(self.__buttons[name], "center")
-            self.set_option(name, self.__options[name])
+            if name in self.__options:
+                self.set_option(name, self.__options[name])
 
     def get_button_id(self, name):
         """ Returns a button id, or None if the option button was not created. """
@@ -65,6 +72,13 @@ class OptionsInfo:
     def get_window_id(self):
         """ Returns the window id. """
         return self.__window_id
+
+    def reset_position(self, configs) -> None:
+        """ Repositions the options window to the persisted default.
+        OP uses a TL anchor so the saved coords are already the AC
+        setPosition value. """
+        pos = configs.get_window_position("OP")
+        ac.setPosition(self.__window_id, *pos)
 
     def resize(self, size):
         """ Resizes the window. """
