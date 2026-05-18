@@ -168,6 +168,7 @@ All toggleable from the in-game **Options** window (or via Content Manager):
 
 * Engine boost pressure (bar)
 * Engine RPM and live HP (HP = `power(rpm) * (1 + boost) + kers_deploy_kw * 1.341` — deploy term added only while the hybrid battery is draining)
+* Current gear (`R` / `N` / `1`…`N`) and speed (km/h), sitting between the HP and RPM readouts on the engine bar
 * KERS battery state-of-charge — `BAT N%` on hybrids where AC doesn't publish a battery capacity, `BAT X / Y kJ` on cars where it does. Auto-hidden on pure-ICE cars.
 * Driver-aid chip strip (PIT, TC, ABS, DRS, ERS)
 * Fuel (L) and brake-bias (%F) readouts
@@ -204,6 +205,8 @@ Predicting the *true* optimal shift point would require knowing the next-gear RP
 
 The HP value displayed alongside is `hp = power(rpm) * (1 + boost) + kers_deploy_kw * 1.341`. The first term is the legacy ICE figure; the second is the live electric contribution — only added while `kers_charge` is actually falling (real energy leaving the battery, regardless of whether the driver pressed a KERS button or the MCU triggered the deploy itself). `kers_deploy_kw` is EMA-smoothed (α=0.3, ~30 ms half-life at AC's 100 Hz update) so the per-frame `kers_charge` quantisation step doesn't flicker the readout — at the cost of a short tail when deploy stops.
 
+Between the HP (left) and RPM (right) readouts sit the current **gear** and **speed** (km/h), drawn in white so they read independently of the power-curve colour applied to HP / RPM. The gear glyph follows AC1's convention: `R` (reverse), `N` (neutral), then `1`…`N` for forward gears. The layout matches `live-telemetry-evo`'s engine bar (HP — gear — speed — RPM).
+
 Boost bar:
 
 * <span style="color:white">white</span> — boost below 90% of session-max
@@ -216,6 +219,16 @@ Battery bar (KERS hybrids only — auto-hidden on pure-ICE cars, see the `Batter
 * <span style="color:red">red</span> — SoC below 20%
 
 Hybrid detection runs at runtime (in `AUTO` mode): AC1 spawns `kers_charge = 1.0` on plenty of pure-ICE cars and many hybrid mods leave `static.kersMaxJ` at 0, so a static gate would either paint a stuck-full bar on every road car or miss real hybrids. Instead the bar starts hidden and latches visible the first frame it sees actual battery activity — `kers_charge` moving from its spawn value or the throughput counter (`kers_current_kj`) ticking. Pure-ICE cars never trigger either signal so the bar stays hidden permanently.
+
+Driver-aid chip strip (sits below the RPM bar). Each chip only renders while its underlying condition is true, so the strip stays compact:
+
+* <span style="color:yellow">PIT</span> — pit-limiter on (`physics.pitLimiterOn`)
+* <span style="color:green">TC</span> — TC assist enabled (`physics.tc > 0`)
+* <span style="color:blue">ABS</span> — ABS assist enabled (`physics.abs > 0`)
+* <span style="color:white">DRS</span> / <span style="color:blue">DRS</span> — white when DRS is available in the current zone, blue while it is actively deployed
+* <span style="color:yellow">ERS</span> — battery is recharging (`physics.ersIsCharging`)
+
+The bottom row of the engine widget shows two analog readouts — `FUEL X.X L` (current fuel litres) and `BBIAS NN%F` (brake bias, front-percentage). The other slots from the Phase-2 evo engine view (water/oil temp, oil/fuel pressure, exhaust temp, battery voltage) aren't published by AC1's shared memory, so they're omitted rather than rendered as fake zeros.
 
 ### Wheel Window
 

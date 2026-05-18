@@ -38,6 +38,8 @@ class Data:  # pylint: disable=too-few-public-methods,too-many-instance-attribut
         self.ers_power_level = 0
         self.ers_recovery_level = 0
         self.fuel = 0.0
+        # AC1 convention: 0 = reverse, 1 = neutral, 2..N = forward gears.
+        self.gear = 1
         self.kers_charge = 0.0
         self.kers_current_kj = 0.0
         # Positive kW = deploying (battery SoC falling); 0 otherwise.
@@ -59,6 +61,7 @@ class Data:  # pylint: disable=too-few-public-methods,too-many-instance-attribut
         self.max_turbo_boost = 0.0
         self.pit_limiter = False
         self.rpm = 0.0
+        self.speed_kmh = 0.0
         self.tc_level = 0.0
         self.timestamp = 0
         self.turbo_boost = 0.0
@@ -88,11 +91,13 @@ class Data:  # pylint: disable=too-few-public-methods,too-many-instance-attribut
         self.ers_power_level = int(info_arg.physics.ersPowerLevel)
         self.ers_recovery_level = int(info_arg.physics.ersRecoveryLevel)
         self.fuel = float(info_arg.physics.fuel)
+        self.gear = int(info_arg.physics.gear)
         self.kers_charge = float(info_arg.physics.kersCharge)
         self.kers_current_kj = float(info_arg.physics.kersCurrentKJ)
         self.kers_input = float(info_arg.physics.kersInput)
         self.kers_max_j = float(info_arg.static.kersMaxJ)
         self.pit_limiter = bool(info_arg.physics.pitLimiterOn)
+        self.speed_kmh = float(info_arg.physics.speedKmh)
         self.tc_level = float(info_arg.physics.tc)
 
 

@@ -19,6 +19,7 @@ The app uses the mod file directly or the encrypted Kunos files to calculate it'
 [LIST]
 [*]Engine boost pressure (bar).
 [*]Engine RPM with current HP (combustion + electric deploy on hybrids).
+[*]Current gear ([B]R[/B] / [B]N[/B] / [B]1[/B]…[B]N[/B]) and speed (km/h), centred between the HP and RPM readouts on the engine bar.
 [*]KERS battery state-of-charge bar (hybrid cars only).
 [*]Driver-aid chip strip: PIT, TC, ABS, DRS, ERS — each lights up only while its condition is true.
 [*]Fuel (L) and brake-bias (%F) readouts.
@@ -59,6 +60,8 @@ The power curve is a complex thing to calculate because it depends the actual RP
 
 The HP value displayed alongside is `hp = power(rpm) × (1 + boost) + kers_deploy_kw × 1.341`. The first term is the legacy ICE figure; the second is the live electric contribution — only added while the battery is actually losing charge (real energy leaving the cells, regardless of whether the driver pressed a KERS button or the MCU triggered the deploy on its own). The deploy reading is EMA-smoothed so the per-frame quantisation of AC's `kers_charge` field doesn't flicker the HP number.
 
+Centred between the HP (left) and RPM (right) readouts on the engine bar are the current [B]gear[/B] and [B]speed[/B] (km/h), drawn in white so they read independently of the power-curve colour applied to HP / RPM. The gear glyph follows AC1's convention: [B]R[/B] (reverse), [B]N[/B] (neutral), then [B]1[/B]…[B]N[/B] for forward gears — matching the [I]live-telemetry-evo[/I] engine bar layout.
+
 Also, it displays the current boost bar pression:
 
 [LIST]
@@ -76,7 +79,7 @@ On hybrid cars, a [B]Battery[/B] bar stacks above the boost row — fill width t
 
 Hybrid detection is runtime-aware in `AUTO` mode: AC1 spawns `kers_charge = 1.0` on plenty of pure-ICE cars and many hybrid mods leave the battery capacity at 0, so a static gate would either show a stuck-full bar on every road car or miss real hybrids. The bar starts hidden and reveals itself the first frame it sees actual battery activity (`kers_charge` moves from spawn, or the energy-throughput counter ticks). The [B]Battery[/B] button in the Options window cycles three modes — colour-coded on the button face: yellow [B]AUTO[/B] (detector decides), red [B]ON[/B] (force visible, useful if a mod's signals are missed), white [B]OFF[/B] (always hidden).
 
-Below the RPM bar, a strip of driver-aid chips lights up only while each condition is true (so the bar stays compact): [B]PIT[/B] limiter, [B]TC[/B] (bright when cutting, dim when armed), [B]ABS[/B] (same scheme), [B]DRS[/B] (bright when deployed), [B]ERS[/B] charging. The bottom row shows fuel litres and brake-bias percentage.
+Below the RPM bar, a strip of driver-aid chips lights up only while each condition is true (so the bar stays compact): [B]PIT[/B] limiter (yellow), [B]TC[/B] assist enabled (green), [B]ABS[/B] assist enabled (blue), [B]DRS[/B] (white when available, blue when actually deployed), and [B]ERS[/B] charging (yellow). The bottom row shows fuel litres and brake-bias percentage.
 
 [SIZE=5][B]Wheel Window[/B][/SIZE]
 

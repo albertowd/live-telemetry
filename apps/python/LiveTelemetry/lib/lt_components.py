@@ -653,6 +653,18 @@ class RPMPower(BoxComponent):
         ac.setFontAlignment(self.__lb_hp, "left")
         ac.setCustomFont(self.__lb_hp, "Arial", 0, 1)
 
+        # Gear + speed sit centred between HP (left) and RPM (right),
+        # matching the live-telemetry-evo engine bar layout. Both kept
+        # in their own labels so they can be repositioned independently
+        # when the widget resolution changes.
+        self.__lb_gear = ac.addLabel(window_id, "-")
+        ac.setFontAlignment(self.__lb_gear, "center")
+        ac.setCustomFont(self.__lb_gear, "Arial", 0, 1)
+
+        self.__lb_speed = ac.addLabel(window_id, "- KMH")
+        ac.setFontAlignment(self.__lb_speed, "center")
+        ac.setCustomFont(self.__lb_speed, "Arial", 0, 1)
+
         self.__lb_rpm = ac.addLabel(window_id, "- RPM")
         ac.setFontAlignment(self.__lb_rpm, "right")
         ac.setCustomFont(self.__lb_rpm, "Arial", 0, 1)
@@ -661,6 +673,8 @@ class RPMPower(BoxComponent):
 
     def clear(self) -> None:
         ac.setText(self.__lb_hp, "")
+        ac.setText(self.__lb_gear, "")
+        ac.setText(self.__lb_speed, "")
         ac.setText(self.__lb_rpm, "")
 
     def draw(self, data, delta_t: float) -> None:
@@ -683,16 +697,40 @@ class RPMPower(BoxComponent):
 
         ac.setFontColor(self.__lb_hp, color[0], color[1], color[2], color[3])
         ac.setText(self.__lb_hp, "{} HP".format(hp))
+        # AC1 gear convention: 0 = R, 1 = N, 2..N = forward. Map to a
+        # single-char glyph so a 2-digit speed next to it still reads
+        # cleanly inside the centre slot.
+        if data.gear == 0:
+            gear_text = "R"
+        elif data.gear == 1:
+            gear_text = "N"
+        else:
+            gear_text = "{}".format(data.gear - 1)
+        ac.setFontColor(self.__lb_gear, *Colors.white)
+        ac.setText(self.__lb_gear, gear_text)
+        ac.setFontColor(self.__lb_speed, *Colors.white)
+        ac.setText(self.__lb_speed, "{} KMH".format(int(data.speed_kmh)))
         ac.setFontColor(self.__lb_rpm, color[0], color[1], color[2], color[3])
         ac.setText(self.__lb_rpm, "{} RPM".format(rpm))
 
     def resize_fonts(self, resolution: str) -> None:
+        bottom = self._box.rect[1] + self._box.rect[3]
         ac.setFontSize(self.__lb_hp, self._font)
+        ac.setPosition(self.__lb_hp, self._box.rect[0], bottom)
+        # Gear at 40% of the bar width, speed at 60% — symmetric around
+        # the centre so the two centred labels split the middle band
+        # without colliding with the HP / RPM edges.
+        ac.setFontSize(self.__lb_gear, self._font)
         ac.setPosition(
-            self.__lb_hp, self._box.rect[0], self._box.rect[1] + self._box.rect[3])
+            self.__lb_gear,
+            self._box.rect[0] + self._box.rect[2] * 0.4, bottom)
+        ac.setFontSize(self.__lb_speed, self._font)
+        ac.setPosition(
+            self.__lb_speed,
+            self._box.rect[0] + self._box.rect[2] * 0.6, bottom)
         ac.setFontSize(self.__lb_rpm, self._font)
         ac.setPosition(
-            self.__lb_rpm, self._box.rect[0] + self._box.rect[2], self._box.rect[1] + self._box.rect[3])
+            self.__lb_rpm, self._box.rect[0] + self._box.rect[2], bottom)
 
 
 class Suspension(BoxComponent):

@@ -87,6 +87,14 @@ class Data:  # pylint: disable=too-few-public-methods,too-many-instance-attribut
         opposite_index = index + (1 if wheel.is_left() else -1)
         susp_diff = self.susp_t - python_travel[opposite_index]
         self.height -= ((susp_diff / 2.0) * 1000.0)
+        # Clamp negative readings to 0 — the per-axle ride height plus
+        # the body-roll correction can dip below the surface on big
+        # compressions / kerb strikes; the chassis can't physically go
+        # under the ground, so floor it at 0 mm. The Height widget's
+        # bottom-out flash already triggers below 0.02 mm so the alert
+        # is preserved.
+        if self.height < 0.0:
+            self.height = 0.0
 
         self.timestamp = info_arg.graphics.iCurrentTime
         self.tire_d = info_arg.physics.tyreDirtyLevel[index] * 4.0
