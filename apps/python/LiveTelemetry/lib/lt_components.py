@@ -1179,20 +1179,20 @@ class Wear(BoxComponent):
         bar_w = self._box.rect[2]
         self._back.draw([bar_x, bar_y, bar_w, bar_h])
 
-        # Coloured fill inside the border, anchored on the inner edge
-        # so the two wheels read as mirror images: wear empties from
-        # the outer side of each tyre toward the inner side (matches
-        # the IMO band's screen-centre-facing inner convention used by
-        # TireTemp._zone_xs).
-        pad = 1.5 * self._mult
-        inner_w = (bar_w - 2.0 * pad) * ratio
-        if inner_w > 0.0:
+        # Coloured fill flush with the bar interior — the white border
+        # is painted OUTSIDE the rect by Background.draw, so any inset
+        # here leaves a visible black gap between border and fill.
+        # Anchored on the inner edge so the two wheels read as mirror
+        # images: wear empties from the outer side of each tyre toward
+        # the inner side (matches TireTemp._zone_xs's convention).
+        fill_w = bar_w * ratio
+        if fill_w > 0.0:
             ac.glColor4f(*color)
             if self.__wheel.is_left():
-                fill_x = bar_x + bar_w - pad - inner_w
+                fill_x = bar_x + bar_w - fill_w
             else:
-                fill_x = bar_x + pad
-            ac.glQuad(fill_x, bar_y + pad, inner_w, bar_h - 2.0 * pad)
+                fill_x = bar_x
+            ac.glQuad(fill_x, bar_y, fill_w, bar_h)
 
     def resize_fonts(self, resolution: str) -> None:
         ac.setFontSize(self.__lb, self._font)
