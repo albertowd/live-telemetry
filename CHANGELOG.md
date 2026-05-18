@@ -1,12 +1,15 @@
 # Changelog
 
 **1.8.5**
-- KERS-aware HP on the RPM bar: combustion HP plus electric deploy kW while the battery is draining.
-- EMA smoothing on `kers_deploy_kw` so AC's quantised SoC doesn't flicker the HP readout.
-- New `BatteryBar` widget — fill = SoC; shows kJ when AC exposes battery capacity, else percentage.
-- BatteryBar auto-hides on pure-ICE cars; reveals on the first frame of detected battery activity.
-- Tri-state `Battery` toggle in Options (yellow AUTO / red ON / white OFF), static label.
-- Deploy detection gates on SoC falling, not the KERS button — fixes false-positive HP during regen.
+- KERS-aware HP on RPM bar: combustion HP + electric deploy kW while battery drains.
+- EMA smoothing on KERS deploy kW so quantised SoC doesn't flicker the HP readout.
+- New `BatteryBar` widget — fill = SoC; shows kJ if exposed, else percentage.
+- BatteryBar auto-hides on pure-ICE cars; reveals on first frame of battery activity.
+- Tri-state `Battery` toggle in Options (yellow AUTO / red ON / white OFF).
+- Deploy detection gates on SoC falling, not KERS button — kills false HP during regen.
+- Tire-wear bar fill flush with the border — no black gap between border and fill.
+- Tire-wear bar mirrored on left wheels — fill anchors to each tyre's inner edge.
+- Body-roll height correction uses Python-API travel for both wheels — fixes mod readings.
 
 **1.8.1**
 - IMO temperature readouts (inner / middle / outer) larger and bold for clearer reading.

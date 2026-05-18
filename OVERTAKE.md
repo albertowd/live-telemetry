@@ -116,7 +116,7 @@ Pressure icon tinted by per-compound normalised pressure (`PRESSURE_IDEAL` in `t
 [*][COLOR=rgb(226, 80, 65)]red[/COLOR]: above 105%.
 [/LIST]
 [*][B]Tire wear[/B].
-Horizontal "Tire Wear" bar in the brake column (between the lock and pressure icons), left → right fill (full = fresh). AC's `tyreWear` is actually a grip / health value that climbs during warm-up and only drops once the tyre wears, so the bar self-calibrates against the per-wheel peak observed in the session — a fresh set always reads 100% and the bar only retreats once grip falls below that peak.
+Horizontal "Tire Wear" bar in the brake column (between the lock and pressure icons); the coloured fill anchors to each tyre's inner edge so the left and right widgets read as mirror images — wear empties from the outer side on both, full = fresh. AC's `tyreWear` is actually a grip / health value that climbs during warm-up and only drops once the tyre wears, so the bar self-calibrates against the per-wheel peak observed in the session — a fresh set always reads 100% and the bar only retreats once grip falls below that peak.
 [LIST]
 [*][COLOR=rgb(97, 189, 109)]green[/COLOR]: above 50% of the peak-grip window.
 [*][COLOR=rgb(247, 218, 100)]yellow[/COLOR]: between 50% and 20%.
