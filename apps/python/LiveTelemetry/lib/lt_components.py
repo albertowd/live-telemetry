@@ -1129,6 +1129,7 @@ class Wear(BoxComponent):
         # pressure icon (starts y=171) — midpoint y=115.5, top y=100.
         super().__init__(
             70.0 if wheel.is_left() else 382.0, 100.0, 60.0, 32.0, font=14.0)
+        self.__wheel = wheel
         self._back.color = Colors.black
         self._back.border = Colors.white
         self._back.size = 1.5
@@ -1178,12 +1179,20 @@ class Wear(BoxComponent):
         bar_w = self._box.rect[2]
         self._back.draw([bar_x, bar_y, bar_w, bar_h])
 
-        # Coloured fill inside the border (left→right, full = fresh).
+        # Coloured fill inside the border, anchored on the inner edge
+        # so the two wheels read as mirror images: wear empties from
+        # the outer side of each tyre toward the inner side (matches
+        # the IMO band's screen-centre-facing inner convention used by
+        # TireTemp._zone_xs).
         pad = 1.5 * self._mult
         inner_w = (bar_w - 2.0 * pad) * ratio
         if inner_w > 0.0:
             ac.glColor4f(*color)
-            ac.glQuad(bar_x + pad, bar_y + pad, inner_w, bar_h - 2.0 * pad)
+            if self.__wheel.is_left():
+                fill_x = bar_x + bar_w - pad - inner_w
+            else:
+                fill_x = bar_x + pad
+            ac.glQuad(fill_x, bar_y + pad, inner_w, bar_h - 2.0 * pad)
 
     def resize_fonts(self, resolution: str) -> None:
         ac.setFontSize(self.__lb, self._font)
