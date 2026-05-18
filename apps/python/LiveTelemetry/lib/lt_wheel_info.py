@@ -77,10 +77,15 @@ class Data:  # pylint: disable=too-few-public-methods,too-many-instance-attribut
         # um to mm
         self.height = info_arg.physics.rideHeight[int(index / 2)] * 1000.0
 
-        # Get susp diff
-        susp_diff = self.susp_t - \
-            info_arg.physics.suspensionTravel[index +
-                                              (1 if wheel.is_left() else -1)]
+        # Body-roll correction across the axle. Use python_travel for
+        # BOTH wheels — shared memory is the unreliable-on-mods source
+        # the block above already swapped out, so mixing the two
+        # sources here means the diff is wrong on exactly the mods the
+        # Python-API fallback was added to defend against. F1-style
+        # cars with tiny absolute travel are the most sensitive
+        # (correction magnitude ~ rest-state height).
+        opposite_index = index + (1 if wheel.is_left() else -1)
+        susp_diff = self.susp_t - python_travel[opposite_index]
         self.height -= ((susp_diff / 2.0) * 1000.0)
 
         self.timestamp = info_arg.graphics.iCurrentTime
