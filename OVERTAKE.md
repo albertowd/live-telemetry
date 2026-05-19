@@ -12,7 +12,7 @@ Now there is a standalone executable version of this plugin that can read AC1, A
 
 The app uses the mod file directly or the encrypted Kunos files to calculate it's limits, does not need configuration.
 
-[MEDIA=youtube]ISR4TEXZyTw[/MEDIA]
+[MEDIA=youtube]OBR51y4wUEo[/MEDIA]
 
 [SIZE=5][B]Telemetry Info[/B][/SIZE]
 
