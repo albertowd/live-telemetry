@@ -93,8 +93,7 @@ class Data:  # pylint: disable=too-few-public-methods,too-many-instance-attribut
         # under the ground, so floor it at 0 mm. The Height widget's
         # bottom-out flash already triggers below 0.02 mm so the alert
         # is preserved.
-        if self.height < 0.0:
-            self.height = 0.0
+        self.height = max(self.height, 0.0)
 
         self.timestamp = info_arg.graphics.iCurrentTime
         self.tire_d = info_arg.physics.tyreDirtyLevel[index] * 4.0
